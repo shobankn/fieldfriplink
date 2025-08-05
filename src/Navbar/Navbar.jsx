@@ -1,0 +1,58 @@
+import React, { useState } from 'react';
+
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <header className="shadow-md bg-white px-[41px] py-[16px]">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+        {/* Logo + Text */}
+        <div className="flex items-center space-x-3">
+          <img src="/bus-logo.png" alt="Logo" className="h-10 w-auto" />
+          <div>
+            <h1 className="text-lg font-bold">FieldTripLink</h1>
+            <p className="text-sm text-gray-600 leading-4">
+              Shared Drivers. Connected Trips. Enriched Learning.
+            </p>
+          </div>
+        </div>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-6">
+          <a href="#" className="text-red-600 border-b-2 border-red-600 pb-0.5">Home</a>
+          <a href="#" className="text-gray-800 hover:text-red-600">About Us</a>
+          <a href="#" className="text-gray-800 hover:text-red-600">Contact</a>
+          <button className="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-md">
+            Create Account
+          </button>
+        </nav>
+
+        {/* Mobile Toggle Button (you can replace with your own icons/images) */}
+        <div className="md:hidden">
+          <button onClick={() => setIsOpen(!isOpen)}>
+            {/* You can replace below spans with your own icon or image */}
+            <span className="text-2xl">
+              {isOpen ? '✖' : '☰'}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isOpen && (
+        <div className="md:hidden bg-white border-t">
+          <nav className="flex flex-col space-y-4 px-4 py-3">
+            <a href="#" className="text-red-600 border-b-2 border-red-600 w-fit">Home</a>
+            <a href="#" className="text-gray-800 hover:text-red-600">About Us</a>
+            <a href="#" className="text-gray-800 hover:text-red-600">Contact</a>
+            <button className="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-md w-fit">
+              Create Account
+            </button>
+          </nav>
+        </div>
+      )}
+    </header>
+  );
+};
+
+export default Navbar;

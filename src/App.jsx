@@ -57,11 +57,11 @@ function App() {
 
 
 
-      <Route path='/' element={<Home/>}/>,
+      <Route path='/home' element={<Home/>}/>,
       <Route path='/about' element={<About/>}/>
       <Route path='/contactus' element={<Contactus/>}/>
       <Route path='/driverdashboard' element={<Driverdashboard/>}/>
-      <Route path='/login' element={<Login/>}/>
+      <Route path='/' element={<Login/>}/>
       <Route path='/register' element={<Resgister/>}/>
       <Route path='/forgetpassword' element={<ForgetPassword/>}/>
       <Route path='/notifications' element={<Notifications/>}/>

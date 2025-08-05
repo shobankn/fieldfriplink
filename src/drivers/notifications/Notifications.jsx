@@ -108,6 +108,7 @@ const Notifications = () => {
                   {notifications.filter((n) => n.read).length}
                 </h2>
               </div>
+              <br />
               <div className="flex gap-2 items-center">
                 <button
                   onClick={markAllRead}

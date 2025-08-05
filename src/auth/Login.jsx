@@ -1,8 +1,20 @@
 import React, { useState } from 'react';
-import logo from '../images/logo.png';
+import { useNavigate } from 'react-router-dom';
+import logo from '../images/logo.png'; // Ensure the logo path is correct
 
 const Login = () => {
   const [userType, setUserType] = useState('School');
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Add your authentication logic here (e.g., API call)
+    if (userType === 'Driver') {
+      navigate('/driverdashboard');
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-[#f9fafb]">
@@ -52,7 +64,7 @@ const Login = () => {
           <div className="flex-grow h-[1px] bg-[#e5e7eb]"></div>
         </div>
 
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block mb-1 text-sm font-medium">
               {userType === 'Driver' ? 'Company Email' : 'Email'}
@@ -61,6 +73,7 @@ const Login = () => {
               type="email"
               className="w-full border border-[#d1d5db] rounded-md px-3 py-2"
               placeholder={userType === 'Driver' ? 'Enter company email' : 'Enter your email'}
+              required
             />
           </div>
 
@@ -70,6 +83,7 @@ const Login = () => {
               type="password"
               className="w-full border border-[#d1d5db] rounded-md px-3 py-2"
               placeholder="Enter your password"
+              required
             />
           </div>
 

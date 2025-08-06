@@ -35,6 +35,7 @@ import SchoolResponse from './drivers/schoolresponse/Schoolresponse';
 import Contactus from './landgingpage/ContactUs/Contactus';
 import LiveGPSTracking from './drivers/myrides/LiveTracking';
 import EmailVarification from './auth/EmailVarification';
+import PinVarification from './auth/PinVarification';
 
 function App() {
 
@@ -66,6 +67,7 @@ function App() {
       <Route path='/register' element={<Resgister/>}/>
       <Route path='/forgetpassword' element={<ForgetPassword/>}/>
       <Route path='/emailvarification' element={<EmailVarification/>}/>
+      <Route path='/pinverification' element={<PinVarification/>}/>
       <Route path='/notifications' element={<Notifications/>}/>
       <Route path='/proposals' element={<MyProposals/>}/>
       <Route path='/myrides' element={<MyRIdes/>}/>

@@ -1,15 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import logo from '../images/logo.png';
 
-const EmailVarification = () => {
+const EmailVerification = () => {
+  const [userType, setUserType] = useState('School');
+
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex font-sans">
       {/* Left Section */}
       <div className="w-[45%] bg-white flex items-center justify-center px-[35px]">
         <div className="text-center">
-                 <img src={logo} alt="Logo" className="w-full" />
-         
-        
+          <img src={logo} alt="Logo" className="w-full" />
         </div>
       </div>
 
@@ -21,16 +21,26 @@ const EmailVarification = () => {
         </p>
 
         {/* Toggle */}
-        <div className="flex mb-6 w-[400px] h-[58px] mx-auto rounded-[8px] overflow-hidden border border-gray-200 bg-white p-[5px]">
+        <div className="flex mb-6 w-[400px] h-[48px] mx-auto rounded-[8px] overflow-hidden border border-gray-200 bg-white p-[5px]">
           <div className="relative flex w-full">
-            <div className="absolute w-1/2 h-full bg-[#DE3B40] rounded-[8px]" />
+            <div
+              className={`absolute w-1/2 h-full bg-[#DE3B40] rounded-[6px] transition-transform duration-300 ease-in-out ${
+                userType === 'School' ? 'translate-x-0' : 'translate-x-full'
+              }`}
+            />
             <button
-              className="relative w-1/2 py-2 text-[14px] font-semibold z-10 text-white"
+              onClick={() => setUserType('School')}
+              className={`relative w-1/2 py-2 text-[14px] font-semibold z-10 transition-colors duration-300 ${
+                userType === 'School' ? 'text-white' : 'text-[#DE3B40]'
+              }`}
             >
               School
             </button>
             <button
-              className="relative w-1/2 py-2 text-[14px] font-semibold z-10 text-[#DE3B40]"
+              onClick={() => setUserType('Driver')}
+              className={`relative w-1/2 py-2 text-[14px] font-semibold z-10 transition-colors duration-300 ${
+                userType === 'Driver' ? 'text-white' : 'text-[#DE3B40]'
+              }`}
             >
               Driver
             </button>
@@ -43,14 +53,14 @@ const EmailVarification = () => {
             <input
               type="email"
               placeholder="Enter your email"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-[14px]"
+              className="w-full border border-gray-300 rounded-[8px] px-3 h-[48px] text-[14px] focus:outline-none focus:ring-2 focus:ring-[#DE3B40] transition-colors duration-300"
               required
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-[#DE3B40] hover:bg-[#DE3B40] text-white h-[48px] rounded-[8px] font-medium mb-4 mt-[55px] text-[14px]"
+            className="w-full bg-[#DE3B40] hover:bg-[#B83238] text-white h-[48px] rounded-[8px] font-medium mb-4 mt-[55px] text-[14px] transition-colors duration-300 ease-in-out"
           >
             Change Password
           </button>
@@ -60,4 +70,4 @@ const EmailVarification = () => {
   );
 };
 
-export default EmailVarification;
+export default EmailVerification;

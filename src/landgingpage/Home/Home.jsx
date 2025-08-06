@@ -1,9 +1,9 @@
 import React from 'react';
-
+import Navbar from '../../Navbar/Navbar'
 const Home = () => {
   return (
     <div className="w-full overflow-x-hidden max-w-[1920px] mx-auto">
-      
+      <Navbar/>
 
       {/* Hero Section */}
       <section className="bg-[#d02323] text-white px-[80px] flex flex-col lg:flex-row items-center justify-between gap-10 h-[500px]">

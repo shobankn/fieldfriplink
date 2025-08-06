@@ -83,7 +83,7 @@ const DriverVerificationDetails = () => {
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </button> */}
             <div className="flex items-center gap-3">
-              <h1 className="text-xl md:text-2xl archivo-bold text-gray-900">Driver Verification Details</h1>
+              <h1 className="text-[18px] md:text-2xl archivo-bold text-gray-900">Driver Verification Details</h1>
               <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm inter-medium">
                 {driverData.submissionDetails.status}
               </span>
@@ -93,16 +93,16 @@ const DriverVerificationDetails = () => {
           <div className="flex gap-3">
             <button 
               onClick={() => handleStatusChange('Suspended')}
-              className=" flex px-4 py-2 text-white bg-green-400 rounded-[10px]  inter-medium transition-colors"
+              className=" flex text-[14px] sm:text-[16px]  px-3 py-2 sm:px-4 sm:py-2 text-white bg-green-400 rounded-[10px]  inter-medium transition-colors"
             >
-               <Check className='w-5 h-5 mr-1 my-auto'/>
+               <Check className='w-4 h-4 sm:w-5 sm:h-5 mr-1 my-auto'/>
               Verify Driver
             </button>
             <button 
               onClick={() => handleStatusChange('Declined')}
-              className=" content-center flex px-4 py-2 text-white bg-red-500 rounded-[10px]  inter-medium transition-colors"
+              className=" content-center flex  text-[14px] sm:text-[16px]  px-3 py-2 sm:px-4 sm:py-2 text-white bg-red-500 rounded-[10px]  inter-medium transition-colors"
             >
-              <X className='w-5 h-5 mr-1 my-auto'/>
+              <X className='w-4 h-4 sm:w-5 sm:h-5 mr-1 my-auto'/>
               Reject
             </button>
           </div>
@@ -110,12 +110,12 @@ const DriverVerificationDetails = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-full mx-auto px-4 md:px-6 py-6">
+      <div className="max-w-full mx-auto  md:px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Main Details */}
           <div className="lg:col-span-2 space-y-6">
             {/* Personal Information */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200  p-6">
               <div className="flex items-center gap-2 mb-6">
                 <User className="w-5 h-5 text-red-500" />
                 <h3 className="text-lg inter-semibold text-gray-900">Personal Information</h3>

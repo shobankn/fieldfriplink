@@ -12,7 +12,7 @@ function Proposals() {
       <div className="flex-1 flex flex-col min-h-screen lg:ml-58">
         <HeaderTopBar onMenuClick={() => setSidebarOpen(true)} className="lg:ml-58" />
         
-        <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
+        <main className="flex-1  lg:p-6 overflow-y-auto">
           <JobProposalsInterface />
         </main>
       </div>

@@ -42,13 +42,13 @@ const ProposalDetailsPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
+      <div className="max-w-full mx-auto  md:px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Main Details */}
           <div className="lg:col-span-2 space-y-6">
             {/* Trip Header */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl inter-semibold text-gray-900 mb-4">{proposal.title}</h2>
+              <h2 className=" text-[20px] sm:text-2xl inter-semibold text-gray-900 mb-4">{proposal.title}</h2>
               <div className="flex flex-wrap gap-3">
                 <span className="px-3 py-1 bg-[#EDE9FE] text-[#8B5CF6] rounded-full text-sm font-medium">
                   {proposal.type}

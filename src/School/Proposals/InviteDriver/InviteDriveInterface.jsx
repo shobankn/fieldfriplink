@@ -130,103 +130,92 @@ const InviteDriversInterface = () => {
 
         {/* Drivers List */}
         <div className="space-y-6">
-          {filteredDrivers.map((driver) => (
-            <div
-              key={driver.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                {/* Left Section */}
-                <div className="flex items-start gap-4 flex-1">
-                  {/* Avatar */}
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden flex-shrink-0 border-2 border-gray-200">
-                    <img
-                      src={driver.profileImage}
-                      alt={driver.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        // Fallback to initials if image fails to load
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                    <div className={`w-full h-full ${driver.avatarColor} flex items-center justify-center hidden`}>
-                      <span className="text-white inter-bold text-lg sm:text-xl">
-                        {driver.initials}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Driver Info */}
-                  <div className="flex-1 min-w-0">
-                    {/* Name and Rating */}
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-1">
-                      <h3 className="text-lg sm:text-xl inter-semibold text-gray-900 truncate">
-                        {driver.name}
-                      </h3>
-                      <div className="flex items-center gap-2">
-                        {/* <div className="flex items-center gap-1">
-                          {renderStars(driver.rating)}
-                        </div> */}
-                       
-                      </div>
-                    </div>
-
-                    {/* Location */}
-              <div className="flex flex-col gap-3 mb-3">
-            {/* Rating Section */}
-            <div className="flex items-start gap-2">
-              <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
-                <span className="text-sm inter-medium text-gray-900">{driver.rating}</span>
-                <span className="text-sm  inter-regular text-gray-500">({driver.reviews} reviews)</span>
-            </div>
-
-            {/* Location Section */}
-            <div className="flex items-start gap-2">
-              <MapPin className="w-4 h-4 inter-regular text-gray-400 flex-shrink-0 mt-0.5" />
-              <span className="text-sm inter-regular text-gray-600">{driver.location}</span>
+  {filteredDrivers.map((driver) => (
+    <div
+      key={driver.id}
+      className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200"
+    >
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        {/* Left Section */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 flex-1 text-center sm:text-left">
+          {/* Avatar */}
+          <div className="w-16 h-16 sm:w-14 sm:h-14 rounded-full overflow-hidden flex-shrink-0 border-2 border-gray-200">
+            <img
+              src={driver.profileImage}
+              alt={driver.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+            <div className={`w-full h-full ${driver.avatarColor} flex items-center justify-center hidden`}>
+              <span className="text-white inter-bold text-lg sm:text-xl">
+                {driver.initials}
+              </span>
             </div>
           </div>
 
+          {/* Driver Info */}
+          <div className="flex-1 min-w-0">
+            {/* Name and Rating */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-1">
+              <h3 className="text-lg sm:text-xl inter-semibold text-gray-900 truncate">
+                {driver.name}
+              </h3>
+            </div>
 
+            {/* Rating & Location */}
+            <div className="flex flex-col gap-3 mb-3">
+              <div className="flex items-center justify-center sm:justify-start gap-2">
+                <Star className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+                <span className="text-sm inter-medium text-gray-900">{driver.rating}</span>
+                <span className="text-sm inter-regular text-gray-500">({driver.reviews} reviews)</span>
+              </div>
 
-
-                    {/* Completed Stats */}
-                    <div className="mb-4">
-                      <div className="text-sm inter-regular text-gray-600 mb-1">Completed:</div>
-                      <div className="inter-semibold text-gray-900">
-                        {driver.completed} {driver.completedText}
-                      </div>
-                    </div>
-
-                    {/* Badges */}
-                    <div className="flex flex-wrap gap-2">
-                      {driver.badges.map((badge, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-[#F3F4F6] text-[#3B4555] text-sm rounded-full inter-medium"
-                        >
-                          {badge}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Section - Invite Button */}
-                <div className="flex items-start gap-2 sm:flex-col sm:items-end">
-                  <button
-                    onClick={() => handleInvite(driver)}
-                    className="bg-red-600 cursor-pointer hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors duration-200 text-sm sm:text-base whitespace-nowrap"
-                  >
-                    <Mail  className="w-4 h-4"/>
-                    Invite
-                  </button>
-                </div>
+              <div className="flex items-center justify-center sm:justify-start gap-2">
+                <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <span className="text-sm inter-regular text-gray-600">{driver.location}</span>
               </div>
             </div>
-          ))}
+
+            {/* Completed Stats */}
+            <div className="mb-4">
+              <div className="text-sm inter-regular text-gray-600 mb-1">Completed:</div>
+              <div className="inter-semibold text-gray-900">
+                {driver.completed} {driver.completedText}
+              </div>
+            </div>
+
+            {/* Badges */}
+            <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+              {driver.badges.map((badge, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-[#F3F4F6] text-[#3B4555] text-sm rounded-full inter-medium"
+                >
+                  {badge}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
+
+        {/* Right Section - Invite Button */}
+        <div className="flex justify-center sm:justify-end">
+          <button
+            onClick={() => handleInvite(driver)}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors duration-200 text-sm sm:text-base whitespace-nowrap"
+          >
+            <Mail className="w-4 h-4" />
+            Invite
+          </button>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
 
         {/* Empty State */}
         {filteredDrivers.length === 0 && (

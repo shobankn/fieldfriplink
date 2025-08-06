@@ -86,7 +86,7 @@ const PostTripForm = () => {
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-white rounded-lg border border-gray-200 m-0 sm:m-4">
 
           {/* Basic Information Section */}
-          <div className="p-3 sm:p-6 ml-4 mt-4 ">
+          <div className=" p-0  sm:p-6   ml-2 mr-2 sm:ml-4 mt-4 ">
             <div className="flex items-center space-x-2 mb-6">
               <FileText className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
@@ -142,7 +142,7 @@ const PostTripForm = () => {
           </div>
 
           {/* Schedule Section */}
-          <div className=" mr-4 mt-4 p-3 sm:p-6">
+          <div className="p-0  sm:p-6   ml-2 mr-2 sm:ml-4 mt-4">
             <div className="flex items-center space-x-2 mb-6">
               <Clock className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">Schedule</h2>
@@ -213,7 +213,7 @@ const PostTripForm = () => {
           </div>
 
           {/* Locations Section */}
-          <div className=" ml-4 p-3 sm:p-6">
+          <div className="p-0  sm:p-6   ml-2 mr-2 sm:ml-4 mt-4">
             <div className="flex items-center space-x-2 mb-6">
               <MapPin className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">Locations</h2>
@@ -265,7 +265,7 @@ const PostTripForm = () => {
           </div>
 
           {/* Requirements Section */}
-          <div className=" mr-4  p-3 sm:p-6">
+          <div className="p-0  sm:p-6   ml-2 mr-2 sm:ml-4 mt-4">
             <div className="flex items-center space-x-2 mb-6">
               <Users className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">Requirements</h2>
@@ -325,7 +325,7 @@ const PostTripForm = () => {
           </div>
 
           {/* Budget Section */}
-          <div className=" p-3 sm:p-6 mr-4 mb-4 lg:col-start-2">
+          <div className=" p-0  sm:p-6   ml-2 mr-2 sm:ml-4 mt-4 lg:col-start-2">
             <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
               <div className="lg:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">

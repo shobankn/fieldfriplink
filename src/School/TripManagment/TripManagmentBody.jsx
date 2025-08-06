@@ -204,7 +204,7 @@ const TripManagementBody = () => {
       <div className="max-w-full mx-auto">
         {/* Filter Buttons */}
         <div className="mb-6">
-          <div className="flex bg-white shadow-sm p-4 flex-wrap justify-around gap-2">
+          <div className="flex overflow-x-hidden bg-white shadow-sm p-4 flex-wrap justify-around gap-2">
   {filterButtons.map((filter) => {
     const Icon = filterIcons[filter];
     return (

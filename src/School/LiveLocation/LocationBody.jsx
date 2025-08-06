@@ -136,7 +136,7 @@ const LiveTrackingComponent = () => {
           </div>
 
           {/* Right Column - Live Location */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6  lg:col-span-2">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 sm:p-6  lg:col-span-2">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg inter-semibold text-gray-900">
                 {selectedTrip.name} - Live Location
@@ -160,8 +160,8 @@ const LiveTrackingComponent = () => {
               
               {/* Location Pin */}
               <div className="relative z-10 text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500 rounded-full shadow-lg animate-bounce">
-                  <MapPin className="w-8 h-8 text-white" />
+                <div className="inline-flex items-center justify-center w-10 h-10 sm:w-16 sm:h-16 bg-blue-500 rounded-full shadow-lg animate-bounce">
+                  <MapPin className=" sm:w-8 sm:h-8 text-white" />
                 </div>
                 <div className="mt-4 max-w-xs">
                   <h3 className="font-semibold text-gray-900 mb-2">Interactive Map</h3>
@@ -213,40 +213,37 @@ const LiveTrackingComponent = () => {
 
             {/* Statistics */}
            <div className="flex">
-  <div className="grid grid-cols-2 gap-8 w-full max-w-md">
+  <div className="grid grid-cols-2 gap-4 sm:gap-8 w-full max-w-md">
     {/* Students */}
-    <div className="flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5">
-  {/* Icon */}
-  <div className="flex-shrink-0 flex items-center justify-center mr-4">
-    <Users className="w-7 h-7  text-blue-500" />
-  </div>
+    <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5">
+      {/* Icon */}
+      <div className="mb-2 sm:mb-0 sm:mr-4 flex items-center justify-center">
+        <Users className="w-7 h-7 text-blue-500" />
+      </div>
 
-  {/* Text Content */}
-  <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-    <span className="text-sm sm:text-base inter-medium text-gray-600">Students</span>
-    <span className="text-2xl sm:text-3xl font-bold text-gray-900">
-      {selectedTrip.totalStudents}
-    </span>
-  </div>
-</div>
-
+      {/* Text Content */}
+      <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+        <span className="text-sm sm:text-base inter-medium text-gray-600">Students</span>
+        <span className="text-2xl sm:text-3xl font-bold text-gray-900">{selectedTrip.totalStudents}</span>
+      </div>
+    </div>
 
     {/* No. of Buses */}
-   <div className="flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5">
-  {/* Icon */}
-  <div className="flex-shrink-0 flex items-center justify-center mr-4">
-    <Bus className="w-8 h-8 text-orange-500" />
-  </div>
+    <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5">
+      {/* Icon */}
+      <div className="mb-2 sm:mb-0 sm:mr-4 flex items-center justify-center">
+        <Bus className="w-8 h-8 text-orange-500" />
+      </div>
 
-  {/* Text Content */}
-  <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-    <span className="text-sm sm:text-base inter-medium text-gray-600">No. of Buses</span>
-    <span className="text-2xl sm:text-3xl font-bold text-gray-900">{selectedTrip.totalBuses}</span>
+      {/* Text Content */}
+      <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+        <span className="text-sm sm:text-base inter-medium text-gray-600">No. of Buses</span>
+        <span className="text-2xl sm:text-3xl font-bold text-gray-900">{selectedTrip.totalBuses}</span>
+      </div>
+    </div>
   </div>
 </div>
 
-  </div>
-</div>
 
           </div>
         </div>

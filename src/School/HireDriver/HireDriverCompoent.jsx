@@ -146,7 +146,7 @@ const DriverVerificationInterface = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Driver Verification</h1>
-          <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+          <button className=" text-center  justify-center flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
             <Download className="w-4 h-4" />
             Export Report
           </button>
@@ -193,7 +193,7 @@ const DriverVerificationInterface = () => {
               className="w-full outline-none pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
           </div>
-          <button className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-red-600">
+          <button className=" justify-center flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-red-600">
             <Filter className="w-5 h-5" />
             Filters
           </button>

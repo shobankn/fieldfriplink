@@ -36,11 +36,26 @@ import Contactus from './landgingpage/ContactUs/Contactus';
 import LiveGPSTracking from './drivers/myrides/LiveTracking';
 import EmailVarification from './auth/EmailVarification';
 import PinVarification from './auth/PinVarification';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
 
   return (
+   
    <Router>
+     <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false} 
+        newestOnTop={false}
+        closeOnClick 
+        rtl={false} 
+        pauseOnFocusLoss 
+        draggable 
+        pauseOnHover 
+        theme="light" 
+      />
     <Routes>
       <Route path='/dashboard' element={<Dashboard/>}/>
       <Route path='/total-trip' element={<Totaltrip/>}/>

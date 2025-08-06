@@ -1,19 +1,51 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../images/logo.png'; // Make sure the logo path is correct
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
 
 const Login = () => {
   const [userType, setUserType] = useState('Driver');
+const [email, setEmail] = useState('');
+const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (userType === 'Driver') {
+ 
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await axios.post('https://fieldtriplinkbackend-production.up.railway.app/api/auth/login', {
+      email,
+      password,
+    });
+
+    const { token, user } = response.data;
+
+    // Save token if needed
+    localStorage.setItem('token', token);
+
+    // Redirect logic based on role
+    if (user.role === 'Driver') {
+      toast.success('Driver login successful!');
       navigate('/driverdashboard');
     } else {
-      navigate('/dashboard');
+      if (user.role === 'school_admin') {
+        toast.success('School Admin login successful!');
+        navigate('/dashboard');
+      } else {
+        toast.error('Unauthorized access: You are not a school admin.');
+      }
     }
-  };
+  } catch (error) {
+    const msg =
+      error.response?.data?.message || 'Login failed. Please check your credentials.';
+    toast.error(msg);
+  }
+};
+
+
 
   // Handler for Forgot Password link
   const handleForgotPassword = (e) => {
@@ -67,7 +99,7 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleSubmit} className='mt-[20px]'>
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <label className="block text-[14px] inter-semibold mb-1">Username</label>
             <input
               type="text"
@@ -75,13 +107,14 @@ const Login = () => {
               className="w-full border border-gray-300 rounded-md px-3 py-2"
               required
             />
-          </div>
+          </div> */}
 
           <div className="mb-4">
             <label className="block text-[14px] inter-semibold mb-1">Email</label>
             <input
               type="email"
               placeholder="Enter your email"
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-gray-300 rounded-md px-3 py-2"
               required
             />
@@ -93,6 +126,7 @@ const Login = () => {
               type="password"
               placeholder="Create a strong password"
               className="w-full border border-gray-300 rounded-md px-3 py-2"
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>

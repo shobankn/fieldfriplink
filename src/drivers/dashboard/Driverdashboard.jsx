@@ -123,7 +123,7 @@ const Driverdashboard = () => {
                   <p className="text-red-100 inter-regular  text-sm">Distance: 5.2 km | Expected: 15 mins</p>
                 </div>
                 <button className="bg-white mt-4 whitespace-nowrap inter-regular text-red-500 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                  View Ride
+                  View Live
                 </button>
               </div>
             </div>

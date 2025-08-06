@@ -34,6 +34,7 @@ import DriverReviews from './drivers/driverreviews/DriverReviews';
 import SchoolResponse from './drivers/schoolresponse/Schoolresponse';
 import Contactus from './landgingpage/ContactUs/Contactus';
 import LiveGPSTracking from './drivers/myrides/LiveTracking';
+import EmailVarification from './auth/EmailVarification';
 
 function App() {
 
@@ -57,13 +58,14 @@ function App() {
 
 
 
-      <Route path='/' element={<Home/>}/>,
+      <Route path='/home' element={<Home/>}/>,
       <Route path='/about' element={<About/>}/>
       <Route path='/contactus' element={<Contactus/>}/>
       <Route path='/driverdashboard' element={<Driverdashboard/>}/>
-      <Route path='/login' element={<Login/>}/>
+      <Route path='/' element={<Login/>}/>
       <Route path='/register' element={<Resgister/>}/>
       <Route path='/forgetpassword' element={<ForgetPassword/>}/>
+      <Route path='/emailvarification' element={<EmailVarification/>}/>
       <Route path='/notifications' element={<Notifications/>}/>
       <Route path='/proposals' element={<MyProposals/>}/>
       <Route path='/myrides' element={<MyRIdes/>}/>

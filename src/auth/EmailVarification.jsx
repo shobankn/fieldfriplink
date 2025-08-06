@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import logo from '../images/logo.png';
+import { useNavigate } from 'react-router-dom';
 
 const EmailVerification = () => {
   const [userType, setUserType] = useState('School');
+  const navigate = useNavigate();
+
+  const handleChangePasswordClick = () => {
+    navigate('/forgetpassword');
+  };
 
   return (
     <div className="min-h-screen flex font-sans">
@@ -61,6 +67,7 @@ const EmailVerification = () => {
           <button
             type="submit"
             className="w-full bg-[#DE3B40] hover:bg-[#B83238] text-white h-[48px] rounded-[8px] font-medium mb-4 mt-[55px] text-[14px] transition-colors duration-300 ease-in-out"
+            onClick={handleChangePasswordClick}
           >
             Change Password
           </button>

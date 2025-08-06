@@ -1,8 +1,15 @@
 import React from 'react';
+import Navbar from '../../Navbar/Navbar';
+import Footer from '../footer/Footer';
+import { CiHeart } from "react-icons/ci";
+import { LuGraduationCap } from "react-icons/lu";
+import { LuUsers } from "react-icons/lu";
+import { MdOutlineBalance } from "react-icons/md";
 
 const About = () => {
   return (
     <div className="w-full">
+      <Navbar/>
       {/* Top Banner */}
       <section className="bg-[#ea2127]  text-white text-center px-4 py-[106px]">
         <h1 className="text-[60px] archivobold mb-[22px]">About FieldTripLink</h1>
@@ -51,7 +58,8 @@ const About = () => {
           </p>
         </div>
         <div className="flex-1 bg-white shadow-md rounded-lg px-[35px] py-[41px] flex flex-col  justify-center w-[500px] h-[250px]">
-          <div className="text-yellow-400 text-2xl mb-2">💛</div>
+          <div className="bg-[#FEF9C3] w-[48px]  h-[53px] flex justify-center items-center rounded-[100%] text-2xl mb-2">  <CiHeart style={{ fontSize: '32px', color: '#EAB308' }} />
+</div>
           <h3 className="archivobold text-[24px] mb-2">Our Vision</h3>
           <p className="text-gray-700 interregular text-[16px]">
             A world where every student has equal access to field trips and educational experiences,
@@ -67,24 +75,24 @@ const About = () => {
           These principles guide everything we do at FieldTripLink.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left md:text-center px-[272px]">
-          <div>
-            <div className="text-[#be1d1d] text-3xl mb-2">🛡️</div>
+          <div className='flex flex-col items-center'>
+            <div className="text-[#be1d1d] text-3xl mb-2 flex items-center justify-center bg-[#EF4444] h-[80px] w-[80px] rounded-[100%]"> <LuUsers style={{ fontSize: '32px', color: '#ffffff' }} /></div>
             <h4 className="archivobold text-[20px] mb-1">Safety First</h4>
             <p className="interregular text-[16px] text-[#555555] ">
               Every driver is thoroughly vetted and certified, ensuring the highest safety standards
               for all students.
             </p>
           </div>
-          <div>
-            <div className="text-yellow-400 text-3xl mb-2">🎓</div>
+          <div className='flex flex-col items-center'>
+            <div className="bg-[#EAB308] text-3xl mb-2 h-[80px] w-[80px] rounded-[100%] flex items-center justify-center "><LuGraduationCap style={{ fontSize: '32px', color: '#ffffff' }}/></div>
             <h4 className="archivobold text-[20px] mb-1">Educational Equity</h4>
             <p className="interregular text-[16px] text-[#555555] ">
               Every student deserves access to enriching experiences, regardless of their school’s
               transportation limitations.
             </p>
           </div>
-          <div>
-            <div className="text-green-500 text-3xl mb-2">⚖️</div>
+          <div className='flex flex-col items-center'>
+            <div className="bg-[#22C55E] text-3xl mb-2 h-[80px] w-[80px] rounded-[100%] flex items-center justify-center "><MdOutlineBalance style={{ fontSize: '32px', color: '#ffffff' }} /></div>
             <h4 className="archivobold text-[20px] mb-1">Transparency</h4>
             <p className="interregular text-[16px] text-[#555555] ">
               Our platform promotes fairness through transparent processes and clear communication
@@ -137,6 +145,7 @@ const About = () => {
           Join us in creating a world where transportation never stands in the way of education.
         </p>
       </section>
+      <Footer/>
     </div>
   );
 };

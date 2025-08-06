@@ -15,6 +15,18 @@ const Login = () => {
     }
   };
 
+  // Handler for Forgot Password link
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    navigate('/emailvarification');
+  };
+
+  // Handler for Sign Up link
+  const handleSignUp = (e) => {
+    e.preventDefault();
+    navigate('/register');
+  };
+
   return (
     <div className="min-h-screen flex">
       {/* Left Section */}
@@ -29,30 +41,30 @@ const Login = () => {
 
         {/* Toggle */}
         <div className="flex mb-6 w-[400px] h-[58px] mx-auto rounded-[8px] overflow-hidden border border-gray-200 bg-white p-[4px]">
-  <div className="relative flex w-full">
-    <div
-      className={`absolute w-1/2 h-full bg-[#de3b40] rounded-[8px] transition-transform duration-300 ease-in-out ${
-        userType === 'School' ? 'translate-x-0' : 'translate-x-full'
-      }`}
-    />
-    <button
-      onClick={() => setUserType('School')}
-      className={`relative w-1/2 py-2 text-[14px] font-semibold transition-colors duration-300 ${
-        userType === 'School' ? 'text-white' : 'text-[#de3b40]'
-      } z-10`}
-    >
-      School
-    </button>
-    <button
-      onClick={() => setUserType('Driver')}
-      className={`relative w-1/2 py-2 text-[14px] font-semibold transition-colors duration-300 ${
-        userType === 'Driver' ? 'text-white' : 'text-[#de3b40]'
-      } z-10`}
-    >
-      Driver
-    </button>
-  </div>
-</div>
+          <div className="relative flex w-full">
+            <div
+              className={`absolute w-1/2 h-full bg-[#de3b40] rounded-[8px] transition-transform duration-300 ease-in-out ${
+                userType === 'School' ? 'translate-x-0' : 'translate-x-full'
+              }`}
+            />
+            <button
+              onClick={() => setUserType('School')}
+              className={`relative w-1/2 py-2 text-[14px] font-semibold transition-colors duration-300 ${
+                userType === 'School' ? 'text-white' : 'text-[#de3b40]'
+              } z-10`}
+            >
+              School
+            </button>
+            <button
+              onClick={() => setUserType('Driver')}
+              className={`relative w-1/2 py-2 text-[14px] font-semibold transition-colors duration-300 ${
+                userType === 'Driver' ? 'text-white' : 'text-[#de3b40]'
+              } z-10`}
+            >
+              Driver
+            </button>
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit} className='mt-[20px]'>
           <div className="mb-4">
@@ -86,7 +98,12 @@ const Login = () => {
           </div>
 
           <div className="text-right mb-[60px]">
-            <a href="#" className="text-[#de3b40] text-[14px] inter-medium hover:underline">Forgot Password</a>
+            <button
+              onClick={handleForgotPassword}
+              className="text-[#de3b40] text-[14px] inter-medium hover:underline"
+            >
+              Forgot Password
+            </button>
           </div>
 
           <button
@@ -99,7 +116,12 @@ const Login = () => {
 
         <p className="text-center text-[14px] interregular">
           Don’t have an account?{' '}
-          <a href="#" className="text-[#de3b40] inter-semibold hover:underline">Sign up</a>
+          <button
+            onClick={handleSignUp}
+            className="text-[#de3b40] inter-semibold hover:underline"
+          >
+            Sign up
+          </button>
         </p>
       </div>
     </div>

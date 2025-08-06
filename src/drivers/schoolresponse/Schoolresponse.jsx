@@ -108,7 +108,7 @@ const SchoolResponse = () => {
         <Topbar toggleSidebar={toggleSidebar} />
 
         <main className="flex-1 overflow-y-auto pt-16 px-4 bg-gray-50">
-          <div className="max-w-5xl mx-auto py-6">
+          <div className="max-w-full mx-auto py-6">
             <h1 className="text-2xl font-bold mb-1">School Responses</h1>
             <p className="text-gray-600 mb-6">View responses to your ride proposals</p>
 

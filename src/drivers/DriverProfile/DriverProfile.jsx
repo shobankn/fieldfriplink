@@ -88,7 +88,7 @@ const DriverProfile = () => {
       <div className="max-w-full mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">Driver Profile</h1>
+          <h1 className="archivobold text-[24px] text-gray-900 ">Driver Profile</h1>
           <p className="text-gray-600">Manage your personal and vehicle information</p>
         </div>
 

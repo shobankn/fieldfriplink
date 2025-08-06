@@ -44,85 +44,87 @@ const Documents = () => {
         <Topbar toggleSidebar={toggleSidebar} />
 
         <main className="flex-1 overflow-y-auto pt-16 px-4 bg-gray-50">
-          <div className="max-w-full mx-auto py-6">
-            <h1 className="text-2xl font-bold mb-1">Document Verification</h1>
-            <p className="text-gray-600 mb-4">
-              Upload your documents to complete the verification process
-            </p>
+          <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+            <div className="max-w-full mx-auto">
+              <h1 className="text-2xl font-bold mb-1">Document Verification</h1>
+              <p className="text-gray-600 mb-4">
+                Upload your documents to complete the verification process
+              </p>
 
-            {/* Progress Bar */}
-            <div className="mb-6">
-              <div className="flex justify-between mb-1 text-sm text-gray-500">
-                <span>Verification Progress</span>
-                <span>0% Complete</span>
+              {/* Progress Bar */}
+              <div className="mb-6">
+                <div className="flex justify-between mb-1 text-sm text-gray-500">
+                  <span>Verification Progress</span>
+                  <span>0% Complete</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '0%' }}></div>
+                </div>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '0%' }}></div>
+
+              {/* Upload Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {uploadFields.map((field) => {
+                  const hasFile = files[field.id];
+                  const borderColor = hasFile
+                    ? 'border-green-400'
+                    : field.id.includes('cnic') || field.id === 'vehicleReg'
+                    ? 'border-red-400'
+                    : 'border-yellow-400';
+
+                  const buttonColor = hasFile
+                    ? 'bg-green-500'
+                    : field.id.includes('cnic') || field.id === 'vehicleReg'
+                    ? 'bg-red-500'
+                    : 'bg-yellow-400';
+
+                  const labelText = hasFile ? files[field.id].name : 'Upload image or PDF';
+
+                  return (
+                    <div
+                      key={field.id}
+                      className={`border-2 ${borderColor} border-dashed rounded-lg p-4 flex flex-col items-center justify-center text-center`}
+                    >
+                      <FaUpload className="text-gray-400 text-3xl mb-2" />
+                      <p className="font-medium">{field.label} {field.required && '*'}</p>
+                      <p className="text-sm text-gray-500 mb-3">{labelText}</p>
+
+                      <label>
+                        <input
+                          type="file"
+                          accept="image/*,.pdf"
+                          className="hidden"
+                          onChange={(e) => handleFileChange(e, field.id)}
+                        />
+                        <span
+                          className={`inline-block text-white ${buttonColor} px-4 py-1.5 text-sm font-medium rounded cursor-pointer`}
+                        >
+                          {hasFile ? 'Uploaded' : 'Upload'}
+                        </span>
+                      </label>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
 
-            {/* Upload Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {uploadFields.map((field) => {
-                const hasFile = files[field.id];
-                const borderColor = hasFile
-                  ? 'border-green-400'
-                  : field.id.includes('cnic') || field.id === 'vehicleReg'
-                  ? 'border-red-400'
-                  : 'border-yellow-400';
-
-                const buttonColor = hasFile
-                  ? 'bg-green-500'
-                  : field.id.includes('cnic') || field.id === 'vehicleReg'
-                  ? 'bg-red-500'
-                  : 'bg-yellow-400';
-
-                const labelText = hasFile ? files[field.id].name : 'Upload image or PDF';
-
-                return (
-                  <div
-                    key={field.id}
-                    className={`border-2 ${borderColor} border-dashed rounded-lg p-4 flex flex-col items-center justify-center text-center`}
-                  >
-                    <FaUpload className="text-gray-400 text-3xl mb-2" />
-                    <p className="font-medium">{field.label} {field.required && '*'}</p>
-                    <p className="text-sm text-gray-500 mb-3">{labelText}</p>
-
-                    <label>
-                      <input
-                        type="file"
-                        accept="image/*,.pdf"
-                        className="hidden"
-                        onChange={(e) => handleFileChange(e, field.id)}
-                      />
-                      <span
-                        className={`inline-block text-white ${buttonColor} px-4 py-1.5 text-sm font-medium rounded cursor-pointer`}
-                      >
-                        {hasFile ? 'Uploaded' : 'Upload'}
-                      </span>
-                    </label>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Notes */}
-            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded mb-6 text-sm text-blue-700">
-              <div className="flex items-start gap-2">
-                <FaInfoCircle className="mt-1" />
-                <ul className="list-disc pl-5">
-                  <li>All images should be clear and readable</li>
-                  <li>Driving license must be PSV or school bus category</li>
-                  <li>Vehicle registration should be current and valid</li>
-                  <li>CNIC should be valid and not expired</li>
-                </ul>
+              {/* Notes */}
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded mb-6 text-sm text-blue-700">
+                <div className="flex items-start gap-2">
+                  <FaInfoCircle className="mt-1" />
+                  <ul className="list-disc pl-5">
+                    <li>All images should be clear and readable</li>
+                    <li>Driving license must be PSV or school bus category</li>
+                    <li>Vehicle registration should be current and valid</li>
+                    <li>CNIC should be valid and not expired</li>
+                  </ul>
+                </div>
               </div>
-            </div>
 
-            {/* Submit Button */}
-            <button className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 font-semibold">
-              Submit for Verification
-            </button>
+              {/* Submit Button */}
+              <button className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 font-semibold">
+                Submit for Verification
+              </button>
+            </div>
           </div>
         </main>
       </div>

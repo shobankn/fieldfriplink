@@ -34,11 +34,11 @@ const Driverdashboard = () => {
       <div className="flex flex-col flex-1 w-full lg:w-[80%]">
         <Topbar toggleSidebar={toggleSidebar} />
 
-        <main className="flex-1 overflow-y-auto pt-16 px-4 bg-gray-50">
+        <main className="flex-1 overflow-y-auto pt-16 px-3 bg-gray-50">
           <div className="max-w-full mx-auto py-6 px-0 sm:px-4">
             {/* Header */}
             <div className="mb-6">
-              <h1 className="text-2xl archivo-bold text-gray-800">Welcome back, Ahmed Khan!</h1>
+              <h1 className="text-[30px] archivo-bold text-gray-800">Welcome back, Ahmed Khan!</h1>
               <p className="text-gray-600 inter-regular  mt-1">Here is your driving dashboard overview</p>
             </div>
 

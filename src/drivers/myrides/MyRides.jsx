@@ -89,12 +89,25 @@ const rideData = {
       phone: "+92 21 678-9012",
     },
   ],
+  Invitations: [
+    {
+      id: 201,
+      school: "Clifton Karachi School",
+      area: "Clifton, Karachi",
+      pickup: "DHA Phase 2, Karachi",
+      drop: "Clifton Karachi School",
+      date: "2025-02-22",
+      time: "07:30",
+      students: 22,
+      phone: "+92 21 345-6789",
+    },
+  ],
 };
 
-const MyRIdes = () => {
+const MyRides = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("Completed");
-  const navigation =  useNavigate();
+  const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -130,13 +143,13 @@ const MyRIdes = () => {
 
             {/* Tabs */}
             <div className="flex gap-6 border-b mb-6">
-              {["Scheduled", "Active", "Completed"].map((tab) => (
+              {["Scheduled", "Active", "Completed", "Invitations"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`pb-2 font-medium ${
                     activeTab === tab
-                      ? "text-yellow-500 border-b-2 border-yellow-500"
+                      ? "text-[#B00000] border-b-2 border-[#B00000]"
                       : "text-gray-500 hover:text-black"
                   }`}
                 >
@@ -157,6 +170,17 @@ const MyRIdes = () => {
                     <span className="absolute top-3 right-3 bg-red-100 text-red-600 text-xs font-medium px-2 py-0.5 rounded-full">
                       ● Live
                     </span>
+                  )}
+
+                  {activeTab === "Invitations" && (
+                    <div className="flex justify-end gap-2 mt-4">
+                      <button className="bg-red-500 text-white px-4 py-1.5 rounded-md hover:bg-red-600">
+                        Reject Invitation
+                      </button>
+                      <button className="bg-green-500 text-white px-4 py-1.5 rounded-md hover:bg-green-600">
+                        Accept Invitation
+                      </button>
+                    </div>
                   )}
 
                   <h2 className="text-lg font-semibold">{ride.school}</h2>
@@ -198,7 +222,7 @@ const MyRIdes = () => {
                     )}
 
                     {activeTab === "Active" && (
-                      <button onClick={()=> navigation('/driver-live-tracking')} className="bg-red-500 text-white flex items-center gap-1 px-4 py-1.5 rounded-md text-sm hover:bg-red-600 ml-auto">
+                      <button onClick={() => navigate('/driver-live-tracking')} className="bg-red-500 text-white flex items-center gap-1 px-4 py-1.5 rounded-md text-sm hover:bg-red-600 ml-auto">
                         <FiPlay /> View Live
                       </button>
                     )}
@@ -216,10 +240,9 @@ const MyRIdes = () => {
             )}
           </div>
         </main>
-
       </div>
     </div>
   );
 };
 
-export default MyRIdes;
+export default MyRides;

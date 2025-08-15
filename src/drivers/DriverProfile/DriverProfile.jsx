@@ -154,9 +154,9 @@ const DriverProfile = () => {
                         <div className="w-2 h-2 bg-white rounded-full"></div>
                       </div>
                     </div>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <div className="flex flex-col gap-0">
                       <span className="font-medium text-gray-900">{profileData.fullName}</span>
-                      <button className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-medium rounded-md transition-colors duration-200 flex items-center gap-2">
+                      <button className="mt-2 px-2 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-medium rounded-md transition-colors duration-200 flex items-center gap-2">
                         <Upload className="w-4 h-4" />
                         Upload New Photo
                       </button>

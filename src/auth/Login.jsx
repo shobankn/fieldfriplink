@@ -9,6 +9,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State for password visibility
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -57,6 +58,11 @@ const Login = () => {
   const handleSignUp = (e) => {
     e.preventDefault();
     navigate('/register');
+  };
+
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -112,13 +118,22 @@ const Login = () => {
 
           <div className="mb-1">
             <label className="block text-sm lg:text-[14px] inter-semibold mb-1">Password</label>
-            <input
-              type="password"
-              placeholder="Enter your password"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm lg:text-base"
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter your password"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm lg:text-base"
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                <i className={showPassword ? 'far fa-eye-slash' : 'far fa-eye'}></i>
+              </button>
+            </div>
           </div>
 
           <div className="text-right mb-6 lg:mb-[60px]">

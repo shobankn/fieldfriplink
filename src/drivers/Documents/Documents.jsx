@@ -33,13 +33,26 @@ const Documents = () => {
     const fetchProfileData = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          toast.error('No authentication token found. Please log in again.');
+          console.error('No token found in localStorage');
+          return;
+        }
+
         const response = await axios.get('https://fieldtriplinkbackend-production.up.railway.app/api/driver/my-profile', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        const { user, profile } = response.data;
+        console.log('API Response:', response.data); // Log response for debugging
+
+        // Adjust based on actual API response structure
+        const { user, profile } = response.data.data || response.data; // Fallback to response.data if .data.data doesn't exist
+        if (!user || !profile) {
+          throw new Error('Invalid API response structure: Missing user or profile data');
+        }
+
         setProfileData({
           accountStatus: user.accountStatus || 'pending_approval',
           cnicFrontImage: profile.cnicFrontImage || '',
@@ -56,8 +69,8 @@ const Documents = () => {
           vehicleReg: profile.vehicleRegistrationImage ? { name: 'Vehicle Registration Uploaded' } : null,
         });
       } catch (error) {
-        console.error('Error fetching profile data:', error);
-        toast.error('Failed to load document data. Please try again.');
+        console.error('Error fetching profile data:', error.response?.data || error.message);
+        toast.error(`Failed to load document data: ${error.response?.data?.message || error.message}`);
       }
     };
 
@@ -66,7 +79,9 @@ const Documents = () => {
 
   const handleFileChange = (e, id) => {
     const file = e.target.files[0];
-    setFiles({ ...files, [id]: file });
+    if (file) {
+      setFiles({ ...files, [id]: file });
+    }
   };
 
   // Check if all required fields have files uploaded
@@ -200,14 +215,11 @@ const Documents = () => {
                   );
                 })}
               </div>
-<div className='mb-[12px] '>
 
-  <div>
-  <FaCheck className='text-[#22C55E]' />
-  
-  </div>
-  
-  </div>
+              <div className='mb-[12px]'>
+                <FaCheck className='text-[#22C55E]' />
+              </div>
+
               {/* Notes */}
               <div className="bg-blue-50 border-l-4 border-blue-400 p-3 sm:p-4 rounded mb-4 sm:mb-6 text-xs sm:text-sm text-blue-700">
                 <div className="flex items-start gap-2">
@@ -233,7 +245,6 @@ const Documents = () => {
                 Submit for Verification
               </button>
             </div>
-          
           </div>
         </main>
       </div>

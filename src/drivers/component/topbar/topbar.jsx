@@ -52,7 +52,7 @@ const Topbar = ({ toggleSidebar }) => {
 
       {/* Center Section (Title) */}
       <div className="flex-1 text-center lg:text-left">
-        <h1 className="text-xl font-bold text-gray-900">App Dashboard</h1>
+        {/* <h1 className="text-xl font-bold text-gray-900">App Dashboard</h1> */}
       </div>
 
       {/* Profile Section (Always on the right) */}

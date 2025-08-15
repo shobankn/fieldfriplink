@@ -21,6 +21,10 @@ const Home = () => {
     navigate('/login');
   };
 
+  const handleHowItWorks = () => {
+    navigate('/about');
+  };
+
   return (
     <div className="w-full overflow-x-hidden max-w-[1920px] mx-auto">
       <Navbar/>
@@ -40,7 +44,10 @@ const Home = () => {
             >
               Get Started<i className="fas fa-arrow-right ms-2"></i>
             </button>
-            <button className="border border-white w-full sm:w-[153px] h-[40px] rounded-[6px] interbold text-sm sm:text-[14px]">
+            <button
+              className="border border-white w-full sm:w-[153px] h-[40px] rounded-[6px] interbold text-sm sm:text-[14px]"
+              onClick={handleHowItWorks}
+            >
               How It Works
             </button>
           </div>

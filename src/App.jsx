@@ -38,12 +38,17 @@ import EmailVarification from './auth/EmailVarification';
 import PinVarification from './auth/PinVarification';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ScrollToTop from './School/ScrollToTop';
+import TripFeedback from './School/TripManagment/TripFeedBack';
+import ProtectedRoute from './School/ProtectRoute'
 
 function App() {
 
   return (
+
    
    <Router>
+    <ScrollToTop/>
      <ToastContainer 
         position="top-right" 
         autoClose={3000} 
@@ -57,19 +62,25 @@ function App() {
         theme="light" 
       />
     <Routes>
-      <Route path='/dashboard' element={<Dashboard/>}/>
-      <Route path='/total-trip' element={<Totaltrip/>}/>
-      <Route path='/post-trip' element ={<Trip/>}/>
-      <Route path='/trip-management' element={<TripManagment/>}/>
-      <Route path='/live-tracking' element={<Location/>}/>
-      <Route path='/job-post' element={<Proposals/>}/>
-      <Route path='/job-post/:id' element={<ProposalDetails/>}/>
-      <Route path='/job-post/invite-drivers' element={<InviteDriver/>}/>
-      <Route path='/my-hires' element={<MyHiring/>}/>
-      <Route path='/hire-driver' element={<HireDriver/>}/>
-      <Route path='/hire-driver/:id'element={<HireDriverDetails/>}/>
-      <Route path='/proposal' element={<DriverProposal/>}/>
+      <Route path='/dashboard' element={ <ProtectedRoute><Dashboard/></ProtectedRoute>}/>
+      <Route path='/total-trip' element={<ProtectedRoute><Totaltrip/></ProtectedRoute>}/>
+      <Route path='/post-trip' element ={<ProtectedRoute><Trip/></ProtectedRoute>}/>
+      <Route path="/post-trip-update/:id" element={<ProtectedRoute><Trip/></ProtectedRoute>} />
+      <Route path='/trip-management' element={<ProtectedRoute><TripManagment/></ProtectedRoute>}/>
+      <Route path='/live-tracking' element={<ProtectedRoute><Location/></ProtectedRoute>}/>
+      <Route path='/job-post' element={<ProtectedRoute><Proposals/></ProtectedRoute>}/>
+      <Route path='/job-post/:id' element={<ProtectedRoute><ProposalDetails/></ProtectedRoute>}/>
+      <Route path='/job-post/invite-drivers' element={<ProtectedRoute><InviteDriver/></ProtectedRoute>}/>
+      <Route path='/my-hires' element={<ProtectedRoute><MyHiring/></ProtectedRoute>}/>
+      <Route path='/hire-driver' element={<ProtectedRoute><HireDriver/></ProtectedRoute>}/>
+      <Route path='/hire-driver/:id'element={<ProtectedRoute><HireDriverDetails/></ProtectedRoute>}/>
+      <Route path='/proposal' element={<ProtectedRoute><DriverProposal/></ProtectedRoute>}/>
       {/* <Route path='/assign-job' element={<InviteDriverPopUp/>}/> */}
+            <Route 
+        path='/trip-management/feedback/:tripId/:driverId' 
+        element={<ProtectedRoute><TripFeedback /></ProtectedRoute>} 
+      />
+
       <Route path='/setting' element={<Setting/>}/>
 
 
@@ -92,16 +103,6 @@ function App() {
       <Route path='/driverreviews' element={<DriverReviews/>}/>
       <Route path='/schoolresponse' element={<SchoolResponse/>}/>
       <Route path='/driver-live-tracking' element={<LiveGPSTracking/>}/>
-
-
-
-
-
-
-
-
-
-
 
 
     </Routes>

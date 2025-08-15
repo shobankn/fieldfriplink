@@ -1,33 +1,91 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { 
   FileText, 
   Clock, 
   MapPin, 
   Users, 
-  DollarSign,
   Plus,
   ChevronDown
 } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const PostTripForm = () => {
   const [formData, setFormData] = useState({
-    tripName: 'Daily Pickup Route A',
+    tripName: '',
     tripType: 'One-time',
     pickupTime: '',
     returnTime: '',
     tripDate: '',
-    recurringDays: [], // Array to store selected days for recurring trips
+    recurringDays: [],
     pickupAddresses: [''],
     destination: '',
-    numberOfStudents: '25',
-    busCapacity: '30',
+    numberOfStudents: '',
+    busCapacity: '',
     preferredGender: 'No preference',
-    minBudget: '2000',
-    maxBudget: '4000',
     extraInstructions: ''
   });
 
   const [activeTab, setActiveTab] = useState('one-time');
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const BaseUrl = 'https://fieldtriplinkbackend-production.up.railway.app/api';
+
+
+ const validateForm = () => {
+  const newErrors = {};
+
+  if (!formData.tripName.trim()) {
+    newErrors.tripName = 'Trip Name is required';
+  }
+  if (!formData.pickupTime) {
+    newErrors.pickupTime = 'Pickup Time is required';
+  }
+  if (!formData.returnTime) {
+    newErrors.returnTime = 'Return Time is required';
+  }
+
+  if (activeTab === 'one-time' && !formData.tripDate) {
+    newErrors.tripDate = 'Trip Date is required for one-time trips';
+  }
+  if (activeTab === 'recurring' && formData.recurringDays.length === 0) {
+    newErrors.recurringDays = 'At least one recurring day must be selected';
+  }
+  if (formData.pickupAddresses.some(addr => !addr.trim())) {
+    newErrors.pickupAddresses = 'All pickup addresses must be filled';
+  }
+  if (!formData.destination.trim()) {
+    newErrors.destination = 'Destination is required';
+  }
+  if (!formData.numberOfStudents || formData.numberOfStudents <= 0) {
+    newErrors.numberOfStudents = 'Number of students must be greater than 0';
+  }
+  if (!formData.busCapacity || formData.busCapacity <= 0) {
+    newErrors.busCapacity = 'Bus capacity must be greater than 0';
+  }
+
+  setErrors(newErrors);
+
+  // Show only one toast if there are errors
+  const errorKeys = Object.keys(newErrors);
+  if (errorKeys.length > 0) {
+    toast.error(newErrors[errorKeys[0]]);
+    return false;
+  }
+
+  return true;
+};
+
+
+
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,6 +93,7 @@ const PostTripForm = () => {
       ...prev,
       [name]: value
     }));
+    setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handlePickupAddressChange = (index, value) => {
@@ -46,6 +105,7 @@ const PostTripForm = () => {
         pickupAddresses: updatedAddresses
       };
     });
+    setErrors(prev => ({ ...prev, pickupAddresses: '' }));
   };
 
   const addPickupAddress = () => {
@@ -57,81 +117,226 @@ const PostTripForm = () => {
 
   const toggleRecurringDay = (day) => {
     setFormData(prev => {
-      const days = prev.recurringDays.includes(day)
-        ? prev.recurringDays.filter(d => d !== day)
-        : [...prev.recurringDays, day];
+      const daysMap = { 'M': 'mon', 'T': 'tue', 'W': 'wed', 'Th': 'thu', 'F': 'fri', 'S': 'sat' };
+      const apiDay = daysMap[day];
+      const days = prev.recurringDays.includes(apiDay)
+        ? prev.recurringDays.filter(d => d !== apiDay)
+        : [...prev.recurringDays, apiDay];
       return {
         ...prev,
         recurringDays: days
       };
     });
+    setErrors(prev => ({ ...prev, recurringDays: '' }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    setLoading(true);
+
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('Please log in to post a trip.');
+      setLoading(false);
+      return;
+    }
+
+    const isOneTime = activeTab === 'one-time';
+    const baseDate = formData.tripDate;
+
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = (now.getUTCMonth() + 1).toString().padStart(2, '0');
+    const day = now.getUTCDate().toString().padStart(2, '0');
+    const dummyDate = `${year}-${month}-${day}`;
+
+    const startTime = formData.pickupTime
+      ? new Date(`${dummyDate}T${formData.pickupTime}:00Z`).toISOString()
+      : undefined;
+
+    const returnTime = formData.returnTime
+      ? new Date(`${dummyDate}T${formData.returnTime}:00Z`).toISOString()
+      : undefined;
+
+    const payload = {
+      tripName: formData.tripName,
+      tripType: isOneTime ? 'onetime' : 'recurring',
+      tripDate: isOneTime ? formData.tripDate : undefined,
+      recurringDays: !isOneTime ? formData.recurringDays : undefined,
+      startTime,
+      returnTime,
+      pickupPoints: formData.pickupAddresses.map(address => ({
+        address
+      })),
+      destination: {
+        address: formData.destination
+      },
+      numberOfStudents: formData.numberOfStudents,
+      numberOfBuses: formData.busCapacity,
+      preferredDriverGender:
+        formData.preferredGender.toLowerCase() === 'no preference'
+          ? 'any'
+          : formData.preferredGender.toLowerCase(),
+      instructions: formData.extraInstructions || undefined
+    };
+
+    try {
+      const url = id
+        ? `${BaseUrl}/school/trip/${id}`
+        : `${BaseUrl}/school/trip`;
+      const method = id ? 'put' : 'post';
+
+      const response = await axios[method](url, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+     toast.success(`Trip ${id ? 'updated' : 'posted'} successfully!`, {
+  onClose: () => {
+    navigate('/job-post'); // Navigate after toast closes
+  },
+  autoClose: 2000, // toast duration
+});
+      console.log('API Response:', response.data);
+
+      setFormData({
+        tripName: '',
+        tripType: 'One-time',
+        pickupTime: '',
+        returnTime: '',
+        tripDate: '',
+        recurringDays: [],
+        pickupAddresses: [''],
+        destination: '',
+        numberOfStudents: '25',
+        busCapacity: '30',
+        preferredGender: 'No preference',
+        extraInstructions: ''
+      });
+    } catch (err) {
+      toast.error(err.response?.data?.message || `Failed to ${id ? 'update' : 'post'} trip. Please try again.`);
+      console.error('API Error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSaveDraft = () => {
-    console.log('Saved as draft:', formData);
-  };
+  useEffect(() => {
+    if (id) {
+      console.log("Edit mode activated, fetching trip with ID:", id);
+      setIsEditing(true);
+
+      const fetchTrip = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) {
+            console.warn('No token found in localStorage');
+            return;
+          }
+
+          const res = await axios.get(`${BaseUrl}/school/trip-by/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          const trip = res.data.trip;
+          console.log('Fetched trip data:', trip);
+
+          setFormData({
+            tripName: trip.tripName || '',
+            tripType: trip.tripType === 'recurring' ? 'Recurring' : 'One-time',
+            pickupTime: trip.startTime
+              ? new Date(trip.startTime).toISOString().slice(11, 16)
+              : '',
+            returnTime: trip.returnTime
+              ? new Date(trip.returnTime).toISOString().slice(11, 16)
+              : '',
+            tripDate: trip.tripDate
+              ? new Date(trip.tripDate).toISOString().slice(0, 10)
+              : '',
+            recurringDays: trip.recurringDays || [],
+            pickupAddresses: trip.pickupPoints?.map(p => p.address) || [''],
+            destination: trip.destination?.address || '',
+            numberOfStudents: trip.numberOfStudents?.toString() || '',
+            busCapacity: trip.numberOfBuses?.toString() || '',
+            preferredGender:
+              trip.preferredDriverGender === 'any'
+                ? 'No preference'
+                : trip.preferredDriverGender?.charAt(0).toUpperCase() +
+                  trip.preferredDriverGender?.slice(1),
+            extraInstructions: trip.instructions || '',
+          });
+
+          setActiveTab(
+            trip.tripType === 'recurring' ? 'recurring' : 'one-time'
+          );
+        } catch (err) {
+          console.error('Failed to fetch trip:', err);
+          toast.error('Failed to fetch trip details.');
+        }
+      };
+
+      fetchTrip();
+    } else {
+      console.warn('No ID found in URL params');
+    }
+  }, [id]);
+
 
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen">
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <div className='px-5 py-5'>
-            <h1 className="  text-[30px] md:text-3xl archivo-bold text-gray-900">Post New Trip</h1>
-            <p className="text-gray-600 mt-2 text-sm md:text-base">Create a new transportation request and find the best drivers.</p>
-          </div>
+        <h1 className="text-[30px] md:text-3xl archivo-bold text-gray-900">Post New Trip</h1>
+        <p className="text-gray-600 mt-2 text-sm md:text-base">Create a new transportation request and find the best drivers.</p>
+      </div>
       <div className="max-w-full mx-auto">
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-white rounded-lg border border-gray-200 m-0 sm:m-4">
-
-          {/* Basic Information Section */}
-          <div className=" p-0  sm:p-6   ml-2 mr-2 sm:ml-4 mt-4 ">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-3 bg-white rounded-lg border border-gray-200 m-0 sm:m-4">
+          <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4">
             <div className="flex items-center space-x-2 mb-6">
               <FileText className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
             </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Trip Name */}
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-2 relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Trip Name
+                  Trip Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="tripName"
                   value={formData.tripName}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors"
-                  placeholder="Enter trip name"
+                  placeholder='Daily Pickup Route A'
+                  className={`w-full px-3 py-2 border ${errors.tripName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
                 />
+                {errors.tripName && (
+                  <p className="absolute text-red-500 text-xs mt-1">{errors.tripName}</p>
+                )}
               </div>
-
-              {/* Trip Type */}
               <div className="lg:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Trip Type
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Trip Type</label>
                 <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
                   <button
                     type="button"
-                    onClick={() => setActiveTab('one-time')}
+                    onClick={() => { setActiveTab('one-time'); setFormData(prev => ({ ...prev, tripType: 'One-time' })); }}
                     className={`flex-1 py-2 px-4 cursor-pointer rounded-md text-sm font-medium transition-colors ${
-                      activeTab === 'one-time'
-                        ? 'bg-white text-red-600 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
+                      activeTab === 'one-time' ? 'bg-white text-red-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
                     }`}
                   >
                     One-time
                   </button>
                   <button
                     type="button"
-                    onClick={() => setActiveTab('recurring')}
+                    onClick={() => { setActiveTab('recurring'); setFormData(prev => ({ ...prev, tripType: 'Recurring' })); }}
                     className={`flex-1 py-2 px-4 cursor-pointer rounded-md text-sm font-medium transition-colors ${
-                      activeTab === 'recurring'
-                        ? 'bg-white text-red-600 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
+                      activeTab === 'recurring' ? 'bg-white text-red-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
                     }`}
                   >
                     Recurring
@@ -140,47 +345,43 @@ const PostTripForm = () => {
               </div>
             </div>
           </div>
-
-          {/* Schedule Section */}
-          <div className="p-0  sm:p-6   ml-2 mr-2 sm:ml-4 mt-4">
+          <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4">
             <div className="flex items-center space-x-2 mb-6">
               <Clock className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">Schedule</h2>
             </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Pickup Time */}
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Pickup Time
+                  Pickup Time <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="time"
                   name="pickupTime"
                   value={formData.pickupTime}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border  border-gray-300 rounded-lg focus:ring-2 focus:red-blue-500 focus:border-red-500 outline-none transition-colors"
+                  className={`w-full px-3 py-2 border ${errors.pickupTime ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
                 />
+                {errors.pickupTime && (
+                  <p className="absolute text-red-500 text-xs mt-1">{errors.pickupTime}</p>
+                )}
               </div>
-
-              {/* Return Time */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Return Time (Optional)
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Return Time</label>
                 <input
                   type="time"
                   name="returnTime"
                   value={formData.returnTime}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors"
+                  className={`w-full px-3 py-2 border ${errors.returnTime ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
                 />
+                 {errors.returnTime && (
+                  <p className="absolute text-red-500 text-xs mt-1">{errors.returnTime}</p>
+                )}
               </div>
-
-              {/* Trip Date */}
-              <div className='col-span-full lg:col-span-2'>
+              <div className="col-span-full lg:col-span-2 relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Trip Date
+                  {activeTab === 'one-time' ? 'Trip Date' : 'Recurring Days'} <span className="text-red-500">*</span>
                 </label>
                 {activeTab === 'one-time' ? (
                   <input
@@ -188,7 +389,7 @@ const PostTripForm = () => {
                     name="tripDate"
                     value={formData.tripDate}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors"
+                    className={`w-full px-3 py-2 border ${errors.tripDate ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
                   />
                 ) : (
                   <div className="flex space-x-2">
@@ -197,33 +398,31 @@ const PostTripForm = () => {
                         key={day}
                         type="button"
                         onClick={() => toggleRecurringDay(day)}
-                        className={`w-12 h-12 rounded-lg border border-gray-300 flex items-center justify-center text-sm font-medium ${
-                          formData.recurringDays.includes(day)
-                            ? 'bg-red-600 text-white'
-                            : 'bg-white text-gray-700 hover:bg-gray-100'
-                        } transition-colors`}
+                        className={`w-12 h-12 rounded-lg border ${formData.recurringDays.includes({ 'M': 'mon', 'T': 'tue', 'W': 'wed', 'Th': 'thu', 'F': 'fri', 'S': 'sat' }[day]) ? 'bg-red-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} border-gray-300 flex items-center justify-center text-sm font-medium transition-colors`}
                       >
                         {day}
                       </button>
                     ))}
                   </div>
                 )}
+                {errors.tripDate && activeTab === 'one-time' && (
+                  <p className="absolute text-red-500 text-xs mt-1">{errors.tripDate}</p>
+                )}
+                {errors.recurringDays && activeTab === 'recurring' && (
+                  <p className="absolute text-red-500 text-xs mt-1">{errors.recurringDays}</p>
+                )}
               </div>
             </div>
           </div>
-
-          {/* Locations Section */}
-          <div className="p-0  sm:p-6   ml-2 mr-2 sm:ml-4 mt-4">
+          <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4">
             <div className="flex items-center space-x-2 mb-6">
               <MapPin className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">Locations</h2>
             </div>
-
-            <div className="space-y-6">
-              {/* Pickup Addresses */}
-              <div>
+            <div className="space-y-3">
+              <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Pickup Addresses
+                  Pickup Addresses <span className="text-red-500">*</span>
                 </label>
                 {formData.pickupAddresses.map((address, index) => (
                   <div key={index} className="mb-2">
@@ -232,81 +431,96 @@ const PostTripForm = () => {
                       name={`pickupAddress-${index}`}
                       value={address}
                       onChange={(e) => handlePickupAddressChange(index, e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors"
+                      className={`w-full px-3 py-2 border ${errors.pickupAddresses && !address.trim() ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
                       placeholder="Enter pickup address"
                     />
                   </div>
                 ))}
+                {errors.pickupAddresses && (
+                  <p className="text-red-500 text-xs mt-1">{errors.pickupAddresses}</p>
+                )}
                 <button
                   type="button"
                   onClick={addPickupAddress}
-                  className="mt-2 text-blue-500 text-sm font-medium hover:text-red-600 flex items-center"
+                  className="mt-0 text-blue-500 text-sm font-medium hover:text-red-600 flex items-center"
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   Add Another Pickup Point
                 </button>
               </div>
-
-              {/* Destination */}
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Destination
+                  Destination <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="destination"
                   value={formData.destination}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors"
+                  className={`w-full px-3 py-2 border ${errors.destination ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
                   placeholder="School Campus or Event Venue"
                 />
+                {errors.destination && (
+                  <p className="absolute text-red-500 text-xs mt-1">{errors.destination}</p>
+                )}
               </div>
             </div>
           </div>
-
-          {/* Requirements Section */}
-          <div className="p-0  sm:p-6   ml-2 mr-2 sm:ml-4 mt-4">
+          <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4">
             <div className="flex items-center space-x-2 mb-6">
               <Users className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">Requirements</h2>
             </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Number of Students */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  No. of Students
-                </label>
-                <input
-                  type="number"
-                  name="numberOfStudents"
-                  value={formData.numberOfStudents}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors"
-                  placeholder="25"
-                />
-              </div>
+             <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                No. of Students <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                name="numberOfStudents"
+                value={formData.numberOfStudents}
+                onChange={handleInputChange}
+                onKeyDown={(e) => {
+                  // Prevent entering 'e', '+', '-', or '.'
+                  if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
+                className={`w-full px-3 py-2 border ${
+                  errors.numberOfStudents ? 'border-red-500' : 'border-gray-300'
+                } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
+                placeholder="25"
+              />
+              {errors.numberOfStudents && (
+                <p className="absolute text-red-500 text-xs mt-1">{errors.numberOfStudents}</p>
+              )}
+            </div>
 
-              {/* Bus Capacity Required */}
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bus Capacity Required
+                  Bus Capacity Required <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   name="busCapacity"
                   value={formData.busCapacity}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors"
+                  className={`w-full px-3 py-2 border ${errors.busCapacity ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
                   placeholder="30"
+                  onKeyDown={(e) => {
+                  // Prevent entering 'e', '+', '-', or '.'
+                  if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
                 />
+                {errors.busCapacity && (
+                  <p className="absolute text-red-500 text-xs mt-1">{errors.busCapacity}</p>
+                )}
               </div>
-
-              {/* Preferred Driver Gender */}
               <div className="lg:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Preferred Driver Gender
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Driver Gender</label>
                 <div className="relative">
                   <select
                     name="preferredGender"
@@ -323,14 +537,10 @@ const PostTripForm = () => {
               </div>
             </div>
           </div>
-
-          {/* Budget Section */}
-          <div className=" p-0  sm:p-6   ml-2 mr-2 sm:ml-4 mt-4 lg:col-start-2">
+          <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4 lg:col-start-2">
             <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
               <div className="lg:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Extra Instructions (Optional)
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Extra Instructions (Optional)</label>
                 <textarea
                   name="extraInstructions"
                   value={formData.extraInstructions}
@@ -340,24 +550,40 @@ const PostTripForm = () => {
                   placeholder="e.g. Need female attendant, AC required, etc."
                 />
               </div>
-              <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
+              <div className="flex mb-3 flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
+                
                 <button
                   type="button"
-                  onClick={handleSaveDraft}
-                  className="w-full sm:w-auto px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg shadow-sm hover:bg-gray-100 focus:ring-2 focus:ring-red-500 focus:outline-none font-medium transition-colors duration-200"
+                  onClick={() => navigate(-1)}
+                  className="w-full sm:w-50 px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg shadow-sm hover:bg-gray-100 focus:ring-2 focus:ring-red-500 focus:outline-none font-medium transition-colors duration-200"
                 >
                   Cancel
                 </button>
-                <button
+                <motion.button
                   type="submit"
-                  className="w-full sm:w-auto px-6 py-2.5 bg-red-600 text-white rounded-lg shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:outline-none font-medium transition-colors duration-200"
+                  disabled={loading}
+                  whileHover={{ scale: loading ? 1 : 1.05 }}
+                  whileTap={{ scale: loading ? 1 : 0.95 }}
+                  className={`flex-1 cursor-pointer py-3 sm:py-2 bg-red-500 text-white rounded-lg transition inter-semibold text-sm sm:text-lg flex items-center justify-center ${
+                    loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-red-600'
+                  }`}
+                  aria-label="Submit property form"
                 >
-                  Post Trip
-                </button>
+                  {loading ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                      </svg>
+                      {isEditing ? 'Updating Trip...' : 'Posting Trip...'}
+                    </>
+                  ) : (
+                    isEditing ? 'Update Trip' : 'Post Trip'
+                  )}
+                </motion.button>
               </div>
             </div>
           </div>
-
         </form>
       </div>
     </div>

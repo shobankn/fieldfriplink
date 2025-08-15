@@ -1,14 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, Filter, Eye,  Trash2, Briefcase, UserPlus, Share2, Edit } from 'lucide-react';
 import proposalsData from './ProposalData'
 import { useNavigate } from 'react-router-dom';
 import Navbar from './InviteDriver/Navbar';
+import axios from 'axios';
+import Skeleton from 'react-loading-skeleton';
+import { formatDistanceToNow } from 'date-fns';
+import { toast } from 'react-toastify';
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Required CSS
+import { confirmAlert } from 'react-confirm-alert';
+
 
 const JobProposalsInterface = () => {
   const [activeTab, setActiveTab] = useState('All Job Posts');
   const [searchTerm, setSearchTerm] = useState('');
    const navigate = useNavigate();
+     const [loading, setLoading] = useState(true);
+      const [trips, setTrips] = useState([]);
 
+      const BaseUrl = 'https://fieldtriplinkbackend-production.up.railway.app/api'
    
   const handleNavigate = (id) => {
     navigate(`/job-post/${id}`);
@@ -17,14 +27,27 @@ const JobProposalsInterface = () => {
 
 
 
-  const getTypeColor = (type) => {
-    return type === "Recurring" 
-      ? "bg-purple-100 text-purple-800" 
-      : "bg-orange-100 text-orange-800";
-  };
+ 
 
-  const filteredProposals = proposalsData.filter(proposal =>
-    proposal.title.toLowerCase().includes(searchTerm.toLowerCase())
+  const tripTypeColors = {
+  "onetime": "bg-[#FFF4E5] text-[#F39C12]",
+  "recurring": "bg-purple-100 text-purple-800",
+};
+
+const statusColors = {
+  draft: "bg-gray-100 text-gray-800",
+  published: "bg-[#EAF7ED] text-[#28A745]",
+  scheduled: "bg-blue-100 text-blue-800",
+  active: "bg-[#EBF3FF] text-[#3472F7]",
+  inactive: "bg-yellow-100 text-yellow-800",
+  completed: "bg-indigo-100 text-indigo-800",
+  cancelled: "bg-[#FFF2F2] text-[#E74C3C]"
+};
+
+
+
+    const filteredTrips = trips.filter((trip) =>
+    trip.tripName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
    const tabs = [
@@ -39,6 +62,90 @@ const JobProposalsInterface = () => {
       path: '/invite-drivers'
     }
   ];
+
+
+useEffect(() => {
+  const fetchTrips = async () => {
+    const toastId = 'fetchTripsError';
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        if (!toast.isActive(toastId)) {
+          toast.error('Token not found. Please log in.', { toastId });
+        }
+        return;
+      }
+
+      const res = await axios.get(`${BaseUrl}/school/my-trips`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setTrips(res.data.trips || []);
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || err.message;
+      if (!toast.isActive(toastId)) {
+        toast.error(`Failed to fetch trips: ${errorMessage}`, { toastId });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTrips();
+}, []);
+
+const handleDeleteTrip = async (id) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    toast.error('Please log in to delete this trip.');
+    return;
+  }
+
+  confirmAlert({
+    title: 'Confirm Delete',
+    message: 'Are you sure you want to delete this trip? This action cannot be undone.',
+    buttons: [
+      {
+        label: 'Yes, Delete',
+        onClick: async () => {
+          try {
+            setLoading(true);
+            await axios.delete(`${BaseUrl}/school/trip/${id}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            // ✅ Remove deleted trip from UI
+            setTrips((prevTrips) => prevTrips.filter((trip) => trip._id !== id));
+
+            toast.success('Trip deleted successfully!');
+          } catch (error) {
+            console.error('Error deleting trip:', error);
+            toast.error('Failed to delete the trip.');
+          } finally {
+            setLoading(false);
+          }
+        },
+        className: '!bg-red-600 !text-white !hover:bg-red-700',
+      },
+      {
+        label: 'No',
+        className: '!bg-red-600 !text-white !inter-bold !hover:bg-red-700',
+      },
+    ],
+  });
+};
+
+
+
+
+
+
+
 
  
 
@@ -86,10 +193,19 @@ const JobProposalsInterface = () => {
 
         {/* Proposals List */}
         <div className="space-y-4">
-          {filteredProposals.map((proposal) => (
+
+          {loading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-white p-4 rounded-lg  shadow-sm">
+                  <Skeleton height={24} width={200} />
+                  <Skeleton count={8} />
+                </div>
+              ))
+            ) : (
+          
+          filteredTrips.map((trip) => (
             <div
-             key={proposal.id}
-               onClick={() => handleNavigate(proposal.id)}
+              key={trip._id}
               className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-4">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 {/* Left Section */}
@@ -97,10 +213,10 @@ const JobProposalsInterface = () => {
                   <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-4">
                     <div className="flex-1">
                       <div className='flex justify-between'> 
-                        <h3 className="text-lg inter-semibold text-gray-900 mb-2">{proposal.title}</h3>
+                        <h3 className="text-lg inter-semibold capitalize text-gray-900 mb-2">{trip.tripName}</h3>
                          <div className="hidden lg:flex">
-                    <span className={`px-3 py-1 justify-center items-center text-center content-center rounded-full text-sm inter-medium ${proposal.statusColor}`}>
-                      {proposal.status}
+                    <span className={`px-3 py-1 capitalize justify-center items-center text-center content-center rounded-full text-sm inter-medium  ${statusColors[trip.tripStatus]}`}>
+                      {trip.tripStatus}
                     </span>
                   </div>
                   </div>
@@ -109,15 +225,15 @@ const JobProposalsInterface = () => {
                       </div>
                      
                       <div className="flex flex-wrap items-center gap-3 mb-3">
-                        <span className={`px-3 py-1 rounded-full text-sm inter-medium ${getTypeColor(proposal.type)}`}>
-                          {proposal.type}
+                        <span className={`px-3 py-1 capitalize rounded-full text-sm inter-medium ${tripTypeColors[trip.tripType]}`}>
+                          {trip.tripType}
                         </span>
-                        <span className="text-sm inter-regular text-gray-500">{proposal.createdDate}</span>
+                        <span className="text-sm inter-regular text-gray-500">  Created {formatDistanceToNow(new Date(trip.createdAt), { addSuffix: true })}</span>
                       </div>
                     </div>
                     <div className="flex lg:hidden">
-                      <span className={`px-3 py-1  rounded-full text-sm inter-medium ${proposal.statusColor}`}>
-                        {proposal.status}
+                      <span className={`px-3 py-1  rounded-full text-sm inter-medium `}>
+                        {trip.tripStatus}
                       </span>
                     </div>
                   </div>
@@ -125,26 +241,50 @@ const JobProposalsInterface = () => {
                   {/* Details Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-500 inter-regular block">Schedule:</span>
-                      <span className="inter-medium text-gray-900">{proposal.schedule.date}</span>
-                      <br />
-                      <span className="text-gray-600 inter-regular">{proposal.schedule.time}</span>
-                    </div>
+                        <span className="text-gray-500 inter-medium block">Schedule:</span>
+                        {trip.tripType === 'recurring' ? (
+                          <>
+                            <span className="text-gray-900 inter-semibold capitalize">
+                              Days: {trip.recurringDays?.join(', ') || 'N/A'}
+                            </span>
+                            <br />
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-gray-900 inter-semibold capitalize">
+                              Date: {trip.tripDate?.split('T')[0] || 'N/A'}
+                            </span>
+                            <br />
+                          </>
+                        )}
+                        <span className="text-[#4B5563] inter-semibold">{new Date(trip.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span> <span className='text-[#4B5563] inter-semibold'>-</span> <span className="text-[#4B5563] inter-semibold">{new Date(trip.returnTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
+
                     <div>
                       <span className="text-gray-500 inter-regular block">Students:</span>
-                      <span className="inter-medium text-gray-900">{proposal.requirements?.students}</span>
+                      <span className="inter-medium text-gray-900">{trip.numberOfStudents}</span>
                     </div>
 
                   
                     <div>
                       <span className="text-gray-500 inter-regular block">Proposals:</span>
-                      <span className="inter-medium text-gray-900">{proposal.proposals}</span>
+                      <span className="inter-medium text-gray-900"> {trip.proposals?.length || 0}</span>
                     </div>
                       <div className="flex my-auto  justify-end gap-2">
-                      <Share2 className="w-5 h-5 text-[#636AE8]"/>
-                      <Eye className="w-5 h-5 text-[#3498DB]" />
-                      <Edit className="w-5 h-5 text-[#27AE60]"/>
-                      <Trash2 className="w-5 h-5 text-[#E74C3C]" />
+                      <Share2 className="  w-5 h-5 text-[#636AE8]"/>
+                     <Eye
+                    onClick={() => handleNavigate(trip._id)}
+                    className="cursor-pointer w-5 h-5 text-[#3498DB] transition duration-200 ease-in-out transform hover:scale-125 hover:text-blue-600 active:scale-95 hover:drop-shadow-md"
+                  />
+
+                    <Edit
+                      onClick={() => navigate(`/post-trip-update/${trip._id}`)}
+                      className="w-5 h-5 text-[#27AE60] cursor-pointer transition duration-200 ease-in-out transform hover:scale-125 hover:text-green-700 active:scale-95 hover:drop-shadow-md"
+                    />
+                <Trash2
+                  onClick={() => handleDeleteTrip(trip._id)}
+                  className="w-5 h-5 text-[#E74C3C] cursor-pointer transition duration-200 ease-in-out transform hover:scale-125 hover:text-red-700 active:scale-95 hover:drop-shadow-md"
+                />
                   </div>
                   </div>
                 </div>
@@ -152,16 +292,17 @@ const JobProposalsInterface = () => {
                
               </div>
             </div>
-          ))}
+
+          )))}
         </div>
 
         {/* Empty State */}
-        {filteredProposals.length === 0 && (
+        {filteredTrips.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-400 mb-4">
               <Search className="w-12 h-12 mx-auto" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No proposals found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Job found</h3>
             <p className="text-gray-500">Try adjusting your search criteria</p>
           </div>
         )}

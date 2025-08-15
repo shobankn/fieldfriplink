@@ -1,73 +1,84 @@
-import React, { useState } from 'react';
-import { Search, Filter, Download, MapPin, Calendar, Mail, Phone, Eye, Clock, CheckCircle, AlertTriangle, Cross, X, CircleXIcon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, Download, MapPin, Calendar, Mail, Phone, Eye, Clock, CheckCircle, AlertTriangle, XCircle, CircleCheck } from 'lucide-react';
 import profile from '../../images/profile/profile4.jpeg';
 import { useNavigate } from 'react-router-dom';
-
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import "react-toastify/dist/ReactToastify.css";
 
 const DriverVerificationInterface = () => {
   const [activeTab, setActiveTab] = useState('Pending');
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [drivers, setDrivers] = useState([]);
   const navigate = useNavigate();
 
+  const BaseUrl = 'https://fieldtriplinkbackend-production.up.railway.app/api'
 
-  // Dynamic verification data
-  const verificationData = [
-    {
-      id: 1,
-      name: "Ahmed Hassan",
-      profileImage: profile,
-      email: "ahmed.hassan@email.com",
-      phone: "+92 300 1234567",
-      cnic: "42101-1234567-8",
-      experience: "5 years",
-      address: "House #12, Block C, ABC Town, Karachi",
-      submittedDate: "Submitted 2 days ago",
-      status: "Pending"
-    },
-    {
-      id: 2,
-      name: "Muhammad Ali",
-      profileImage:profile,
-      email: "muhammad.ali@email.com",
-      phone: "+92 302 3456789",
-      cnic: "61101-3456789-0",
-      experience: "4 years",
-      address: "Street 15, F-8 Sector, Islamabad",
-      submittedDate: "Submitted 3 hours ago",
-      status: "Pending"
-    },
-    {
-      id: 3,
-      name: "Sara Khan",
-      profileImage:profile,
-      email: "sara.khan@email.com",
-      phone: "+92 321 9876543",
-      cnic: "35202-9876543-2",
-      experience: "7 years",
-      address: "Model Town, Block B, Lahore",
-      submittedDate: "Verified 1 week ago",
-      status: "Verified"
-    },
-    {
-      id: 4,
-      name: "Hassan Ahmed",
-      profileImage: profile,
-      email: "hassan.ahmed@email.com",
-      phone: "+92 333 5554444",
-      cnic: "42101-5554444-6",
-      experience: "3 years",
-      address: "Gulshan-e-Iqbal, Karachi",
-      submittedDate: "Suspended 3 days ago",
-      status: "Suspended"
-    }
-  ];
+  // Map backend driverStatus to frontend status
+  const statusMap = {
+    pending_approval: 'Pending',
+    approved: 'Verified',
+    suspended: 'Suspended'
+  };
+
+  // Fetch driver data from backend
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Authentication token missing. Please log in.');
+        setLoading(false);
+        navigate('/login'); // Redirect to login page
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${BaseUrl}/school/drivers`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        // Transform backend data to match frontend structure
+        const transformedData = response.data.drivers.map(driver => ({
+          id: driver._id,
+          name: driver.name,
+          profileImage: driver.profileImage || profile, // Fallback to default profile image
+          email: driver.email,
+          phone: driver.phone,
+          cnic: driver.cnicNumber || 'N/A', // Fallback if CNIC not provided
+          experience: driver.experience || 'N/A', // Fallback if experience not provided
+          address: driver.address,
+          submittedDate: driver.createdAt
+          ? `Submitted ${Math.floor((new Date() - new Date(driver.createdAt)) / (1000 * 60 * 60 * 24))} days ago`
+          : 'N/A',
+
+          status: statusMap[driver.driverStatus] || 'Pending' // Map backend status to frontend
+        }));
+
+        setDrivers(transformedData);
+      } catch (error) {
+        console.error('Error fetching drivers:', error);
+        toast.error('Failed to fetch driver data. Please try again.');
+        setDrivers([]); // Set empty array to trigger empty state
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDrivers();
+  }, [navigate]);
 
   const getTabCount = (status) => {
-    return verificationData.filter(driver => driver.status === status).length;
+    return drivers.filter(driver => driver.status === status).length;
   };
 
   const getFilteredData = () => {
-    return verificationData.filter(driver => {
+    return drivers.filter(driver => {
       const matchesTab = driver.status === activeTab;
       const matchesSearch = searchTerm === '' || 
         driver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -77,71 +88,152 @@ const DriverVerificationInterface = () => {
     });
   };
 
-  const handleStatusChange = (driverId, newStatus) => {
-    // This would typically update the data in your state management solution
-    console.log(`Driver ${driverId} status changed to: ${newStatus}`);
-  };
 
-  const StatusToggle = ({ driver }) => {
+
+  const StatusToggle = ({ driver, updateDriverStatus }) => {
     const [currentStatus, setCurrentStatus] = useState(driver.status);
 
-    const handleToggle = (status) => {
-      setCurrentStatus(status);
-      handleStatusChange(driver.id, status);
-    };
+
+      useEffect(() => {
+      setCurrentStatus(driver.status);
+    }, [driver.status]);
+
+
+    
+const handleStatusChangeApi = async (status) => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Please log in first.");
+      return;
+    }
+
+    const res = await axios.patch(
+      `${BaseUrl}/school/driver/${driver.id}/status`,
+      { status },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (res.status === 200) {
+      if (status === "approved") {
+        toast.success("Driver accepted successfully.");
+      } else if (status === "rejected") {
+        toast.success("Driver rejected successfully.");
+      } else if (status === "suspended") {
+        toast.success("Driver suspended successfully.");
+      }
+         setCurrentStatus(statusMap[status] || status); // Map API value to UI status name if needed
+          updateDriverStatus(driver.id, statusMap[status] || status);
+    }
+  } catch (error) {
+    console.error(error);
+    toast.error(error.response?.data?.message || "Failed to update status.");
+  }
+};
+
 
     return (
       <div className="flex items-center gap-2">
-        {/* Pending Button */}
-        {/* <button
-          onClick={() => handleToggle('Pending')}
-          className={`p-2 rounded-lg transition-colors ${
-            currentStatus === 'Pending'
-              ? 'bg-orange-100 text-orange-600'
-              : 'text-gray-400 hover:bg-gray-100'
-          }`}
-          title="Mark as Pending"
-        >
-          <Clock className="w-4 h-4" />
-        </button> */}
+        {/* Pending: 3 buttons */}
+        {currentStatus === 'Pending' && (
+          <>
+            <button
+             onClick={(e) => {
+                e.stopPropagation(); // prevent triggering parent's onClick
+                navigate(`/hire-driver/${driver.id}`);
+              }}
+              
+              className={`p-2 cursor-pointer rounded-lg transition-color`}
+              title="Mark as Pending"
+            >
+              <Eye className="text-[#6B7280] w-4 h-4" />
+            </button>
+            <button
+              // onClick={() => handleToggle('Pending')}
+               onClick={(e) => {
+                 e.stopPropagation();
+                handleStatusChangeApi("approved")
+              }}
+              className={`p-2 cursor-pointer rounded-lg transition-colors `}
+              title="Mark as Pending"
+            >
+              <CircleCheck className="text-[#10B981] w-4 h-4" />
+            </button>
+            <button
+              // onClick={() => handleToggle('Pending')}
+               onClick={(e) => {
+                 e.stopPropagation();
+                handleStatusChangeApi("suspended")
+              }}
+              className={`p-2 cursor-pointer rounded-lg transition-colors `}
+              title="Mark as Pending"
+            >
+              <XCircle className="text-[#EF4444] w-4 h-4" />
+            </button>
+          </>
+        )}
 
-        {/* View Button */}
-        <button className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg transition-colors">
-          <Eye className="w-4 h-4 text-[#84B1F9]" />
-        </button>
+        {/* Verified: 2 buttons */}
+        {currentStatus === 'Verified' && (
+          <>
+            <button
+             onClick={(e) => {
+                e.stopPropagation(); // prevent triggering parent's onClick
+                navigate(`/hire-driver/${driver.id}`);
+              }}
+              className={`p-2 cursor-pointer rounded-lg transition-colors `}
+              title="Mark as Verified"
+            >
+              <Eye className="text-[#3B82F6] w-4 h-4" />
+            </button>
 
-        {/* Verified Button */}
-        <button
-          onClick={() => handleToggle('Verified')}
-          className={`p-2 rounded-lg transition-colors ${
-            currentStatus === 'Verified'
-              ? 'bg-green-100 text-green-600'
-              : 'text-gray-400 hover:bg-gray-100'
-          }`}
-          title="Mark as Verified"
-        >
-          <CheckCircle className=" text-[#4ACF7B] w-4 h-4" />
-        </button>
+            <button
+               onClick={(e) => {
+                 e.stopPropagation();
+                handleStatusChangeApi("suspended")
+              }}
+              className={`p-2 cursor-pointer rounded-lg transition-colors `}
+              title="Mark as Verified"
+            >
+              <AlertTriangle className="text-[#F0AD4E] w-4 h-4" />
+            </button>
+          </>
+        )}
 
-        {/* Suspended Button */}
-        <button
-          onClick={() => handleToggle('Suspended')}
-          className={`p-2 rounded-lg transition-colors ${
-            currentStatus === 'Suspended'
-              ? 'bg-red-100 text-red-600'
-              : 'text-gray-400 hover:bg-gray-100'
-          }`}
-          title="Mark as Suspended"
-        >
-          <CircleXIcon className=" text-red-600 w-4 h-4" />
-        </button>
+        {/* Suspended: 1 button */}
+        {currentStatus === 'Suspended' && (
+          <button
+              onClick={(e) => {
+                e.stopPropagation(); // prevent triggering parent's onClick
+                navigate(`/hire-driver/${driver.id}`);
+              }}
+            className={`p-2 cursor-pointer rounded-lg transition-colors bg-[#F0F2F5]`}
+            title="Mark as Suspended"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+        )}
       </div>
-        
     );
   };
 
+  const updateDriverStatus = (driverId, newStatus) => {
+  setDrivers((prevDrivers) =>
+    prevDrivers.map((driver) =>
+      driver.id === driverId ? { ...driver, status: newStatus } : driver
+    )
+  );
+};
+
+
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+      <ToastContainer />
       <div className="max-w-full mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -200,100 +292,124 @@ const DriverVerificationInterface = () => {
         </div>
 
         {/* Drivers List */}
-       <div className="space-y-4">
-  {getFilteredData().map((driver) => (
-    <div
-      key={driver.id}
-      onClick={() => navigate(`/hire-driver/${driver.id}`)}
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6"
-    >
-      <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-        {/* Driver Info Section */}
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-center gap-4 flex-1 text-center sm:text-left">
-          {/* Profile Picture */}
-          <div className="flex justify-center sm:justify-start">
-            <img
-              src={driver.profileImage}
-              alt={driver.name}
-              className="w-14 h-14 md:w-14 md:h-14 rounded-full object-cover border-2 border-gray-200 flex-shrink-0"
-            />
-          </div>
-
-          {/* Driver Details */}
-          <div className="flex-1 min-w-0">
-            {/* Name + Status */}
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
-              <div>
-                <h3 className="text-lg inter-semibold text-gray-900">{driver.name}</h3>
-              </div>
-              <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-end">
-                <span
-                  className={`flex items-center px-3 py-1 rounded-full text-sm inter-medium ${
-                    driver.status === 'Pending'
-                      ? 'bg-orange-100 text-orange-800'
-                      : driver.status === 'Verified'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}
-                >
-                  <Clock className="w-3 h-3 mr-1" /> {driver.status}
-                </span>
-                <div className="hidden sm:flex flex-shrink-0">
-                  <StatusToggle driver={driver} />
+        <div className="space-y-4">
+          {loading ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6">
+                <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-center gap-4 flex-1">
+                    <div className="flex justify-center sm:justify-start">
+                      <Skeleton circle width={56} height={56} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                        <Skeleton width={150} height={20} />
+                        <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-end">
+                          <Skeleton width={100} height={24} />
+                          <Skeleton width={100} height={24} />
+                        </div>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-4 mb-4 text-sm justify-center items-center sm:justify-start">
+                        <Skeleton width={200} height={16} />
+                        <Skeleton width={150} height={16} />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
+                        <Skeleton width={100} height={16} count={2} />
+                        <Skeleton width={100} height={16} count={2} />
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-4 text-sm justify-center items-center sm:justify-start">
+                        <Skeleton width={200} height={16} />
+                        <Skeleton width={150} height={16} />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+            ))
+          ) : (
+            getFilteredData().map((driver) => (
+              <div
+                key={driver.id}
+                onClick={() => navigate(`/hire-driver/${driver.id}`)}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6"
+              >
+                <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-center gap-4 flex-1 text-center sm:text-left">
+                    <div className="flex justify-center sm:justify-start">
+                      <img
+                        src={driver.profileImage}
+                        alt={driver.name}
+                        className="w-14 h-14 md:w-14 md:h-14 rounded-full object-cover border-2 border-gray-200 flex-shrink-0"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                        <div>
+                          <h3 className="text-lg inter-semibold text-gray-900">{driver.name}</h3>
+                        </div>
+                        <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-end">
+                          <span
+                            className={`flex items-center px-3 py-1 rounded-full text-sm inter-medium ${
+                              driver.status === 'Pending'
+                                ? 'bg-orange-100 text-orange-800'
+                                : driver.status === 'Verified'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            <Clock className="w-3 h-3 mr-1" /> {driver.status}
+                          </span>
+                          <div className="hidden sm:flex flex-shrink-0">
+                          <StatusToggle driver={driver} updateDriverStatus={updateDriverStatus} />
 
-              {/* Status Toggle - Mobile */}
-              <div className="flex sm:hidden justify-center">
-                <StatusToggle driver={driver} />
-              </div>
-            </div>
+                          </div>
+                        </div>
+                        <div className="flex sm:hidden justify-center">
+                         <StatusToggle driver={driver} updateDriverStatus={updateDriverStatus} />
 
-            {/* Contact Info */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-4 text-sm justify-center items-center sm:justify-start text-gray-600">
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                <span className='inter-regular'>{driver.email}</span>
+                          
+                        </div>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-4 mb-4 text-sm justify-center items-center sm:justify-start text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-4 h-4" />
+                          <span className='inter-regular'>{driver.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-4 h-4" />
+                          <span className='inter-regular'>{driver.phone}</span>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
+                        <div>
+                          <span className="text-gray-500 inter-regular block">CNIC:</span>
+                          <span className="inter-semibold text-gray-900">{driver.cnic}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500 inter-regular block">Experience:</span>
+                          <span className="inter-semibold text-gray-900">{driver.experience}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-4 text-sm justify-center items-center sm:justify-start">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <MapPin className="w-4 h-4 flex-shrink-0" />
+                          <span className='inter-regular'>{driver.address}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-500">
+                          <Calendar className="w-4 h-4 flex-shrink-0" />
+                          <span className='inter-regular'>{driver.submittedDate}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4" />
-                <span className='inter-regular'>{driver.phone}</span>
-              </div>
-            </div>
-
-            {/* Details Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
-              <div>
-                <span className="text-gray-500 inter-regular block">CNIC:</span>
-                <span className="inter-semibold text-gray-900">{driver.cnic}</span>
-              </div>
-              <div>
-                <span className="text-gray-500 inter-regular block">Experience:</span>
-                <span className="inter-semibold text-gray-900">{driver.experience}</span>
-              </div>
-            </div>
-
-            {/* Address and Submitted Date */}
-            <div className="flex flex-col sm:flex-row gap-4 text-sm justify-center items-center sm:justify-start">
-              <div className="flex items-center gap-2 text-gray-600">
-                <MapPin className="w-4 h-4 flex-shrink-0" />
-                <span className='inter-regular'>{driver.address}</span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-500">
-                <Calendar className="w-4 h-4 flex-shrink-0" />
-                <span className='inter-regular'>{driver.submittedDate}</span>
-              </div>
-            </div>
-          </div>
+            ))
+          )}
         </div>
-      </div>
-    </div>
-  ))}
-</div>
-
 
         {/* Empty State */}
-        {getFilteredData().length === 0 && (
+        {!loading && getFilteredData().length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-400 mb-4">
               <Search className="w-16 h-16 mx-auto" />

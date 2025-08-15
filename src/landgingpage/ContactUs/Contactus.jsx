@@ -21,7 +21,7 @@ const Contactus = () => {
     <div className="w-full bg-[#F8F9FB] text-gray-800">
       <Navbar/>
       {/* Hero Section */}
-      <div className="bg-[#EF4444] text-white text-center py-[93px] px-4 flex items-center justify-center flex-col">
+      <div className="bg-[#ea2127] text-white text-center py-[93px] px-4 flex items-center justify-center flex-col">
         <h1 className="text-[60px] archivobold mb-4">Get in Touch</h1>
         <p className="interregular text-[24px] w-[60%] flex items-center">
           Ready to transform your school's transportation experience? Let's discuss how FieldTripLink can help ensure no student misses out.

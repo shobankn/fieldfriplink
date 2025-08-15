@@ -45,7 +45,7 @@ const DashboardStats = () => {
             key={index}
             className="bg-white cursor-pointer rounded-lg border border-gray-200 p-6 shadow-sm"
           >
-            <div onClick={()=> navigation('/total-trip')} className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">
                   {card.title}

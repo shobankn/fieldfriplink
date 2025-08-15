@@ -1,33 +1,58 @@
 import React, { useState } from 'react';
 import logo from '../images/logo.png';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const EmailVerification = () => {
   const [userType, setUserType] = useState('School');
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChangePasswordClick = () => {
-    navigate('/forgetpassword');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post(
+        'https://fieldtriplinkbackend-production.up.railway.app/api/auth/forgot-password',
+        { email, userType }
+      );
+
+      if (response.data.message === 'Verification code sent') {
+        navigate('/pinverification', { state: { email, userType } });
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to send verification code');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex font-sans">
+    <div className="min-h-screen flex flex-col lg:flex-row font-sans">
       {/* Left Section */}
-      <div className="w-[45%] bg-white flex items-center justify-center px-[35px]">
+      <div className="w-full lg:w-[45%] bg-white flex items-center justify-center px-[35px] py-8">
         <div className="text-center">
-          <img src={logo} alt="Logo" className="w-full" />
+          <img
+            src={logo}
+            alt="Logo"
+            className="w-full lg:w-[100%] mx-auto"
+          />
         </div>
       </div>
 
       {/* Right Section */}
-      <div className="w-[55%] bg-[#f9f9f9] flex flex-col justify-center px-24">
-        <h2 className="text-[32px] font-semibold text-center mb-1">Forgot Password</h2>
-        <p className="text-center text-[16px] text-[#666666] mb-6">
+      <div className="w-full lg:w-[55%] bg-[#f9f9f9] flex flex-col justify-center px-4 sm:px-8 lg:px-24 py-8">
+        <h2 className="text-2xl sm:text-3xl lg:text-[32px] font-semibold text-center mb-1">Forgot Password</h2>
+        <p className="text-center text-sm sm:text-[16px] text-[#666666] mb-6">
           Enter your details to reset your password
         </p>
 
         {/* Toggle */}
-        <div className="flex mb-6 w-[400px] h-[48px] mx-auto rounded-[8px] overflow-hidden border border-gray-200 bg-white p-[5px]">
+        <div className="flex mb-6 w-full max-w-[400px] h-[48px] mx-auto rounded-[8px] overflow-hidden border border-gray-200 bg-white p-[5px]">
           <div className="relative flex w-full">
             <div
               className={`absolute w-1/2 h-full bg-[#DE3B40] rounded-[6px] transition-transform duration-300 ease-in-out ${
@@ -36,7 +61,7 @@ const EmailVerification = () => {
             />
             <button
               onClick={() => setUserType('School')}
-              className={`relative w-1/2 py-2 text-[14px] font-semibold z-10 transition-colors duration-300 ${
+              className={`relative w-1/2 py-2 text-sm sm:text-[14px] font-semibold z-10 transition-colors duration-300 ${
                 userType === 'School' ? 'text-white' : 'text-[#DE3B40]'
               }`}
             >
@@ -44,7 +69,7 @@ const EmailVerification = () => {
             </button>
             <button
               onClick={() => setUserType('Driver')}
-              className={`relative w-1/2 py-2 text-[14px] font-semibold z-10 transition-colors duration-300 ${
+              className={`relative w-1/2 py-2 text-sm sm:text-[14px] font-semibold z-10 transition-colors duration-300 ${
                 userType === 'Driver' ? 'text-white' : 'text-[#DE3B40]'
               }`}
             >
@@ -53,23 +78,53 @@ const EmailVerification = () => {
           </div>
         </div>
 
-        <form className="mt-[20px]">
+        <form onSubmit={handleSubmit} className="mt-5">
           <div className="mb-4">
-            <label className="block text-[14px] font-semibold mb-1">Email</label>
+            <label className="block text-sm sm:text-[14px] font-semibold mb-1">Email</label>
             <input
               type="email"
               placeholder="Enter your email"
-              className="w-full border border-gray-300 rounded-[8px] px-3 h-[48px] text-[14px] focus:outline-none focus:ring-2 focus:ring-[#DE3B40] transition-colors duration-300"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border border-gray-300 rounded-[8px] px-3 h-[48px] text-sm sm:text-[14px] focus:outline-none focus:ring-2 focus:ring-[#DE3B40] transition-colors duration-300"
               required
             />
           </div>
 
+          {error && (
+            <p className="text-red-500 text-sm text-center mb-4">{error}</p>
+          )}
+
           <button
             type="submit"
-            className="w-full bg-[#DE3B40] hover:bg-[#B83238] text-white h-[48px] rounded-[8px] font-medium mb-4 mt-[55px] text-[14px] transition-colors duration-300 ease-in-out"
-            onClick={handleChangePasswordClick}
+            disabled={isLoading}
+            className={`w-full bg-[#DE3B40] hover:bg-[#B83238] text-white h-[48px] rounded-[8px] font-medium mb-4 mt-6 sm:mt-[55px] text-sm sm:text-[14px] transition-colors duration-300 ease-in-out flex items-center justify-center ${
+              isLoading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
-            Change Password
+            {isLoading ? (
+              <svg
+                className="animate-spin h-5 w-5 text-white mr-2"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            ) : null}
+            {isLoading ? 'Sending...' : 'Change Password'}
           </button>
         </form>
       </div>

@@ -65,7 +65,7 @@ const Documents = () => {
         setFiles({
           cnicFront: profile.cnicFrontImage ? { name: 'CNIC Front Uploaded' } : null,
           cnicBack: profile.cnicBackImage ? { name: 'CNIC Back Uploaded' } : null,
-          license: profile.drivingLicenseImage ? { name: 'Driving License Uploaded' } : null,
+          license: profile.drIVINGLicenseImage ? { name: 'Driving License Uploaded' } : null,
           vehicleReg: profile.vehicleRegistrationImage ? { name: 'Vehicle Registration Uploaded' } : null,
         });
       } catch (error) {
@@ -81,6 +81,51 @@ const Documents = () => {
     const file = e.target.files[0];
     if (file) {
       setFiles({ ...files, [id]: file });
+    }
+  };
+
+  // Handle document submission
+  const handleSubmit = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('No authentication token found. Please log in again.');
+        return;
+      }
+
+      const formData = new FormData();
+      uploadFields.forEach((field) => {
+        if (files[field.id]) {
+          formData.append(field.apiKey, files[field.id]);
+        }
+      });
+
+      const response = await axios.post(
+        'https://fieldtriplinkbackend-production.up.railway.app/api/driver/update-profile',
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      // Update profileData with new URLs from the response (adjust based on actual API response)
+      const updatedProfile = response.data.profile || response.data.data.profile;
+      setProfileData((prev) => ({
+        ...prev,
+        cnicFrontImage: updatedProfile.cnicFrontImage || prev.cnicFrontImage,
+        cnicBackImage: updatedProfile.cnicBackImage || prev.cnicBackImage,
+        drivingLicenseImage: updatedProfile.drivingLicenseImage || prev.drivingLicenseImage,
+        vehicleRegistrationImage: updatedProfile.vehicleRegistrationImage || prev.vehicleRegistrationImage,
+        accountStatus: updatedProfile.accountStatus || prev.accountStatus,
+      }));
+
+      toast.success('Documents submitted successfully for verification!');
+    } catch (error) {
+      console.error('Error uploading documents:', error.response?.data || error.message);
+      toast.error(`Failed to submit documents: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -235,6 +280,7 @@ const Documents = () => {
 
               {/* Submit Button */}
               <button
+                onClick={handleSubmit}
                 className={`px-4 sm:px-6 py-1.5 sm:py-2 rounded font-semibold text-sm sm:text-base ${
                   allFieldsUploaded
                     ? 'bg-red-500 text-white hover:bg-red-600'

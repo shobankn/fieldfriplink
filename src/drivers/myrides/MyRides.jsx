@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom'; // Added useLocation
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
 import { IoLocationOutline } from "react-icons/io5";
@@ -12,7 +13,6 @@ import { RxCrossCircled } from "react-icons/rx";
 import { LuPlane } from "react-icons/lu";
 import { ImStopwatch } from "react-icons/im";
 import { LuShieldPlus } from "react-icons/lu";
-import { useNavigate } from 'react-router-dom';
 
 const rideData = {
   Scheduled: [],
@@ -22,8 +22,9 @@ const rideData = {
 };
 
 const MyRides = () => {
+  const location = useLocation(); // Added to access navigation state
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("Invitations");
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || "Invitations"); // Updated to use location.state
   const [rideDataState, setRideDataState] = useState(rideData);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -421,7 +422,7 @@ const MyRides = () => {
 
   return (
     <div className="flex h-screen overflow-hidden relative">
-      <div className="hidden lg:block lg:w-[20%]">
+      <div className="hidden lg:block lg:w-[17%]">
         <Sidebar isOpen={true} toggleSidebar={toggleSidebar} />
       </div>
 
@@ -436,7 +437,7 @@ const MyRides = () => {
         </div>
       )}
 
-      <div className="flex flex-col flex-1 w-full lg:w-[80%]">
+      <div className="flex flex-col flex-1 w-full lg:w-[83%]">
         <Topbar toggleSidebar={toggleSidebar} />
 
         <main className="flex-1 overflow-y-auto pt-16 px-[33px] bg-gray-50">

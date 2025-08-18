@@ -12,8 +12,7 @@ import { GoogleMap, LoadScript, StandaloneSearchBox, Marker } from '@react-googl
 Modal.setAppElement('#root');
 
 const Register = () => {
-  const [activeTab, setActiveTab] = useState('School');
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     UserName: '',
     email: '',
     phone: '',
@@ -29,7 +28,10 @@ const Register = () => {
     vehicleRegistrationDocument: null,
     lat: 31.5204,
     lng: 74.3587
-  });
+  };
+
+  const [activeTab, setActiveTab] = useState('School');
+  const [formData, setFormData] = useState(initialFormData);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -191,23 +193,7 @@ const Register = () => {
         if (response.ok) {
           setSuccess('Driver registered successfully!');
           toast.success('Driver registered successfully!');
-          setFormData({
-            UserName: '',
-            email: '',
-            phone: '',
-            password: '',
-            cnicNumber: '',
-            schoolId: '',
-            city: '',
-            cnicFront: null,
-            cnicBack: null,
-            driversLicense: null,
-            vehicleRegistrationDocument: null,
-            schoolName: '',
-            location: '',
-            lat: 31.5204,
-            lng: 74.3587
-          });
+          setFormData(initialFormData);
           setTimeout(() => {
             navigate('/login');
           }, 2000);
@@ -270,23 +256,7 @@ const Register = () => {
         if (response.ok) {
           setSuccess('School admin registered successfully!');
           toast.success('School admin registered successfully!');
-          setFormData({
-            UserName: '',
-            email: '',
-            phone: '',
-            password: '',
-            cnicNumber: '',
-            schoolId: '',
-            city: '',
-            cnicFront: null,
-            cnicBack: null,
-            driversLicense: null,
-            vehicleRegistrationDocument: null,
-            schoolName: '',
-            location: '',
-            lat: 31.5204,
-            lng: 74.3587
-          });
+          setFormData(initialFormData);
           setTimeout(() => {
             navigate('/login');
           }, 2000);
@@ -302,6 +272,11 @@ const Register = () => {
         setLoading(false);
       }
     }
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setFormData(initialFormData);
   };
 
   return (
@@ -322,8 +297,8 @@ const Register = () => {
             />
             <button
               type="button"
-              onClick={() => setActiveTab('School')}
-              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
+              onClick={() => handleTabChange('School')}
+              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 cursor-pointer ${
                 activeTab === 'School' ? 'text-white' : 'text-[#de3b40]'
               } z-10`}
             >
@@ -331,8 +306,8 @@ const Register = () => {
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('Driver')}
-              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
+              onClick={() => handleTabChange('Driver')}
+              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 cursor-pointer ${
                 activeTab === 'Driver' ? 'text-white' : 'text-[#de3b40]'
               } z-10`}
             >
@@ -409,7 +384,7 @@ const Register = () => {
                       name="location"
                       value={formData.location}
                       placeholder="Enter school location"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base pl-10"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base pl-10 cursor-pointer"
                       readOnly
                       onClick={() => setIsMapOpen(true)}
                     />
@@ -460,7 +435,7 @@ const Register = () => {
                 </div>
                 <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                   <div className="flex-1">
-                    <label className="block text-sm lg:text-[14px] inter-semibold1">CNIC Front</label>
+                    <label className="block text-sm lg:text-[14px] inter-semibold mb-1">CNIC Front</label>
                     <input
                       type="file"
                       name="cnicFront"
@@ -517,7 +492,7 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 cursor-pointer"
                 >
                   {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
                 </button>
@@ -533,16 +508,16 @@ const Register = () => {
               />
               <label htmlFor="terms" className="ml-2 text-sm lg:text-[14px] text-[#666666] interregular">
                 I agree to the{' '}
-                <a href="#" className="text-[#de3b40] hover:underline inter-semibold">Terms of Service</a>
+                <a href="#" className="text-[#de3b40] hover:underline inter-semibold cursor-pointer">Terms of Service</a>
                 {' '}and{' '}
-                <a href="#" className="text-[#de3b40] hover:underline inter-semibold">Privacy Policy</a>
+                <a href="#" className="text-[#de3b40] hover:underline inter-semibold cursor-pointer">Privacy Policy</a>
               </label>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className={`w-full bg-[#de3b40] hover:bg-red-600 text-white rounded-[8px] font-medium h-[48px] text-sm lg:text-base transition-colors duration-300 flex items-center justify-center ${
+              className={`w-full bg-[#de3b40] hover:bg-red-600 text-white rounded-[8px] font-medium h-[48px] text-sm lg:text-base transition-colors duration-300 flex items-center justify-center cursor-pointer ${
                 loading ? 'opacity-75 cursor-not-allowed' : ''
               }`}
             >
@@ -578,7 +553,7 @@ const Register = () => {
               Already have an account?{' '}
               <button
                 onClick={handleSignIn}
-                className="text-[#de3b40] inter-semibold hover:underline"
+                className="text-[#de3b40] inter-semibold hover:underline cursor-pointer"
               >
                 Sign in
               </button>

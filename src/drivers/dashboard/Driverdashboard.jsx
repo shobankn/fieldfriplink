@@ -16,11 +16,13 @@ const Driverdashboard = () => {
   const [scheduledRides, setScheduledRides] = useState([]);
   const [invitations, setInvitations] = useState([]);
   const [activities, setActivities] = useState([]);
+  const [activeRide, setActiveRide] = useState(null);
   const [loading, setLoading] = useState({
     stats: true,
     scheduled: true,
     invitations: true,
     activities: true,
+    activeRide: true,
   });
   const [isVerified, setIsVerified] = useState(false);
   const navigate = useNavigate();
@@ -30,9 +32,7 @@ const Driverdashboard = () => {
       try {
         const token = localStorage.getItem('token');
         const response = await axios.get('https://fieldtriplinkbackend-production.up.railway.app/api/driver/stats', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         setStats((prev) => ({
           ...prev,
@@ -46,16 +46,37 @@ const Driverdashboard = () => {
       }
     };
 
+    const fetchActiveRide = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(
+          'https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips?status=active',
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const activeTrip = response.data.trips?.[0] || null;
+        setActiveRide(
+          activeTrip
+            ? {
+                school: activeTrip.tripName,
+                distance: activeTrip.distance || '5.2 km',
+                expectedTime: activeTrip.expectedTime || '15 mins',
+              }
+            : null
+        );
+        setLoading((prev) => ({ ...prev, activeRide: false }));
+      } catch (error) {
+        console.error('Error fetching active ride:', error);
+        setActiveRide(null);
+        setLoading((prev) => ({ ...prev, activeRide: false }));
+      }
+    };
+
     const fetchScheduledRides = async () => {
       try {
         const token = localStorage.getItem('token');
         const response = await axios.get(
           'https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips?status=scheduled',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         const mappedScheduledRides = response.data.trips.map((trip) => {
@@ -83,11 +104,7 @@ const Driverdashboard = () => {
         const token = localStorage.getItem('token');
         const response = await axios.get(
           'https://fieldtriplinkbackend-production.up.railway.app/api/driver/invitations?status=pending&page=1',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         const mappedInvitations = response.data.invitations.map((inv) => {
@@ -107,6 +124,7 @@ const Driverdashboard = () => {
         setLoading((prev) => ({ ...prev, invitations: false }));
       } catch (error) {
         console.error('Error fetching invitations:', error);
+        setInvitations([]);
         setLoading((prev) => ({ ...prev, invitations: false }));
       }
     };
@@ -116,22 +134,14 @@ const Driverdashboard = () => {
         const token = localStorage.getItem('token');
         const response = await axios.get(
           'https://fieldtriplinkbackend-production.up.railway.app/api/common/notifications',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         const mappedActivities = response.data.map((notification) => {
           const notificationDate = new Date(notification.createdAt);
           const timeDiff = Math.floor((Date.now() - notificationDate) / (1000 * 60 * 60 * 24));
           const timeStr =
-            timeDiff === 0
-              ? 'Today'
-              : timeDiff === 1
-              ? 'Yesterday'
-              : `${timeDiff} days ago`;
+            timeDiff === 0 ? 'Today' : timeDiff === 1 ? 'Yesterday' : `${timeDiff} days ago`;
 
           let icon = CircleCheckIcon;
           let iconColor = '#10B981';
@@ -169,9 +179,7 @@ const Driverdashboard = () => {
       try {
         const token = localStorage.getItem('token');
         const response = await axios.get('https://fieldtriplinkbackend-production.up.railway.app/api/driver/my-profile', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const { user } = response.data;
@@ -183,6 +191,7 @@ const Driverdashboard = () => {
     };
 
     fetchStats();
+    fetchActiveRide();
     fetchScheduledRides();
     fetchInvitations();
     fetchActivities();
@@ -233,10 +242,24 @@ const Driverdashboard = () => {
     </div>
   );
 
+  // Shimmer effect for Active Ride section
+  const ActiveRideShimmerCard = () => (
+    <div className="bg-red-500 text-white rounded-lg p-6 mb-8 animate-pulse">
+      <div className="flex flex-col sm:flex-row justify-between items-center">
+        <div>
+          <div className="h-5 bg-gray-200 rounded w-32 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-48 mb-1"></div>
+          <div className="h-4 bg-gray-200 rounded w-40"></div>
+        </div>
+        <div className="h-8 bg-gray-200 rounded-md w-24 mt-4 sm:mt-0"></div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex h-screen overflow-hidden relative">
       {/* Sidebar for large screen */}
-      <div className="hidden lg:block lg:w-[20%]">
+      <div className="hidden lg:block lg:w-[17%]">
         <Sidebar isOpen={true} toggleSidebar={toggleSidebar} />
       </div>
 
@@ -253,7 +276,7 @@ const Driverdashboard = () => {
       )}
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1 w-full lg:w-[80%]">
+      <div className="flex flex-col flex-1 w-full lg:w-[83%]">
         <Topbar toggleSidebar={toggleSidebar} />
 
         <main className="flex-1 overflow-y-auto pt-16 px-[32px] bg-gray-50">
@@ -305,7 +328,6 @@ const Driverdashboard = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              {/* Rating Card */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-[#FFFBEB] rounded-full flex items-center justify-center mr-4">
@@ -314,17 +336,12 @@ const Driverdashboard = () => {
                   <div>
                     <p className="text-gray-600 inter-regular text-sm">Total Reviews</p>
                     <p className="text-2xl font-bold text-gray-800">
-                      {loading.stats ? (
-                        <div className="h-6 bg-gray-200 rounded w-12 animate-pulse"></div>
-                      ) : (
-                        stats.totalReviews
-                      )}
+                      {loading.stats ? <div className="h-6 bg-gray-200 rounded w-12 animate-pulse"></div> : stats.totalReviews}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Available Trips Card */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
@@ -333,17 +350,12 @@ const Driverdashboard = () => {
                   <div>
                     <p className="text-gray-600 inter-regular text-sm">Available</p>
                     <p className="text-2xl font-bold text-gray-800">
-                      {loading.stats ? (
-                        <div className="h-6 bg-gray-200 rounded w-12 animate-pulse"></div>
-                      ) : (
-                        stats.availableTrips
-                      )}
+                      {loading.stats ? <div className="h-6 bg-gray-200 rounded w-12 animate-pulse"></div> : stats.availableTrips}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Proposals Card */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
@@ -352,17 +364,12 @@ const Driverdashboard = () => {
                   <div>
                     <p className="text-gray-600 inter-regular text-sm">Proposals</p>
                     <p className="text-2xl font-bold text-gray-800">
-                      {loading.invitations ? (
-                        <div className="h-6 bg-gray-200 rounded w-12 animate-pulse"></div>
-                      ) : (
-                        stats.totalProposals
-                      )}
+                      {loading.invitations ? <div className="h-6 bg-gray-200 rounded w-12 animate-pulse"></div> : stats.totalProposals}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Scheduled Card */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
@@ -371,11 +378,7 @@ const Driverdashboard = () => {
                   <div>
                     <p className="text-gray-600 inter-regular text-sm">Schedule</p>
                     <p className="text-2xl font-bold text-gray-800">
-                      {loading.scheduled ? (
-                        <div className="h-6 bg-gray-200 rounded w-12 animate-pulse"></div>
-                      ) : (
-                        stats.scheduledTrips
-                      )}
+                      {loading.scheduled ? <div className="h-6 bg-gray-200 rounded w-12 animate-pulse"></div> : stats.scheduledTrips}
                     </p>
                   </div>
                 </div>
@@ -384,16 +387,27 @@ const Driverdashboard = () => {
 
             {/* Active Ride */}
             <div className="bg-red-500 text-white rounded-lg p-6 mb-8">
-              <div className="flex flex-col sm:flex-row justify-between items-center">
-                <div>
-                  <h3 className="text-lg inter-semibold mb-1">Active Ride</h3>
-                  <p className="text-red-100 inter-regular mb-2">Elite International School</p>
-                  <p className="text-red-100 inter-regular text-sm">Distance: 5.2 km | Expected: 15 mins</p>
+              {loading.activeRide ? (
+                <ActiveRideShimmerCard />
+              ) : activeRide ? (
+                <div className="flex flex-col sm:flex-row justify-between items-center">
+                  <div>
+                    <h3 className="text-lg inter-semibold mb-1">Active Ride</h3>
+                    <p className="text-red-100 inter-regular mb-2">{activeRide.school}</p>
+                    <p className="text-red-100 inter-regular text-sm">
+                      Distance: {activeRide.distance} | Expected: {activeRide.expectedTime}
+                    </p>
+                  </div>
+                  <button className="bg-white mt-4 whitespace-nowrap inter-regular text-red-500 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                    View Live
+                  </button>
                 </div>
-                <button className="bg-white mt-4 whitespace-nowrap inter-regular text-red-500 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                  View Live
-                </button>
-              </div>
+              ) : (
+                <div className="text-center">
+                  <h3 className="text-lg inter-semibold mb-1">Active Ride</h3>
+                  <p className="text-red-100 inter-regular">No active ride</p>
+                </div>
+              )}
             </div>
 
             {/* Upcoming Rides */}
@@ -452,7 +466,7 @@ const Driverdashboard = () => {
             <div className="bg-white mb-6 p-6 rounded-lg shadow-md border border-gray-200 flex flex-col sm:flex-row justify-between items-center w-full">
               {loading.invitations ? (
                 <OffersShimmerCard />
-              ) : (
+              ) : invitations.length > 0 ? (
                 <>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-700">New Ride Offers</h3>
@@ -468,6 +482,11 @@ const Driverdashboard = () => {
                     View Offers
                   </button>
                 </>
+              ) : (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-700">New Ride Offers</h3>
+                  <p className="text-gray-600 text-sm">No offer available</p>
+                </div>
               )}
             </div>
 

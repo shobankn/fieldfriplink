@@ -1,15 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logo from '../images/58B3CDAD-6BA1-480A-BA32-DC545C78A96A[1] 1 1.png';
+import logo from '../images/logo.png';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { BsMap } from 'react-icons/bs';
-import Modal from 'react-modal';
-import { GoogleMap, LoadScript, StandaloneSearchBox, Marker } from '@react-google-maps/api';
-
-// Set the app element for react-modal (accessibility requirement)
-Modal.setAppElement('#root');
+import { HiUpload } from 'react-icons/hi';
+import { IoChevronDown } from 'react-icons/io5';
 
 const Register = () => {
   const initialFormData = {
@@ -36,9 +33,49 @@ const Register = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isMapOpen, setIsMapOpen] = useState(false);
-  const searchBoxRef = useRef(null);
+  const [schools, setSchools] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const cnicFrontRef = useRef(null);
+  const cnicBackRef = useRef(null);
+  const driversLicenseRef = useRef(null);
+  const vehicleRegistrationRef = useRef(null);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
+
+  // Fetch schools from API
+  useEffect(() => {
+    const fetchSchools = async () => {
+      try {
+        const response = await fetch('https://fieldtriplinkbackend-production.up.railway.app/api/auth/school-list', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (response.ok && data.success) {
+          setSchools(data.data || []);
+        } else {
+          toast.error('Failed to fetch schools');
+        }
+      } catch (err) {
+        toast.error('Error fetching schools');
+        console.error('API Error:', err);
+      }
+    };
+    fetchSchools();
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, type, value, files } = e.target;
@@ -48,38 +85,22 @@ const Register = () => {
     });
   };
 
+  const handleSchoolSelect = (school) => {
+    setFormData({
+      ...formData,
+      schoolId: school._id,
+      schoolName: school.schoolName
+    });
+    setIsDropdownOpen(false);
+  };
+
+  const handleFileClick = (ref) => {
+    ref.current.click();
+  };
+
   const handleSignIn = (e) => {
     e.preventDefault();
     navigate('/login');
-  };
-
-  const onSearchBoxLoad = (ref) => {
-    searchBoxRef.current = ref;
-  };
-
-  const onPlacesChanged = () => {
-    if (searchBoxRef.current) {
-      const places = searchBoxRef.current.getPlaces();
-      if (places.length === 0) return;
-      const place = places[0];
-      const address = place.formatted_address;
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
-      let city = '';
-      place.address_components.forEach((component) => {
-        if (component.types.includes('locality')) {
-          city = component.long_name;
-        }
-      });
-      setFormData({
-        ...formData,
-        location: address,
-        city: city || formData.city,
-        lat: lat,
-        lng: lng,
-      });
-      setIsMapOpen(false);
-    }
   };
 
   const validateEmail = (email) => {
@@ -104,7 +125,6 @@ const Register = () => {
     setLoading(true);
 
     if (activeTab === 'Driver') {
-      // Validate required fields for driver
       const requiredFields = [
         { key: 'UserName', label: 'Username' },
         { key: 'email', label: 'Email' },
@@ -112,7 +132,7 @@ const Register = () => {
         { key: 'password', label: 'Password' },
         { key: 'cnicNumber', label: 'CNIC Number' },
         { key: 'city', label: 'City' },
-        { key: 'schoolId', label: 'School ID' },
+        { key: 'schoolId', label: 'School' },
         { key: 'cnicFront', label: 'CNIC Front Image' },
         { key: 'cnicBack', label: 'CNIC Back Image' },
         { key: 'driversLicense', label: "Driver's License" },
@@ -128,7 +148,6 @@ const Register = () => {
         }
       }
 
-      // Additional validations
       if (!validateEmail(formData.email)) {
         setError('Please enter a valid email address');
         toast.error('Please enter a valid email address');
@@ -150,7 +169,6 @@ const Register = () => {
         return;
       }
 
-      // Validate file types
       const validImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
       const files = [
         { file: formData.cnicFront, name: 'CNIC Front' },
@@ -168,14 +186,13 @@ const Register = () => {
         }
       }
 
-      // Prepare form data for driver API
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.UserName);
       formDataToSend.append('email', formData.email);
       formDataToSend.append('phone', formData.phone);
       formDataToSend.append('password', formData.password);
       formDataToSend.append('cnicNumber', formData.cnicNumber);
-      formDataToSend.append('city', formData.city); // Changed from address to city
+      formDataToSend.append('city', formData.city);
       formDataToSend.append('schoolId', formData.schoolId);
       formDataToSend.append('drivingLicenseImage', formData.driversLicense);
       formDataToSend.append('cnicFrontImage', formData.cnicFront);
@@ -209,7 +226,6 @@ const Register = () => {
         setLoading(false);
       }
     } else {
-      // School admin registration (unchanged)
       const requiredFields = ['UserName', 'email', 'password', 'schoolName', 'city', 'location'];
       for (const field of requiredFields) {
         if (!formData[field]) {
@@ -277,6 +293,7 @@ const Register = () => {
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setFormData(initialFormData);
+    setIsDropdownOpen(false);
   };
 
   return (
@@ -383,12 +400,11 @@ const Register = () => {
                       type="text"
                       name="location"
                       value={formData.location}
+                      onChange={handleInputChange}
                       placeholder="Enter school location"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base pl-10 cursor-pointer"
-                      readOnly
-                      onClick={() => setIsMapOpen(true)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base pr-10"
                     />
-                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
                       <BsMap />
                     </span>
                   </div>
@@ -411,15 +427,41 @@ const Register = () => {
                 </div>
                 <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                   <div className="flex-1">
-                    <label className="block text-sm lg:text-[14px] inter-semibold mb-1">School ID</label>
-                    <input
-                      type="text"
-                      name="schoolId"
-                      value={formData.schoolId}
-                      onChange={handleInputChange}
-                      placeholder="Enter school ID"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base"
-                    />
+                    <label className="block text-sm lg:text-[14px] inter-semibold mb-1">School</label>
+                    <div className="relative" ref={dropdownRef}>
+                      <div
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-white flex items-center cursor-pointer"
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      >
+                        <span className="flex-1 truncate">
+                          {formData.schoolName || 'Select a school'}
+                        </span>
+                        <IoChevronDown
+                          className={`text-gray-500 transform transition-transform duration-200 ${
+                            isDropdownOpen ? 'rotate-180' : ''
+                          }`}
+                        />
+                      </div>
+                      {isDropdownOpen && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                          {schools.length > 0 ? (
+                            schools.map((school) => (
+                              <div
+                                key={school._id}
+                                className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm lg:text-base"
+                                onClick={() => handleSchoolSelect(school)}
+                              >
+                                {school.schoolName} ({school.address.city})
+                              </div>
+                            ))
+                          ) : (
+                            <div className="px-3 py-2 text-sm lg:text-base text-gray-500">
+                              No schools available
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="flex-1">
                     <label className="block text-sm lg:text-[14px] inter-semibold mb-1">City</label>
@@ -436,43 +478,75 @@ const Register = () => {
                 <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                   <div className="flex-1">
                     <label className="block text-sm lg:text-[14px] inter-semibold mb-1">CNIC Front</label>
+                    <div
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-white flex items-center cursor-pointer"
+                      onClick={() => handleFileClick(cnicFrontRef)}
+                    >
+                      <span className="flex-1 truncate">{formData.cnicFront ? formData.cnicFront.name : 'Upload CNIC Front'}</span>
+                      <HiUpload className="text-gray-500" />
+                    </div>
                     <input
                       type="file"
                       name="cnicFront"
                       accept="image/jpeg,image/png"
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-white"
+                      className="hidden"
+                      ref={cnicFrontRef}
                     />
                   </div>
                   <div className="flex-1">
                     <label className="block text-sm lg:text-[14px] inter-semibold mb-1">CNIC Back</label>
+                    <div
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-white flex items-center cursor-pointer"
+                      onClick={() => handleFileClick(cnicBackRef)}
+                    >
+                      <span className="flex-1 truncate">{formData.cnicBack ? formData.cnicBack.name : 'Upload CNIC Back'}</span>
+                      <HiUpload className="text-gray-500" />
+                    </div>
                     <input
                       type="file"
                       name="cnicBack"
                       accept="image/jpeg,image/png"
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-white"
+                      className="hidden"
+                      ref={cnicBackRef}
                     />
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm lg:text-[14px] inter-semibold mb-1">Driver's License</label>
+                  <div
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-white flex items-center cursor-pointer"
+                    onClick={() => handleFileClick(driversLicenseRef)}
+                  >
+                    <span className="flex-1 truncate">{formData.driversLicense ? formData.driversLicense.name : "Upload Driver's License"}</span>
+                    <HiUpload className="text-gray-500" />
+                  </div>
                   <input
                     type="file"
                     name="driversLicense"
                     accept="image/jpeg,image/png"
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-white"
+                    className="hidden"
+                    ref={driversLicenseRef}
                   />
                 </div>
                 <div>
                   <label className="block text-sm lg:text-[14px] inter-semibold mb-1">Vehicle Registration Document</label>
+                  <div
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-white flex items-center cursor-pointer"
+                    onClick={() => handleFileClick(vehicleRegistrationRef)}
+                  >
+                    <span className="flex-1 truncate">{formData.vehicleRegistrationDocument ? formData.vehicleRegistrationDocument.name : 'Upload Vehicle Registration Document'}</span>
+                    <HiUpload className="text-gray-500" />
+                  </div>
                   <input
                     type="file"
                     name="vehicleRegistrationDocument"
                     accept="image/jpeg,image/png"
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-white"
+                    className="hidden"
+                    ref={vehicleRegistrationRef}
                   />
                 </div>
               </>
@@ -546,7 +620,7 @@ const Register = () => {
               {loading ? 'Processing...' : 'Create Account'}
             </button>
 
-            {error && <p className="text-red-500 text-sm lg:text-[14px] interregular mt-4 text-center">{error}</p>}
+            {error && <p className="text-red-500 text-sm lg:text-[14px] inter(menuItem, 'interregular') mt-4 text-center">{error}</p>}
             {success && <p className="text-green-500 text-sm lg:text-[14px] interregular mt-4 text-center">{success}</p>}
 
             <p className="text-center text-sm lg:text-[14px] interregular mt-4">
@@ -561,61 +635,6 @@ const Register = () => {
           </div>
         </form>
         <ToastContainer />
-
-        <Modal
-          isOpen={isMapOpen}
-          onRequestClose={() => setIsMapOpen(false)}
-          style={{
-            content: {
-              top: '50%',
-              left: '50%',
-              right: 'auto',
-              bottom: 'auto',
-              marginRight: '-50%',
-              transform: 'translate(-50%, -50%)',
-              width: '80%',
-              maxWidth: '800px',
-              height: '500px',
-              padding: 0,
-              overflow: 'hidden'
-            }
-          }}
-        >
-          <LoadScript googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY_HERE" libraries={['places']}>
-            <GoogleMap
-              mapContainerStyle={{ width: '100%', height: '100%' }}
-              center={{ lat: formData.lat, lng: formData.lng }}
-              zoom={13}
-            >
-              <StandaloneSearchBox
-                onLoad={onSearchBoxLoad}
-                onPlacesChanged={onPlacesChanged}
-              >
-                <input
-                  type="text"
-                  placeholder="Search for location"
-                  style={{
-                    boxSizing: 'border-box',
-                    border: '1px solid transparent',
-                    width: '240px',
-                    height: '32px',
-                    padding: '0 12px',
-                    borderRadius: '3px',
-                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
-                    fontSize: '14px',
-                    outline: 'none',
-                    textOverflow: 'ellipses',
-                    position: 'absolute',
-                    left: '50%',
-                    top: '10px',
-                    marginLeft: '-120px'
-                  }}
-                />
-              </StandaloneSearchBox>
-              <Marker position={{ lat: formData.lat, lng: formData.lng }} />
-            </GoogleMap>
-          </LoadScript>
-        </Modal>
       </div>
     </div>
   );

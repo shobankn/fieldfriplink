@@ -417,7 +417,6 @@ const Documents = () => {
                 </div>
 
                 <div className='mb-[12px]'>
-                  <FaCheck className='text-[#22C55E]' />
                 </div>
 
                 {/* Notes */}

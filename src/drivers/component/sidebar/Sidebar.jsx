@@ -11,7 +11,7 @@ import { CiStar } from 'react-icons/ci';
 import { FaRegBell } from 'react-icons/fa';
 import { IoIosLogOut } from 'react-icons/io';
 import { NavLink, useNavigate } from 'react-router-dom';
-import logo from '../../../images/logo.png';
+import logo from '../../../images/logo2.png';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const navigate = useNavigate();
@@ -52,7 +52,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         {/* Logo/Title */}
         <div className="mb-8 pl-[26px]">
           <h2 className="text-[18px] interbold text-gray-800 flex items-center gap-[10px]">
-            <img src={logo} alt="FieldTripLink Logo" className="h-[50px] w-[89px]" /> FieldTripLink
+            <img src={logo} alt="FieldTripLink Logo" className="h-[70px] w-[78px]" /> FieldTripLink
           </h2>
         </div>
 

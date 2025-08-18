@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import logo from '../images/logo.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const EmailVerification = () => {
   const [userType, setUserType] = useState('School');
@@ -22,10 +24,13 @@ const EmailVerification = () => {
       );
 
       if (response.data.message === 'Verification code sent') {
+        toast.success('Verification code sent successfully!');
         navigate('/pinverification', { state: { email, userType } });
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send verification code');
+      const errorMessage = err.response?.data?.message || 'Failed to send verification code';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -91,9 +96,7 @@ const EmailVerification = () => {
             />
           </div>
 
-          {error && (
-            <p className="text-red-500 text-sm text-center mb-4">{error}</p>
-          )}
+         
 
           <button
             type="submit"
@@ -128,6 +131,7 @@ const EmailVerification = () => {
           </button>
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 };

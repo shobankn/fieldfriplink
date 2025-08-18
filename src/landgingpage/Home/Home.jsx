@@ -141,7 +141,7 @@ const Home = () => {
             onClick={handleSchoolAdmin}
           >
             I'm a School Administrator
-          </button>
+          </button><br/>
           <button
             className="bg-yellow-400 w-full sm:w-[300px] lg:w-[400px] h-[40px] interbold text-sm sm:text-[14px] text-black rounded-[6px] mt-4 hover:bg-yellow-500"
             onClick={handleBusDriver}

@@ -85,22 +85,22 @@ const Login = () => {
                 userType === 'School' ? 'translate-x-0' : 'translate-x-full'
               }`}
             />
-            <button
-              onClick={() => setUserType('School')}
-              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
-                userType === 'School' ? 'text-white' : 'text-[#de3b40]'
-              } z-10`}
-            >
-              School
-            </button>
-            <button
-              onClick={() => setUserType('Driver')}
-              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
-                userType === 'Driver' ? 'text-white' : 'text-[#de3b40]'
-              } z-10`}
-            >
-              Driver
-            </button>
+           <button
+  onClick={() => setUserType('School')}
+  className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
+    userType === 'School' ? 'text-white' : 'text-[#de3b40]'
+  } z-10 cursor-pointer`}
+>
+  School
+</button>
+<button
+  onClick={() => setUserType('Driver')}
+  className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
+    userType === 'Driver' ? 'text-white' : 'text-[#de3b40]'
+  } z-10 cursor-pointer`}
+>
+  Driver
+</button>
           </div>
         </div>
 

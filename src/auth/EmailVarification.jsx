@@ -64,22 +64,22 @@ const EmailVerification = () => {
                 userType === 'School' ? 'translate-x-0' : 'translate-x-full'
               }`}
             />
-            <button
-              onClick={() => setUserType('School')}
-              className={`relative w-1/2 py-2 text-sm sm:text-[14px] font-semibold z-10 transition-colors duration-300 ${
-                userType === 'School' ? 'text-white' : 'text-[#DE3B40]'
-              }`}
-            >
-              School
-            </button>
-            <button
-              onClick={() => setUserType('Driver')}
-              className={`relative w-1/2 py-2 text-sm sm:text-[14px] font-semibold z-10 transition-colors duration-300 ${
-                userType === 'Driver' ? 'text-white' : 'text-[#DE3B40]'
-              }`}
-            >
-              Driver
-            </button>
+           <button
+  onClick={() => setUserType('School')}
+  className={`relative w-1/2 py-2 text-sm sm:text-[14px] font-semibold z-10 transition-colors duration-300 cursor-pointer ${
+    userType === 'School' ? 'text-white' : 'text-[#DE3B40]'
+  }`}
+>
+  School
+</button>
+<button
+  onClick={() => setUserType('Driver')}
+  className={`relative w-1/2 py-2 text-sm sm:text-[14px] font-semibold z-10 transition-colors duration-300 cursor-pointer ${
+    userType === 'Driver' ? 'text-white' : 'text-[#DE3B40]'
+  }`}
+>
+  Driver
+</button>
           </div>
         </div>
 

@@ -636,13 +636,13 @@ const CompletedTripCard = ({ trip }) => {
   };
 
   return (
-    <div className="min-h-screen p-4 lg:p-6">
-      <div className="p-4">
+    <div className="min-h-screen p-4 lg:px-6 py-0">
+      <div className="">
         <div className="max-w-full mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-0">
             <div>
-              <h1 className="text-[30px] md:text-3xl archivo-bold text-gray-900">Trip Management</h1>
-              <p className="text-gray-600 mt-2 text-sm md:text-base">Manage and monitor all your transportation requests.</p>
+              <h1 className="text-2xl md:text-3xl inter-bold text-gray-900">Trip Management</h1>
+              <p className="text-gray-600 mt-2 text-sm md:text-base mb-2">Manage and monitor all your transportation requests.</p>
             </div>
             <button onClick={() => navigate('/post-trip')} className="cursor-pointer mt-4 md:mt-0 bg-red-500 text-white px-4 py-2 rounded-md text-sm md:text-base hover:bg-red-600 transition duration-200">
               Post New Trip

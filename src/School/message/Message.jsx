@@ -8,10 +8,10 @@ function Trip() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
     <>
-    <div className="min-h-screen bg-gray-50  flex">
+    <div className="min-h-screen bg-gray-50   flex">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
-      <div className="flex-1  lg:ml-0">
+      <div className="flex-1 relative  lg:ml-0">
          <HeaderTopBar onMenuClick={() => setSidebarOpen(true)} />
             
         

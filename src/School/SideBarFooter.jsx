@@ -215,32 +215,30 @@ export default function SidebarFooter() {
 
   return (
     <>
-      <button
-        onClick={handleLogoutClick}
-        className="flex cursor-pointer items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-white shadow-sm hover:bg-gray-50 hover:shadow-md border border-gray-200 hover:border-gray-300 group w-full text-left"
-      >
-        {loading ? (
-          <Skeleton width={40} height={40} circle />
-        ) : (
-          <img
-            src={profileData?.school?.logo}
-            alt={profileData?.user?.name || "Profile"}
-            className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm group-hover:border-gray-300"
-          />
-        )}
-        <div className="flex flex-col ml-3">
-          <span className="text-[14px] inter-medium text-gray-700 group-hover:text-gray-900">
-            {loading ? <Skeleton width={80} /> : profileData?.user?.name || ""}
-          </span>
-          <span className="text-[14px] inter-semibold text-red-600 flex items-center">
-            Logout
-          </span>
-        </div>
-        <LogOut className="w-5 h-5 text-red-500 ml-auto group-hover:text-red-700 transition-colors duration-200" />
-      </button>
+  <button
+    onClick={handleLogoutClick}
+    className="flex cursor-pointer itmes-center content-center mx-auto justify-start items-center space-x-3 px-4 py-4 rounded-lg text-sm font-medium transition-all duration-200 bg-white shadow-sm hover:bg-gray-50 hover:shadow-md border border-gray-200 hover:border-gray-300 group w-full text-left"
+  >
+    {/* <img
+      src={profileData?.school?.logo}
+      alt={profileData?.user?.name || "Profile"}
+      className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm group-hover:border-gray-300"
+    /> */}
+    <div className="flex flex-row ml-3">
+      {/* If you want the name back, just uncomment this and remove Skeleton */}
+      {/* <span className="text-[14px] inter-medium text-gray-700 group-hover:text-gray-900">
+        {profileData?.user?.name || ""}
+      </span> */}
+      <LogOut className="w-5 h-5 mr-2 text-red-500 ml-auto group-hover:text-red-700 transition-colors duration-200" />
+      <span className="text-[14px] inter-semibold text-red-600 flex items-center">
+        Logout
+      </span>
+    </div>
+  </button>
 
-      {/* ✅ Portal Modal - Renders Outside Sidebar */}
-      {showConfirmModal && createPortal(<ConfirmationModal />, document.body)}
-    </>
+  {/* ✅ Portal Modal - Renders Outside Sidebar */}
+  {showConfirmModal && createPortal(<ConfirmationModal />, document.body)}
+</>
+
   );
 }

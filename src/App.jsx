@@ -41,6 +41,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import ScrollToTop from './School/ScrollToTop';
 import TripFeedback from './School/TripManagment/TripFeedBack';
 import ProtectedRoute from './School/ProtectRoute'
+import Messages from './School/messages/Messages';
 
 function App() {
 
@@ -75,6 +76,8 @@ function App() {
       <Route path='/hire-driver' element={<ProtectedRoute><HireDriver/></ProtectedRoute>}/>
       <Route path='/hire-driver/:id'element={<ProtectedRoute><HireDriverDetails/></ProtectedRoute>}/>
       <Route path='/proposal' element={<ProtectedRoute><DriverProposal/></ProtectedRoute>}/>
+      <Route path='/messages' element={<ProtectedRoute><Messages/></ProtectedRoute>}/>
+
       {/* <Route path='/assign-job' element={<InviteDriverPopUp/>}/> */}
             <Route 
         path='/trip-management/feedback/:tripId/:driverId' 

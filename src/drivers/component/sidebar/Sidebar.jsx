@@ -1,30 +1,31 @@
 import React from 'react';
-import {
-  FaTachometerAlt,
-  FaUser,
-  FaFileAlt,
-  FaCar,
-  FaRoute,
-  FaClipboardList,
-  FaSchool,
-  FaStar,
-  FaBell,
-} from 'react-icons/fa';
+import { LuBox } from 'react-icons/lu';
+import { FiUser } from 'react-icons/fi';
+import { CgFileDocument } from 'react-icons/cg';
+import { GrCar } from 'react-icons/gr';
+import { IoLocationOutline } from 'react-icons/io5';
+import { GoPencil } from 'react-icons/go';
+import { FaRegMessage } from 'react-icons/fa6';
+import { FiMessageCircle } from 'react-icons/fi';
+import { CiStar } from 'react-icons/ci';
+import { FaRegBell } from 'react-icons/fa';
+import { IoIosLogOut } from 'react-icons/io';
+import { NavLink } from 'react-router-dom';
+import logo from '../../../images/logo.png';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const menuItems = [
-    { name: 'Dashboard', icon: FaTachometerAlt, href: '/driverdashboard' },
-    { name: 'My Profile', icon: FaUser, href: '/driverprofile' },
-    { name: 'Documents', icon: FaFileAlt, href: '/documents' },
-    { name: 'Available Rides', icon: FaCar, href: '/availablerides' },
-    { name: 'My Rides', icon: FaRoute, href: '/myrides' },
-    { name: 'My Proposals', icon: FaClipboardList, href: '/proposals' },
-    { name: 'School Responses', icon: FaSchool, href: '/schoolresponse' },
-    { name: 'Reviews', icon: FaStar, href: '/driverreviews' },
-    { name: 'Notifications', icon: FaBell, href: '/notifications' },
+    { name: 'Dashboard', icon: LuBox, href: '/driverdashboard' },
+    { name: 'My Profile', icon: FiUser, href: '/driverprofile' },
+    { name: 'Documents', icon: CgFileDocument, href: '/documents' },
+    { name: 'Available Rides', icon: IoLocationOutline, href: '/availablerides' },
+    { name: 'My Rides', icon: GrCar, href: '/myrides' },
+    { name: 'My Proposals', icon: GoPencil, href: '/proposals' },
+    { name: 'School Responses', icon: FaRegMessage, href: '/schoolresponse' },
+    { name: 'Chat', icon: FiMessageCircle, href: '/chat' },
+    { name: 'Reviews', icon: CiStar, href: '/driverreviews' },
+    { name: 'Notifications', icon: FaRegBell, href: '/notifications' },
   ];
-
-  const currentPath = window.location.pathname;
 
   return (
     <div
@@ -32,7 +33,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       } z-20 overflow-hidden`}
     >
-      <div className="p-4 h-full flex flex-col">
+      <div className="py-4 h-full flex flex-col">
         {/* Close button for mobile */}
         <button
           className="lg:hidden absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-xl"
@@ -42,8 +43,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         </button>
 
         {/* Logo/Title */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold text-gray-800">Driver Panel</h2>
+        <div className="mb-8 pl-[26px]">
+          <h2 className="text-[18px] interbold text-gray-800 flex items-center gap-[10px]">
+            <img src={logo} alt="FieldTripLink Logo" className="h-[50px] w-[89px]" /> FieldTripLink
+          </h2>
         </div>
 
         {/* Menu Items */}
@@ -51,20 +54,25 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           <ul className="space-y-2">
             {menuItems.map((item, index) => {
               const Icon = item.icon;
-              const isActive = currentPath === item.href;
               return (
                 <li key={index}>
-                  <a
-                    href={item.href}
-                    className={`flex items-center gap-3 p-3 rounded-lg transition-colors duration-200 ${
-                      isActive
-                        ? 'bg-[#ea4444] text-white'
-                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                    }`}
+                  <NavLink
+                    to={item.href}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 p-3 rounded-0 transition-colors duration-200 relative ${
+                        isActive
+                          ? 'bg-[#ea4444] text-white'
+                          : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                      }`
+                    }
+                    onClick={toggleSidebar}
                   >
-                    <Icon className={`text-lg ${isActive ? 'text-white' : ''}`} />
-                    <span className="font-medium">{item.name}</span>
-                  </a>
+                    <div className="absolute inset-0 bg-inherit z-[-1]" />
+                    <div className="flex items-center gap-3 pl-[25px]">
+                      <Icon className="text-lg" />
+                      <span className="font-medium">{item.name}</span>
+                    </div>
+                  </NavLink>
                 </li>
               );
             })}
@@ -73,9 +81,23 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
         {/* Footer */}
         <div className="mt-auto pt-4 border-t border-gray-200">
-          <div className="text-xs text-gray-500 text-center">
-            © 2025 Transport Service
-          </div>
+          <NavLink
+            to="/logout"
+            className={({ isActive }) =>
+              `flex items-center gap-3 p-3 rounded-0 transition-colors duration-200 relative ${
+                isActive
+                  ? 'bg-[#ea4444] text-white'
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+              }`
+            }
+            onClick={toggleSidebar}
+          >
+            <div className="absolute inset-0 bg-inherit z-[-1]" />
+            <div className="flex items-center gap-3 pl-[25px]">
+              <IoIosLogOut className="text-lg" />
+              <span className="font-medium">Logout</span>
+            </div>
+          </NavLink>
         </div>
       </div>
     </div>

@@ -232,16 +232,13 @@ const handleStatusChangeApi = async (status) => {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+    <div className="min-h-screen bg-gray-50 p-4 md:px-6 md:py-2">
       <ToastContainer />
       <div className="max-w-full mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Driver Verification</h1>
-          <button className=" text-center  justify-center flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-            <Download className="w-4 h-4" />
-            Export Report
-          </button>
+          <h1 className="text-2xl md:text-3xl inter-bold text-gray-900">Driver Verification</h1>
+       
         </div>
 
         {/* Navigation Tabs */}
@@ -274,7 +271,7 @@ const handleStatusChangeApi = async (status) => {
         </div>
 
         {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        {/* <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -289,7 +286,7 @@ const handleStatusChangeApi = async (status) => {
             <Filter className="w-5 h-5" />
             Filters
           </button>
-        </div>
+        </div> */}
 
         {/* Drivers List */}
         <div className="space-y-4">

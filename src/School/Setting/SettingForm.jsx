@@ -166,11 +166,11 @@ const SchoolSettingsForm = () => {
   return (
     <>
     <ToastContainer/>
-      <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+      <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:px-6 sm:py-3">
       <div className="max-w-full mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl archivo-bold text-gray-900 mb-2">
+          <h1 className="text-2xl md:text-3xl inter-bold text-gray-900  mb-2">
             {loading ? <Skeleton width={150} /> : 'Settings'}
           </h1>
           <p className="text-gray-600 text-sm inter-medium sm:text-base">

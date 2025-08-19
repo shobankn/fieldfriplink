@@ -25,6 +25,7 @@ import axios from 'axios';
 import { formatDistanceToNow } from 'date-fns';
 import ProposalActions from './ProposalAction';
 import ProposalIconActions from './ProposalIconAction';
+import { useNavigate } from 'react-router-dom';
 
 const DriverRequestsComponent = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,6 +36,7 @@ const DriverRequestsComponent = () => {
   const [error, setError] = useState(null);
   const [driverDetails, setDriverDetails] = useState(null);
   const [driverDetailsLoading, setDriverDetailsLoading] = useState(false);
+  let navigate = useNavigate();
 
   function formatExactDate(dateString) {
   const date = new Date(dateString);
@@ -159,6 +161,7 @@ useEffect(() => {
             },
           });
           setDriverDetails(response.data);
+          console.loog("driver request", response.data);
         } catch (err) {
           const errorMessage = err.response?.status === 401 ? 'Unauthorized: Invalid or expired token' : 'Failed to fetch driver details';
           toast.error(errorMessage);
@@ -200,12 +203,12 @@ useEffect(() => {
   return (
     <>
     <ToastContainer/>
-     <div className="bg-gray-50 min-h-screen p-4 sm:p-6 w-full max-w-full overflow-x-hidden">
+     <div className="bg-gray-50 min-h-screen p-4 sm:px-6 py-2 w-full max-w-full overflow-x-hidden">
       <div className="max-w-full mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 flex-wrap">
           <div>
-            <h1 className="text-2xl archivo-semibold text-gray-900 mb-1">Driver Requests</h1>
+            <h1 className="text-2xl md:text-3xl inter-bold text-gray-900  mb-1">Driver Requests</h1>
             <p className="text-gray-500 inter-regular text-sm">{driverRequests.length} proposals received</p>
           </div>
         </div>
@@ -521,13 +524,25 @@ useEffect(() => {
                           </div>
                         </div>
                         <div className="pt-4">
-                          <button 
-                            onClick={() => handleAction(selectedDriver.id, 'Message')}
-                            className="w-full sm:w-auto bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2 inter-medium"
-                          >
-                            <MessageCircle className="w-5 h-5" />
-                            <span>Message Driver</span>
-                          </button>
+                         <button
+                          onClick={() => {
+                            console.log("creatorId =", selectedDriver?.driverId);
+                            console.log("creatorPic =", selectedDriver?.avatar);
+                            console.log("full driver data =", selectedDriver);
+
+                            navigate("/messages", {
+                              state: {
+                                creatorId: selectedDriver?.driverId,   // ✅ driverId as creatorId
+                                creatorPic: selectedDriver?.avatar,    // ✅ driver profile image
+                              },
+                            });
+                          }}
+                          className="w-full sm:w-auto bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2 inter-medium"
+                        >
+                          <MessageCircle className="w-5 h-5" />
+                          <span>Message Driver</span>
+                        </button>
+
                         </div>
                       </>
                     ) : (

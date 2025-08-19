@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import profile from '../images/profile/profile4.jpeg';
-import logo from '../images/filedtrip-logo-removebg-preview.png'
+import logo from '../images/newlogo.png'
 import {
   LayoutDashboard,
   Plus,
@@ -54,7 +54,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <div className="flex  pl-4 items-center space-x-2">
               <div className="w-14.5 h-auto rounded flex items-center justify-center">
                 {/* <Bus className=" w-5 h-5 text-white" /> */}
-                <img src={logo} className='ml-2'/>
+                <img src={logo} className='ml-2 w-18.5 h-18.5'/>
               </div>
               <div>
                 <h1 className="font-bold text-gray-900">FieldTrip Link</h1>

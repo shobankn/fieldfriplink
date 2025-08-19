@@ -150,16 +150,17 @@ const handleSendJobPost = async (trip, note = "Please accept the invitation") =>
 
   return (
     <>
+       <h1 className="text-2xl ml-5 sm:text-3xl archivo-bold text-gray-900 mb-6">
+        Invite Drivers
 
+      </h1>
       <Navbar />
       <ToastContainer/>
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl archivo-bold text-gray-900 mb-6">
-              Invite Drivers
-            </h1>
+           
             <div className="relative">
               <input
                 type="text"
@@ -188,7 +189,7 @@ const handleSendJobPost = async (trip, note = "Please accept the invitation") =>
                 {filteredDrivers.map((driver) => (
                   <div
                     key={driver._id}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200"
+                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-all duration-200"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                       {/* Left Section */}
@@ -224,7 +225,7 @@ const handleSendJobPost = async (trip, note = "Please accept the invitation") =>
                 <Star className="w-4 h-4 text-yellow-500 flex-shrink-0" />
                 <span className="text-sm inter-medium text-gray-900">  {(driver.averageRating ?? 0).toFixed(1)}</span>
                 <span className="text-sm inter-regular text-gray-600"> 
-                  (reviews)</span>
+                  ({driver.reviewCount || 0} reviews)</span>
               </div>
 
                           
@@ -233,13 +234,13 @@ const handleSendJobPost = async (trip, note = "Please accept the invitation") =>
                             <span className="text-sm inter-regular text-gray-600">{driver.address}</span>
                           </div>
                           {/* Completed Stats */}
-                          <div className="mb-4">
+                          <div className="">
                             <div className="text-sm inter-regular text-gray-600 mb-1">Completed:</div>
                             <div className="inter-semibold text-gray-900">
                               {driver.completedTripCount || 0} trips
                             </div>
                           </div>
-                          <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+                          <div className="flex flex-wrap justify-center sm:justify-start gap-1">
                             {driver.notes && (
                               <span className="px-3 py-1 bg-[#F3F4F6] text-[#3B4555] text-sm rounded-full inter-medium">
                                 {driver.notes}

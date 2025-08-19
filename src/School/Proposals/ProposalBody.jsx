@@ -151,6 +151,12 @@ const handleDeleteTrip = async (id) => {
 
   return (
     <>
+<div className=' ml-5'>
+    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 capitalize">your all posted jobs</h1>
+
+
+</div>
+
       {/* Top Navigation */}
       <Navbar/>
 
@@ -165,7 +171,6 @@ const handleDeleteTrip = async (id) => {
       <div className="max-w-full  mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 capitalize">your all posted jobs</h1>
   
 
           {/* Search and Filter */}

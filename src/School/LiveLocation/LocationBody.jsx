@@ -86,11 +86,11 @@ const LiveTrackingComponent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 lg:p-6">
+    <div className="min-h-screen bg-gray-50 p-4 lg:px-6 py-0">
       <div className="max-w-full mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl lg:text-3xl archivo-bold text-gray-900 mb-2">Live GPS Tracking</h1>
+          <h1 className="text-2xl md:text-3xl inter-bold text-gray-900 mb-2">Live GPS Tracking</h1>
           <p className="text-gray-600">Monitor your active trips in real-time.</p>
         </div>
 

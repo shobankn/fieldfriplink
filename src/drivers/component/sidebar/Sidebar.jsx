@@ -7,11 +7,11 @@ import { IoLocationOutline } from 'react-icons/io5';
 import { GoPencil } from 'react-icons/go';
 import { FaRegMessage } from 'react-icons/fa6';
 import { FiMessageCircle } from 'react-icons/fi';
-import { CiStar } from 'react-icons/ci';
+import { FaRegStar } from "react-icons/fa";
 import { FaRegBell } from 'react-icons/fa';
 import { IoIosLogOut } from 'react-icons/io';
 import { NavLink, useNavigate } from 'react-router-dom';
-import logo from '../../../images/logo2.png';
+import logo from '../../../images/logo3.png';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { name: 'My Proposals', icon: GoPencil, href: '/proposals' },
     { name: 'School Responses', icon: FaRegMessage, href: '/schoolresponse' },
     { name: 'Chat', icon: FiMessageCircle, href: '/chat' },
-    { name: 'Reviews', icon: CiStar, href: '/driverreviews' },
+    { name: 'Reviews', icon: FaRegStar, href: '/driverreviews' },
     { name: 'Notifications', icon: FaRegBell, href: '/notifications' },
   ];
 
@@ -38,8 +38,14 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     <div
       className={`fixed lg:fixed top-0 left-0 h-screen w-[80%] lg:w-[17%] bg-white border-r border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      } z-20 overflow-hidden`}
+      } z-20 overflow-y-auto scrollbar-hide`}
+      style={{ scrollbarWidth: 'none' }} // For Firefox
     >
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
       <div className="py-4 h-full flex flex-col">
         {/* Close button for mobile */}
         <button
@@ -50,7 +56,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         </button>
 
         {/* Logo/Title */}
-        <div className="mb-8 pl-[26px]">
+        <div className="mb-8 pl-[20px]">
           <h2 className="text-[18px] interbold text-gray-800 flex items-center gap-[10px]">
             <img src={logo} alt="FieldTripLink Logo" className="h-[70px] w-[78px]" /> FieldTripLink
           </h2>

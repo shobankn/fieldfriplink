@@ -386,29 +386,26 @@ const Driverdashboard = () => {
             </div>
 
             {/* Active Ride */}
-            <div className="bg-red-500 text-white rounded-lg p-6 mb-8">
-              {loading.activeRide ? (
-                <ActiveRideShimmerCard />
-              ) : activeRide ? (
-                <div className="flex flex-col sm:flex-row justify-between items-center">
-                  <div>
-                    <h3 className="text-lg inter-semibold mb-1">Active Ride</h3>
-                    <p className="text-red-100 inter-regular mb-2">{activeRide.school}</p>
-                    <p className="text-red-100 inter-regular text-sm">
-                      Distance: {activeRide.distance} | Expected: {activeRide.expectedTime}
-                    </p>
+            {(loading.activeRide || activeRide) && (
+              <div className="bg-red-500 text-white rounded-lg p-6 mb-8">
+                {loading.activeRide ? (
+                  <ActiveRideShimmerCard />
+                ) : activeRide ? (
+                  <div className="flex flex-col sm:flex-row justify-between items-center">
+                    <div>
+                      <h3 className="text-lg inter-semibold mb-1">Active Ride</h3>
+                      <p className="text-red-100 inter-regular mb-2">{activeRide.school}</p>
+                      <p className="text-red-100 inter-regular text-sm">
+                        Distance: {activeRide.distance} | Expected: {activeRide.expectedTime}
+                      </p>
+                    </div>
+                    <button className="bg-white mt-4 whitespace-nowrap inter-regular text-red-500 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                      View Live
+                    </button>
                   </div>
-                  <button className="bg-white mt-4 whitespace-nowrap inter-regular text-red-500 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                    View Live
-                  </button>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <h3 className="text-lg inter-semibold mb-1">Active Ride</h3>
-                  <p className="text-red-100 inter-regular">No active ride</p>
-                </div>
-              )}
-            </div>
+                ) : null}
+              </div>
+            )}
 
             {/* Upcoming Rides */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
@@ -463,32 +460,29 @@ const Driverdashboard = () => {
             </div>
 
             {/* New Ride Offers */}
-            <div className="bg-white mb-6 p-6 rounded-lg shadow-md border border-gray-200 flex flex-col sm:flex-row justify-between items-center w-full">
-              {loading.invitations ? (
-                <OffersShimmerCard />
-              ) : invitations.length > 0 ? (
-                <>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-700">New Ride Offers</h3>
-                    <p className="text-gray-600 text-sm">
-                      {invitations.length} new ride offer{invitations.length !== 1 ? 's' : ''} available in your area
-                    </p>
-                    <p className="text-gray-600 text-sm">Send proposals now to secure these routes</p>
-                  </div>
-                  <button
-                    onClick={() => navigate('/myrides', { state: { activeTab: 'Invitations' } })}
-                    className="bg-red-500 mt-4 whitespace-nowrap text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200"
-                  >
-                    View Offers
-                  </button>
-                </>
-              ) : (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-700">New Ride Offers</h3>
-                  <p className="text-gray-600 text-sm">No offer available</p>
-                </div>
-              )}
-            </div>
+            {(loading.invitations || invitations.length > 0) && (
+              <div className="bg-white mb-6 p-6 rounded-lg shadow-md border border-gray-200 flex flex-col sm:flex-row justify-between items-center w-full">
+                {loading.invitations ? (
+                  <OffersShimmerCard />
+                ) : invitations.length > 0 ? (
+                  <>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-700">New Ride Offers</h3>
+                      <p className="text-gray-600 text-sm">
+                        {invitations.length} new ride offer{invitations.length !== 1 ? 's' : ''} available in your area
+                      </p>
+                      <p className="text-gray-600 text-sm">Send proposals now to secure these routes</p>
+                    </div>
+                    <button
+                      onClick={() => navigate('/myrides', { state: { activeTab: 'Invitations' } })}
+                      className="bg-red-500 mt-4 whitespace-nowrap text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200"
+                    >
+                      View Offers
+                    </button>
+                  </>
+                ) : null}
+              </div>
+            )}
 
             {/* Recent Activity */}
             <div className="bg-white rounded-lg shadow-sm p-6">

@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from '../../images/logo.png'
+import logo from '../../images/logo3.png'
 
 const Footer = () => {
   return (
@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-[80px] flex flex-col lg:flex-row justify-between gap-8 pt-[68px]">
         <div className="lg:w-1/3">
           <div className="flex items-center mb-4">
-            <img src={logo} className='h-[45px] w-[45px]' alt="" />
+            <img src={logo} className='h-[65px] w-[65px]' alt="" />
             <h3 className="archivobold text-[20px] ms-[10px] text-[white]">FieldTripLink</h3>
           </div>
           <p className="interregular text-[14px] text-[#bbbbbb]  ">

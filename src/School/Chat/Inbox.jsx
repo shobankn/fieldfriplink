@@ -361,7 +361,7 @@ useEffect(() => {
 
 
   return (
-    <div className=" bg-gray-50 flex">
+    <div className=" bg-gray-50 flex pb-20">
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/20 backdrop-blur-sm  z-40 md:hidden"

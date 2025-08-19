@@ -17,13 +17,13 @@ function Messages() {
         {/* Main content - takes remaining height */}
 
          
-           <div className=" hidden sm:block ml-13 mt-4 sm:mt-6 ">
+           <div className=" hidden sm:block ml-13 mt-4 sm:mt-6 pb-[20px]">
           <h1 className="text-2xl lg:text-3xl archivo-bold text-gray-900 ">Messages</h1>
           <p className="text-gray-600">Monitor your active trips in real-time.</p>
         </div>
        
 
-        <main className="flex-1 p-4 lg:p-6    overflow-y-auto">
+        <main className="flex-1     overflow-y-auto">
           
             
           <div className="">

@@ -204,9 +204,11 @@ const MyRides = () => {
         const data = await response.json();
         const mappedInvitations = data.invitations.map((inv) => {
           const trip = inv.tripId;
-          const startDate = new Date(trip.startTime || trip.tripDate);
+          const startDate = new Date(trip.startTime);
+          const endDate = new Date(trip.returnTime);
           const dateStr = startDate.toISOString().split('T')[0];
-          const timeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+          const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+          const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
 
           return {
             id: inv._id,
@@ -215,7 +217,8 @@ const MyRides = () => {
             pickup: trip.pickupPoints[0]?.address || 'N/A',
             drop: trip.destination.address,
             date: dateStr,
-            time: timeStr,
+            startTime: startTimeStr,
+            endTime: endTimeStr,
             students: trip.numberOfStudents,
             phone: '+92 21 345-6789',
             schoolId: trip.schoolId?._id || 'N/A',
@@ -258,9 +261,11 @@ const MyRides = () => {
 
         const data = await response.json();
         const mappedScheduledRides = data.trips.map((trip) => {
-          const startDate = new Date(trip.startTime || trip.tripDate);
+          const startDate = new Date(trip.startTime);
+          const endDate = new Date(trip.returnTime);
           const dateStr = startDate.toISOString().split('T')[0];
-          const timeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+          const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+          const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
 
           return {
             id: trip._id,
@@ -269,7 +274,8 @@ const MyRides = () => {
             pickup: trip.pickupPoints[0]?.address || 'N/A',
             drop: trip.destination.address,
             date: dateStr,
-            time: timeStr,
+            startTime: startTimeStr,
+            endTime: endTimeStr,
             students: trip.numberOfStudents,
             phone: '+92 21 345-6789',
             schoolId: trip.schoolId?._id || 'N/A',
@@ -314,9 +320,11 @@ const MyRides = () => {
 
         const data = await response.json();
         const mappedActiveRides = data.trips.map((trip) => {
-          const startDate = new Date(trip.startTime || trip.tripDate);
+          const startDate = new Date(trip.startTime);
+          const endDate = new Date(trip.returnTime);
           const dateStr = startDate.toISOString().split('T')[0];
-          const timeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+          const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+          const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
 
           return {
             id: trip._id,
@@ -325,7 +333,8 @@ const MyRides = () => {
             pickup: trip.pickupPoints[0]?.address || 'N/A',
             drop: trip.destination.address,
             date: dateStr,
-            time: timeStr,
+            startTime: startTimeStr,
+            endTime: endTimeStr,
             students: trip.numberOfStudents,
             phone: '+92 21 345-6789',
             schoolId: trip.schoolId?._id || 'N/A',
@@ -370,9 +379,11 @@ const MyRides = () => {
 
         const data = await response.json();
         const mappedCompletedRides = data.trips.map((trip) => {
-          const startDate = new Date(trip.startTime || trip.tripDate);
+          const startDate = new Date(trip.startTime);
+          const endDate = new Date(trip.returnTime);
           const dateStr = startDate.toISOString().split('T')[0];
-          const timeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+          const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+          const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
 
           return {
             id: trip._id,
@@ -381,7 +392,8 @@ const MyRides = () => {
             pickup: trip.pickupPoints[0]?.address || 'N/A',
             drop: trip.destination.address,
             date: dateStr,
-            time: timeStr,
+            startTime: startTimeStr,
+            endTime: endTimeStr,
             students: trip.numberOfStudents,
             phone: '+92 21 345-6789',
             schoolId: trip.schoolId?._id || 'N/A',
@@ -551,7 +563,8 @@ const MyRides = () => {
                       </p>
                       <p className="flex items-center gap-2 text-sm text-[#6B7280] text-[14px] interregular mb-[12px]">
                         <CiClock2 className="text-gray-600" />
-                        <span className="font-medium">Time:</span> {ride.time}
+                        <span className="font-medium">Start Time:</span> {ride.startTime}
+                        <span className="font-medium ml-4">End Time:</span> {ride.endTime}
                       </p>
                     </div>
                   </div>

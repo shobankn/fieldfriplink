@@ -58,7 +58,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         {/* Logo/Title */}
         <div className="mb-8 pl-[20px]">
           <h2 className="text-[18px] interbold text-gray-800 flex items-center gap-[10px]">
-            <img src={logo} alt="FieldTripLink Logo" className="h-[70px] w-[78px]" /> FieldTripLink
+            <img src={logo} alt="FieldTripLink Logo" className="h-18.5 w-18.5" /> FieldTripLink
           </h2>
         </div>
 

@@ -25,9 +25,29 @@ const Driverdashboard = () => {
     activeRide: true,
   });
   const [isVerified, setIsVerified] = useState(false);
+  const [userName, setUserName] = useState('Driver'); // State for user's name
   const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('https://fieldtriplinkbackend-production.up.railway.app/api/driver/my-profile', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const { user } = response.data;
+        setUserName(user.name || 'Driver'); // Set user's name or fallback to 'Driver'
+        setIsVerified(user.accountStatus === 'verified');
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setUserName('Driver'); // Fallback in case of error
+        setIsVerified(false);
+      }
+    };
+
     const fetchStats = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -175,27 +195,12 @@ const Driverdashboard = () => {
       }
     };
 
-    const fetchUserData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('https://fieldtriplinkbackend-production.up.railway.app/api/driver/my-profile', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const { user } = response.data;
-        setIsVerified(user.accountStatus === 'verified');
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        setIsVerified(false);
-      }
-    };
-
+    fetchUserData();
     fetchStats();
     fetchActiveRide();
     fetchScheduledRides();
     fetchInvitations();
     fetchActivities();
-    fetchUserData();
   }, []);
 
   const toggleSidebar = () => {
@@ -283,7 +288,7 @@ const Driverdashboard = () => {
           <div className="max-w-full mx-auto py-6">
             {/* Header */}
             <div className="mb-6">
-              <h1 className="text-[30px] mt-[18px] archivo-bold text-gray-800">Welcome back, Ahmed Khan!</h1>
+              <h1 className="text-[30px] mt-[18px] archivo-bold text-gray-800">Welcome back, {userName}!</h1>
               <p className="text-gray-600 inter-regular mt-1">Here is your driving dashboard overview</p>
             </div>
 

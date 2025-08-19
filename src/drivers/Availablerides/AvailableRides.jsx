@@ -24,6 +24,22 @@ const AvailableRides = () => {
   const [isSubmittingProposal, setIsSubmittingProposal] = useState({});
   const [isClosingModal, setIsClosingModal] = useState(false);
 
+  const MAX_WORDS = 500;
+
+  const countWords = (text) => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
+  const handleProposalMessageChange = (e) => {
+    const text = e.target.value;
+    const wordCount = countWords(text);
+    if (wordCount <= MAX_WORDS) {
+      setProposalMessage(text);
+    } else {
+      toast.error(`Proposal message cannot exceed ${MAX_WORDS} words.`);
+    }
+  };
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -436,10 +452,13 @@ const AvailableRides = () => {
                 </div>
                 <textarea
                   value={proposalMessage}
-                  onChange={(e) => setProposalMessage(e.target.value)}
+                  onChange={handleProposalMessageChange}
                   className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
-                  placeholder="Enter your proposal message..."
+                  placeholder={`Enter your proposal message (max ${MAX_WORDS} words)...`}
                 />
+                <p className="text-sm text-gray-600 mt-2">
+                  Word count: {countWords(proposalMessage)}/{MAX_WORDS}
+                </p>
               </div>
             </div>
 

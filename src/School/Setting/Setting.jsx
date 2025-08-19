@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import Sidebar from '../Sidebar';
-import SchoolSettingsForm from './SettingForm';
-import HeaderTopBar from '../HeaderTopbar';
 
+import HeaderTopBar from '../HeaderTopbar';
+import SchoolSettingsForm from './SettingForm'
 function Setting() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
@@ -13,7 +13,7 @@ function Setting() {
         <HeaderTopBar onMenuClick={() => setSidebarOpen(true)} className="lg:ml-58" />
         
         <main className="flex-1  lg:p-6 overflow-y-auto">
-          <SchoolSettingsForm />
+          <SchoolSettingsForm/>
         </main>
       </div>
     </div>

@@ -7,6 +7,8 @@ import { toast, ToastContainer } from "react-toastify";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import "react-toastify/dist/ReactToastify.css";
+import { confirmAlert } from 'react-confirm-alert'; // Import react-confirm-alert
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import default CSS
 
 const DriverVerificationInterface = () => {
   const [activeTab, setActiveTab] = useState('Pending');
@@ -19,7 +21,7 @@ const DriverVerificationInterface = () => {
 
   // Map backend driverStatus to frontend status
   const statusMap = {
-    pending_approval: 'Pending',
+    pending_approval: 'pending',
     approved: 'Verified',
     suspended: 'Suspended'
   };
@@ -57,7 +59,7 @@ const DriverVerificationInterface = () => {
           ? `Submitted ${Math.floor((new Date() - new Date(driver.createdAt)) / (1000 * 60 * 60 * 24))} days ago`
           : 'N/A',
 
-          status: statusMap[driver.driverStatus] || 'Pending' // Map backend status to frontend
+          status: statusMap[driver.driverStatus] ||  driver.driverStatus // Map backend status to frontend
         }));
 
         setDrivers(transformedData);
@@ -88,53 +90,87 @@ const DriverVerificationInterface = () => {
     });
   };
 
-
-
   const StatusToggle = ({ driver, updateDriverStatus }) => {
     const [currentStatus, setCurrentStatus] = useState(driver.status);
 
-
-      useEffect(() => {
+    useEffect(() => {
       setCurrentStatus(driver.status);
     }, [driver.status]);
 
+    const handleStatusChangeApi = async (status) => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          toast.error("Please log in first.");
+          return;
+        }
 
-    
-const handleStatusChangeApi = async (status) => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("Please log in first.");
-      return;
-    }
+        const res = await axios.patch(
+          `${BaseUrl}/school/driver/${driver.id}/status`,
+          { status },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-    const res = await axios.patch(
-      `${BaseUrl}/school/driver/${driver.id}/status`,
-      { status },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (res.status === 200) {
-      if (status === "approved") {
-        toast.success("Driver accepted successfully.");
-      } else if (status === "rejected") {
-        toast.success("Driver rejected successfully.");
-      } else if (status === "suspended") {
-        toast.success("Driver suspended successfully.");
-      }
-         setCurrentStatus(statusMap[status] || status); // Map API value to UI status name if needed
+        if (res.status === 200) {
+          if (status === "approved") {
+            toast.success("Driver accepted successfully.");
+          } else if (status === "rejected") {
+            toast.success("Driver rejected successfully.");
+          } else if (status === "suspended") {
+            toast.success("Driver suspended successfully.");
+          }
+          setCurrentStatus(statusMap[status] || status); // Map API value to UI status name if needed
           updateDriverStatus(driver.id, statusMap[status] || status);
-    }
-  } catch (error) {
-    console.error(error);
-    toast.error(error.response?.data?.message || "Failed to update status.");
-  }
-};
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error(error.response?.data?.message || "Failed to update status.");
+      }
+    };
 
+    // Confirmation dialog for Suspend and Reject actions
+    const showConfirmDialog = (status, actionText) => {
+      confirmAlert({
+        customUI: ({ onClose }) => {
+          return (
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full mx-auto font-inter">
+              <h1 className="text-lg font-semibold text-gray-900 mb-4">
+                Confirm {actionText}
+              </h1>
+              <p className="text-sm text-gray-600 mb-6">
+                Are you sure you want to {actionText.toLowerCase()} this driver?
+              </p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    handleStatusChangeApi(status);
+                    onClose();
+                  }}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    status === 'suspended'
+                      ? 'bg-[#F0AD4E] text-white hover:bg-[#E0A040]'
+                      : 'bg-[#EF4444] text-white hover:bg-[#D43D3D]'
+                  }`}
+                >
+                  {actionText}
+                </button>
+              </div>
+            </div>
+          );
+        },
+        overlayClassName: "bg-black bg-opacity-50 fixed inset-0 flex items-center justify-center z-50",
+      });
+    };
 
     return (
       <div className="flex items-center gap-2">
@@ -142,35 +178,32 @@ const handleStatusChangeApi = async (status) => {
         {currentStatus === 'Pending' && (
           <>
             <button
-             onClick={(e) => {
+              onClick={(e) => {
                 e.stopPropagation(); // prevent triggering parent's onClick
                 navigate(`/hire-driver/${driver.id}`);
               }}
-              
               className={`p-2 cursor-pointer rounded-lg transition-color`}
-              title="Mark as Pending"
+              title="View details"
             >
               <Eye className="text-[#6B7280] w-4 h-4" />
             </button>
             <button
-              // onClick={() => handleToggle('Pending')}
-               onClick={(e) => {
-                 e.stopPropagation();
-                handleStatusChangeApi("approved")
+              onClick={(e) => {
+                e.stopPropagation();
+                handleStatusChangeApi("approved");
               }}
               className={`p-2 cursor-pointer rounded-lg transition-colors `}
-              title="Mark as Pending"
+              title="Mark as Approved"
             >
               <CircleCheck className="text-[#10B981] w-4 h-4" />
             </button>
             <button
-              // onClick={() => handleToggle('Pending')}
-               onClick={(e) => {
-                 e.stopPropagation();
-                handleStatusChangeApi("suspended")
+              onClick={(e) => {
+                e.stopPropagation();
+                showConfirmDialog("suspended", "Suspend");
               }}
               className={`p-2 cursor-pointer rounded-lg transition-colors `}
-              title="Mark as Pending"
+              title="Mark as Suspended"
             >
               <XCircle className="text-[#EF4444] w-4 h-4" />
             </button>
@@ -181,23 +214,22 @@ const handleStatusChangeApi = async (status) => {
         {currentStatus === 'Verified' && (
           <>
             <button
-             onClick={(e) => {
+              onClick={(e) => {
                 e.stopPropagation(); // prevent triggering parent's onClick
                 navigate(`/hire-driver/${driver.id}`);
               }}
               className={`p-2 cursor-pointer rounded-lg transition-colors `}
-              title="Mark as Verified"
+              title="View details"
             >
               <Eye className="text-[#3B82F6] w-4 h-4" />
             </button>
-
             <button
-               onClick={(e) => {
-                 e.stopPropagation();
-                handleStatusChangeApi("suspended")
+              onClick={(e) => {
+                e.stopPropagation();
+                showConfirmDialog("suspended", "Suspend");
               }}
               className={`p-2 cursor-pointer rounded-lg transition-colors `}
-              title="Mark as Verified"
+              title="Mark as Suspended"
             >
               <AlertTriangle className="text-[#F0AD4E] w-4 h-4" />
             </button>
@@ -207,12 +239,12 @@ const handleStatusChangeApi = async (status) => {
         {/* Suspended: 1 button */}
         {currentStatus === 'Suspended' && (
           <button
-              onClick={(e) => {
-                e.stopPropagation(); // prevent triggering parent's onClick
-                navigate(`/hire-driver/${driver.id}`);
-              }}
+            onClick={(e) => {
+              e.stopPropagation(); // prevent triggering parent's onClick
+              navigate(`/hire-driver/${driver.id}`);
+            }}
             className={`p-2 cursor-pointer rounded-lg transition-colors bg-[#F0F2F5]`}
-            title="Mark as Suspended"
+            title="View details"
           >
             <Eye className="w-4 h-4" />
           </button>
@@ -222,14 +254,12 @@ const handleStatusChangeApi = async (status) => {
   };
 
   const updateDriverStatus = (driverId, newStatus) => {
-  setDrivers((prevDrivers) =>
-    prevDrivers.map((driver) =>
-      driver.id === driverId ? { ...driver, status: newStatus } : driver
-    )
-  );
-};
-
-
+    setDrivers((prevDrivers) =>
+      prevDrivers.map((driver) =>
+        driver.id === driverId ? { ...driver, status: newStatus } : driver
+      )
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:px-6 md:py-2">
@@ -238,7 +268,6 @@ const handleStatusChangeApi = async (status) => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <h1 className="text-2xl md:text-3xl inter-bold text-gray-900">Driver Verification</h1>
-       
         </div>
 
         {/* Navigation Tabs */}
@@ -269,24 +298,6 @@ const handleStatusChangeApi = async (status) => {
             </button>
           ))}
         </div>
-
-        {/* Search and Filter */}
-        {/* <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search drivers by name, CNIC, or license number..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full outline-none pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            />
-          </div>
-          <button className=" justify-center flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-red-600">
-            <Filter className="w-5 h-5" />
-            Filters
-          </button>
-        </div> */}
 
         {/* Drivers List */}
         <div className="space-y-4">
@@ -357,14 +368,11 @@ const handleStatusChangeApi = async (status) => {
                             <Clock className="w-3 h-3 mr-1" /> {driver.status}
                           </span>
                           <div className="hidden sm:flex flex-shrink-0">
-                          <StatusToggle driver={driver} updateDriverStatus={updateDriverStatus} />
-
+                            <StatusToggle driver={driver} updateDriverStatus={updateDriverStatus} />
                           </div>
                         </div>
                         <div className="flex sm:hidden justify-center">
-                         <StatusToggle driver={driver} updateDriverStatus={updateDriverStatus} />
-
-                          
+                          <StatusToggle driver={driver} updateDriverStatus={updateDriverStatus} />
                         </div>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-4 mb-4 text-sm justify-center items-center sm:justify-start text-gray-600">
@@ -381,10 +389,6 @@ const handleStatusChangeApi = async (status) => {
                         <div>
                           <span className="text-gray-500 inter-regular block">CNIC:</span>
                           <span className="inter-semibold text-gray-900">{driver.cnic}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500 inter-regular block">Experience:</span>
-                          <span className="inter-semibold text-gray-900">{driver.experience}</span>
                         </div>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-4 text-sm justify-center items-center sm:justify-start">

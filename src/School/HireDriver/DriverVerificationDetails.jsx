@@ -80,7 +80,7 @@ const DriverVerificationDetails = () => {
               url: profile.vehicleRegistrationImage || ''
             }
           },
-          verificationNotes: schoolDriver.notes || 'All documents verified successfully. Driver approved for school transport.',
+          verificationNotes: schoolDriver.notes || 'No verification notes provided.',
           submissionDetails: {
             submitted: profile.createdAt
               ? `Submitted ${Math.floor((new Date() - new Date(profile.createdAt)) / (1000 * 60 * 60 * 24))} days ago`

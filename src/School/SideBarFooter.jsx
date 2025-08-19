@@ -217,7 +217,7 @@ export default function SidebarFooter() {
     <>
   <button
     onClick={handleLogoutClick}
-    className="flex cursor-pointer itmes-center content-center mx-auto justify-start items-center space-x-3 px-4 py-4 rounded-lg text-sm font-medium transition-all duration-200 bg-white shadow-sm hover:bg-gray-50 hover:shadow-md border border-gray-200 hover:border-gray-300 group w-full text-left"
+className="flex cursor-pointer items-center content-center mx-auto justify-start space-x-3 px-4 py-4 text-sm font-medium transition-all duration-200 border-t border-gray-200 group w-full text-left"
   >
     {/* <img
       src={profileData?.school?.logo}

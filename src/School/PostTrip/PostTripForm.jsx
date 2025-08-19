@@ -65,7 +65,7 @@ const PostTripForm = () => {
     newErrors.destination = 'Destination is required';
   }
   if (!formData.numberOfStudents || formData.numberOfStudents <= 0) {
-    newErrors.numberOfStudents = 'Number of students must be greater than 0';
+    newErrors.numberOfStudents = ' students must be greater than 0';
   }
   if (!formData.busCapacity || formData.busCapacity <= 0) {
     newErrors.busCapacity = 'Bus capacity must be greater than 0';
@@ -297,13 +297,24 @@ const PostTripForm = () => {
         <p className="text-gray-600 mt-2 text-sm md:text-base">Create a new transportation request and find the best drivers.</p>
       </div>
       <div className="max-w-full mx-auto">
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-3 bg-white rounded-lg border border-gray-200 m-0 sm:m-4">
+        <form 
+       onSubmit={handleSubmit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault(); // ⛔ stop Enter from submitting
+          }
+        }}
+        
+         className="grid grid-cols-1 lg:grid-cols-2 gap-3 bg-white rounded-lg border border-gray-200 m-0 sm:m-4">
           <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4">
             <div className="flex items-center space-x-2 mb-6">
               <FileText className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
             </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+
               <div className="lg:col-span-2 relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Trip Name <span className="text-red-500">*</span>
@@ -313,13 +324,33 @@ const PostTripForm = () => {
                   name="tripName"
                   value={formData.tripName}
                   onChange={handleInputChange}
-                  placeholder='Daily Pickup Route A'
-                  className={`w-full px-3 py-2 border ${errors.tripName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
+                  onKeyDown={(e) => {
+                    // Allow only letters, spaces, Backspace, Tab
+                    const regex = /^[A-Za-z\s]$/;
+                    if (!regex.test(e.key) && e.key !== "Backspace" && e.key !== "Tab") {
+                      e.preventDefault();
+                    }
+                  }}
+                  onPaste={(e) => {
+                    // Prevent pasting invalid text
+                    const paste = e.clipboardData.getData("text");
+                    if (!/^[A-Za-z\s]+$/.test(paste)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  placeholder="Daily Pickup Route A"
+                  className={`w-full px-3 py-2 border ${
+                    errors.tripName ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
                 />
                 {errors.tripName && (
                   <p className="absolute text-red-500 text-xs mt-1">{errors.tripName}</p>
                 )}
               </div>
+
+
+
+
               <div className="lg:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Trip Type</label>
                 <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
@@ -344,6 +375,8 @@ const PostTripForm = () => {
                 </div>
               </div>
             </div>
+
+
           </div>
           <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4">
             <div className="flex items-center space-x-2 mb-6">
@@ -471,6 +504,7 @@ const PostTripForm = () => {
               <Users className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">Requirements</h2>
             </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
              <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -499,7 +533,7 @@ const PostTripForm = () => {
 
               <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bus Capacity Required <span className="text-red-500">*</span>
+                  No of Busses <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -536,6 +570,7 @@ const PostTripForm = () => {
                 </div>
               </div>
             </div>
+
           </div>
           <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4 lg:col-start-2">
             <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">

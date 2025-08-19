@@ -343,7 +343,7 @@ const Register = () => {
                 value={formData.UserName}
                 onChange={handleInputChange}
                 placeholder="Enter your username"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400"
               />
             </div>
             <div>
@@ -354,7 +354,7 @@ const Register = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Enter your email"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400"
               />
             </div>
             <div>
@@ -365,7 +365,7 @@ const Register = () => {
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder="Enter your phone (e.g., 03001234567)"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400"
               />
             </div>
 
@@ -379,7 +379,7 @@ const Register = () => {
                     value={formData.schoolName}
                     onChange={handleInputChange}
                     placeholder="Enter your school name"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400"
                   />
                 </div>
                 <div>
@@ -390,7 +390,7 @@ const Register = () => {
                     value={formData.city}
                     onChange={handleInputChange}
                     placeholder="Enter your city"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400"
                   />
                 </div>
                 <div>
@@ -402,7 +402,7 @@ const Register = () => {
                       value={formData.location}
                       onChange={handleInputChange}
                       placeholder="Enter school location"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base pr-10"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400 pr-10"
                     />
                     <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
                       <BsMap />
@@ -422,7 +422,7 @@ const Register = () => {
                     value={formData.cnicNumber}
                     onChange={handleInputChange}
                     placeholder="Enter your CNIC number (e.g., 35202-1234567-1)"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400"
                   />
                 </div>
                 <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
@@ -430,10 +430,10 @@ const Register = () => {
                     <label className="block text-sm lg:text-[14px] inter-semibold mb-1">School</label>
                     <div className="relative" ref={dropdownRef}>
                       <div
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-white flex items-center cursor-pointer"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer"
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                       >
-                        <span className="flex-1 truncate">
+                        <span className="flex-1 truncate text-gray-400">
                           {formData.schoolName || 'Select a school'}
                         </span>
                         <IoChevronDown
@@ -448,7 +448,7 @@ const Register = () => {
                             schools.map((school) => (
                               <div
                                 key={school._id}
-                                className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm lg:text-base"
+                                className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm lg:text-base text-gray-400"
                                 onClick={() => handleSchoolSelect(school)}
                               >
                                 {school.schoolName} ({school.address.city})
@@ -471,7 +471,7 @@ const Register = () => {
                       placeholder="Enter your service city"
                       value={formData.city}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400"
                     />
                   </div>
                 </div>
@@ -479,10 +479,10 @@ const Register = () => {
                   <div className="flex-1">
                     <label className="block text-sm lg:text-[14px] inter-semibold mb-1">CNIC Front</label>
                     <div
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-white flex items-center cursor-pointer"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer"
                       onClick={() => handleFileClick(cnicFrontRef)}
                     >
-                      <span className="flex-1 truncate">{formData.cnicFront ? formData.cnicFront.name : 'Upload CNIC Front'}</span>
+                      <span className="flex-1 truncate text-gray-400">{formData.cnicFront ? formData.cnicFront.name : 'Upload CNIC Front'}</span>
                       <HiUpload className="text-gray-500" />
                     </div>
                     <input
@@ -497,10 +497,10 @@ const Register = () => {
                   <div className="flex-1">
                     <label className="block text-sm lg:text-[14px] inter-semibold mb-1">CNIC Back</label>
                     <div
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-white flex items-center cursor-pointer"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer"
                       onClick={() => handleFileClick(cnicBackRef)}
                     >
-                      <span className="flex-1 truncate">{formData.cnicBack ? formData.cnicBack.name : 'Upload CNIC Back'}</span>
+                      <span className="flex-1 truncate text-gray-400">{formData.cnicBack ? formData.cnicBack.name : 'Upload CNIC Back'}</span>
                       <HiUpload className="text-gray-500" />
                     </div>
                     <input
@@ -516,10 +516,10 @@ const Register = () => {
                 <div>
                   <label className="block text-sm lg:text-[14px] inter-semibold mb-1">Driver's License</label>
                   <div
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-white flex items-center cursor-pointer"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer"
                     onClick={() => handleFileClick(driversLicenseRef)}
                   >
-                    <span className="flex-1 truncate">{formData.driversLicense ? formData.driversLicense.name : "Upload Driver's License"}</span>
+                    <span className="flex-1 truncate text-gray-400">{formData.driversLicense ? formData.driversLicense.name : "Upload Driver's License"}</span>
                     <HiUpload className="text-gray-500" />
                   </div>
                   <input
@@ -534,10 +534,10 @@ const Register = () => {
                 <div>
                   <label className="block text-sm lg:text-[14px] inter-semibold mb-1">Vehicle Registration Document</label>
                   <div
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-white flex items-center cursor-pointer"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer"
                     onClick={() => handleFileClick(vehicleRegistrationRef)}
                   >
-                    <span className="flex-1 truncate">{formData.vehicleRegistrationDocument ? formData.vehicleRegistrationDocument.name : 'Upload Vehicle Registration Document'}</span>
+                    <span className="flex-1 truncate text-gray-400">{formData.vehicleRegistrationDocument ? formData.vehicleRegistrationDocument.name : 'Upload Vehicle Registration Document'}</span>
                     <HiUpload className="text-gray-500" />
                   </div>
                   <input
@@ -561,7 +561,7 @@ const Register = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="Create a strong password"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base pr-10"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400 pr-10"
                 />
                 <button
                   type="button"
@@ -620,8 +620,7 @@ const Register = () => {
               {loading ? 'Processing...' : 'Create Account'}
             </button>
 
-            {error && <p className="text-red-500 text-sm lg:text-[14px] inter(menuItem, 'interregular') mt-4 text-center">{error}</p>}
-            {success && <p className="text-green-500 text-sm lg:text-[14px] interregular mt-4 text-center">{success}</p>}
+
 
             <p className="text-center text-sm lg:text-[14px] interregular mt-4">
               Already have an account?{' '}

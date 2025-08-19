@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import logo from '../images/logo.png';
+import logo from '../images/logo3.png';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +15,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo + Text */}
         <div className="flex items-center space-x-3">
-          <img src={logo} alt="FieldTripLink Logo" className="h-[50px] w-[89px]" />
+          <img src={logo} alt="FieldTripLink Logo" className="h-[70px] w-[79px]" />
           <div>
             <h1 className="text-lg sm:text-xl interbold">FieldTripLink</h1>
             <p className="text-xs sm:text-sm text-[#555555] leading-4">

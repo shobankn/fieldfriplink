@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import logo from '../images/logo.png';
 
 const ForgetPassword = () => {
@@ -24,13 +22,11 @@ const ForgetPassword = () => {
     setLoading(true);
 
     if (!email) {
-      toast.error('No email provided. Please go back and verify OTP.');
       setLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match.');
       setLoading(false);
       return;
     }
@@ -43,14 +39,10 @@ const ForgetPassword = () => {
       });
 
       if (response.data.message === 'Password reset successfully') {
-        toast.success('Password reset successfully! Redirecting to login...');
         setTimeout(() => navigate('/login'), 2000); // Redirect after 2 seconds
-      } else {
-        toast.error(response.data.message || 'Failed to reset password. Please try again.');
       }
     } catch (error) {
-      const msg = error.response?.data?.message || 'An error occurred. Please try again later.';
-      toast.error(msg);
+      // Handle error silently
     } finally {
       setLoading(false);
     }
@@ -83,22 +75,22 @@ const ForgetPassword = () => {
                 userType === 'School' ? 'translate-x-0' : 'translate-x-full'
               }`}
             />
-            <button
-              onClick={() => setUserType('School')}
-              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
-                userType === 'School' ? 'text-white' : 'text-[#de3b40]'
-              } z-10`}
-            >
-              School
-            </button>
-            <button
-              onClick={() => setUserType('Driver')}
-              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
-                userType === 'Driver' ? 'text-white' : 'text-[#de3b40]'
-              } z-10`}
-            >
-              Driver
-            </button>
+           <button
+  onClick={() => setUserType('School')}
+  className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 cursor-pointer ${
+    userType === 'School' ? 'text-white' : 'text-[#de3b40]'
+  } z-10`}
+>
+  School
+</button>
+<button
+  onClick={() => setUserType('Driver')}
+  className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 cursor-pointer ${
+    userType === 'Driver' ? 'text-white' : 'text-[#de3b40]'
+  } z-10`}
+>
+  Driver
+</button>
           </div>
         </div>
 
@@ -117,7 +109,7 @@ const ForgetPassword = () => {
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="ml-2"
+                className="ml-2 cursor-pointer"
               >
                 <svg
                   width="18"
@@ -202,7 +194,7 @@ const ForgetPassword = () => {
               <button
                 type="button"
                 onClick={toggleConfirmPasswordVisibility}
-                className="ml-2"
+                className="ml-2 cursor-pointer"
               >
                 <svg
                   width="18"
@@ -276,7 +268,7 @@ const ForgetPassword = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full bg-[#de3b40] hover:bg-red-600 text-white rounded-[8px] font-medium h-[48px] text-sm lg:text-base transition-colors duration-300 flex items-center justify-center mt-6 lg:mt-[60px] ${
+            className={`w-full bg-[#de3b40] hover:bg-red-600 text-white rounded-[8px] font-medium h-[48px] text-sm lg:text-base transition-colors duration-300 flex items-center justify-center mt-6 lg:mt-[60px] cursor-pointer ${
               loading ? 'opacity-75 cursor-not-allowed' : ''
             }`}
           >
@@ -314,13 +306,12 @@ const ForgetPassword = () => {
           Don’t have an account?{' '}
           <button
             onClick={handleSignUp}
-            className="text-[#de3b40] inter-semibold hover:underline"
+            className="text-[#de3b40] inter-semibold hover:underline cursor-pointer"
           >
             Sign up
           </button>
         </p>
       </div>
-      <ToastContainer />
     </div>
   );
 };

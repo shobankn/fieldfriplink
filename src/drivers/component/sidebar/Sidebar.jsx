@@ -10,10 +10,11 @@ import { FiMessageCircle } from 'react-icons/fi';
 import { CiStar } from 'react-icons/ci';
 import { FaRegBell } from 'react-icons/fa';
 import { IoIosLogOut } from 'react-icons/io';
-import { NavLink } from 'react-router-dom';
-import logo from '../../../images/logo.png';
+import { NavLink, useNavigate } from 'react-router-dom';
+import logo from '../../../images/logo2.png';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
+  const navigate = useNavigate();
   const menuItems = [
     { name: 'Dashboard', icon: LuBox, href: '/driverdashboard' },
     { name: 'My Profile', icon: FiUser, href: '/driverprofile' },
@@ -27,9 +28,15 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { name: 'Notifications', icon: FaRegBell, href: '/notifications' },
   ];
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    toggleSidebar();
+    navigate('/login');
+  };
+
   return (
     <div
-      className={`fixed lg:fixed top-0 left-0 h-screen w-[80%] lg:w-[20%] bg-white border-r border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out ${
+      className={`fixed lg:fixed top-0 left-0 h-screen w-[80%] lg:w-[17%] bg-white border-r border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       } z-20 overflow-hidden`}
     >
@@ -45,7 +52,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         {/* Logo/Title */}
         <div className="mb-8 pl-[26px]">
           <h2 className="text-[18px] interbold text-gray-800 flex items-center gap-[10px]">
-            <img src={logo} alt="FieldTripLink Logo" className="h-[50px] w-[89px]" /> FieldTripLink
+            <img src={logo} alt="FieldTripLink Logo" className="h-[70px] w-[78px]" /> FieldTripLink
           </h2>
         </div>
 
@@ -82,7 +89,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         {/* Footer */}
         <div className="mt-auto pt-4 border-t border-gray-200">
           <NavLink
-            to="/logout"
+            to="/login"
             className={({ isActive }) =>
               `flex items-center gap-3 p-3 rounded-0 transition-colors duration-200 relative ${
                 isActive
@@ -90,7 +97,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                   : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
               }`
             }
-            onClick={toggleSidebar}
+            onClick={handleLogout}
           >
             <div className="absolute inset-0 bg-inherit z-[-1]" />
             <div className="flex items-center gap-3 pl-[25px]">

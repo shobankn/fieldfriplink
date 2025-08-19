@@ -40,9 +40,50 @@ const DriverReviews = () => {
     ]
   });
   const [loading, setLoading] = useState(true);
+  const [buttonLoading, setButtonLoading] = useState({});
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  // Mock functions for button actions (since no API endpoints are provided)
+  const handleHelpful = async (reviewId) => {
+    try {
+      setButtonLoading(prev => ({ ...prev, [`helpful-${reviewId}`]: true }));
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log(`Marked review ${reviewId} as helpful`);
+    } catch (error) {
+      console.error('Error marking helpful:', error);
+    } finally {
+      setButtonLoading(prev => ({ ...prev, [`helpful-${reviewId}`]: false }));
+    }
+  };
+
+  const handleReply = async (reviewId) => {
+    try {
+      setButtonLoading(prev => ({ ...prev, [`reply-${reviewId}`]: true }));
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log(`Replied to review ${reviewId}`);
+    } catch (error) {
+      console.error('Error replying to review:', error);
+    } finally {
+      setButtonLoading(prev => ({ ...prev, [`reply-${reviewId}`]: false }));
+    }
+  };
+
+  const handleReport = async (reviewId) => {
+    try {
+      setButtonLoading(prev => ({ ...prev, [`report-${reviewId}`]: true }));
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log(`Reported review ${reviewId}`);
+    } catch (error) {
+      console.error('Error reporting review:', error);
+    } finally {
+      setButtonLoading(prev => ({ ...prev, [`report-${reviewId}`]: false }));
+    }
   };
 
   // Fetch reviews from API
@@ -69,7 +110,8 @@ const DriverReviews = () => {
         }
 
         const data = await response.json();
-        const reviews = Array.isArray(data) ? data : data.reviews || [];
+        // Handle the nested data structure from the API
+        const reviews = data.data && Array.isArray(data.data) ? data.data : [];
 
         // Calculate overall rating and distribution
         const totalReviews = reviews.length;
@@ -93,8 +135,8 @@ const DriverReviews = () => {
           });
           return {
             id: review._id,
-            school: review.tripName || 'School Trip',
-            rating: review.rating,
+            school: review.schoolId?.schoolName || 'School Trip',
+            rating: review.rating || 0,
             comment: review.comment || 'No comment provided.',
             category: review.rating >= 4 ? 'Excellent' : 'Good',
             date: dateStr
@@ -209,7 +251,7 @@ const DriverReviews = () => {
   return (
     <div className="flex h-screen overflow-hidden relative">
       {/* Sidebar for large screen */}
-      <div className="hidden lg:block lg:w-[20%]">
+      <div className="hidden lg:block lg:w-[17%]">
         <Sidebar isOpen={true} toggleSidebar={toggleSidebar} />
       </div>
 
@@ -226,7 +268,7 @@ const DriverReviews = () => {
       )}
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1 w-full lg:w-[80%]">
+      <div className="flex flex-col flex-1 w-full lg:w-[83%]">
         <Topbar toggleSidebar={toggleSidebar} />
 
         <main className="flex-1 overflow-y-auto pt-16 px-[33px] bg-gray-50">
@@ -331,9 +373,111 @@ const DriverReviews = () => {
                       
                       <div className="flex justify-between items-center text-sm">
                         <div className="flex gap-4">
-                          <button className="text-black-900 bg-[#FFDD00] px-3 py-2 rounded-[100px] interregular">Helpful</button>
-                          <button className="text-black-900 bg-[#FFDD00] px-3 py-2 rounded-[100px] interregular">Reply</button>
-                          <button className="text-black-900 bg-[#FFDD00] px-3 py-2 rounded-[100px] interregular">Report</button>
+                          <button
+                            onClick={() => handleHelpful(review.id)}
+                            className={`flex items-center gap-1 text-black-900 bg-[#FFDD00] px-3 py-2 rounded-[100px] interregular ${
+                              buttonLoading[`helpful-${review.id}`] ? 'opacity-70 cursor-not-allowed' : ''
+                            }`}
+                            disabled={buttonLoading[`helpful-${review.id}`]}
+                          >
+                            {buttonLoading[`helpful-${review.id}`] ? (
+                              <>
+                                <svg
+                                  className="animate-spin h-5 w-5 text-black"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  ></circle>
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                  ></path>
+                                </svg>
+                                Processing...
+                              </>
+                            ) : (
+                              'Helpful'
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleReply(review.id)}
+                            className={`flex items-center gap-1 text-black-900 bg-[#FFDD00] px-3 py-2 rounded-[100px] interregular ${
+                              buttonLoading[`reply-${review.id}`] ? 'opacity-70 cursor-not-allowed' : ''
+                            }`}
+                            disabled={buttonLoading[`reply-${review.id}`]}
+                          >
+                            {buttonLoading[`reply-${review.id}`] ? (
+                              <>
+                                <svg
+                                  className="animate-spin h-5 w-5 text-black"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  ></circle>
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                  ></path>
+                                </svg>
+                                Processing...
+                              </>
+                            ) : (
+                              'Reply'
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleReport(review.id)}
+                            className={`flex items-center gap-1 text-black-900 bg-[#FFDD00] px-3 py-2 rounded-[100px] interregular ${
+                              buttonLoading[`report-${review.id}`] ? 'opacity-70 cursor-not-allowed' : ''
+                            }`}
+                            disabled={buttonLoading[`report-${review.id}`]}
+                          >
+                            {buttonLoading[`report-${review.id}`] ? (
+                              <>
+                                <svg
+                                  className="animate-spin h-5 w-5 text-black"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  ></circle>
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                  ></path>
+                                </svg>
+                                Processing...
+                              </>
+                            ) : (
+                              'Report'
+                            )}
+                          </button>
                         </div>
                       </div>
                     </div>

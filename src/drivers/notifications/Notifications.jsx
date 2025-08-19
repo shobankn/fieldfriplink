@@ -93,7 +93,7 @@ const Notifications = () => {
   return (
     <div className="flex h-screen overflow-hidden relative">
       {/* Sidebar for large screens */}
-      <div className="hidden lg:block lg:w-[20%]">
+      <div className="hidden lg:block lg:w-[17%]">
         <Sidebar isOpen={true} toggleSidebar={toggleSidebar} />
       </div>
 
@@ -110,7 +110,7 @@ const Notifications = () => {
       )}
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1 w-full lg:w-[80%]">
+      <div className="flex flex-col flex-1 w-full lg:w-[83%]">
         <Topbar toggleSidebar={toggleSidebar} />
 
         <main className="flex-1 overflow-y-auto pt-16 px-[33px] bg-gray-50">

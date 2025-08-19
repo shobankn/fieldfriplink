@@ -21,6 +21,8 @@ const AvailableRides = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [driverProfile, setDriverProfile] = useState(null);
+  const [isSubmittingProposal, setIsSubmittingProposal] = useState({});
+  const [isClosingModal, setIsClosingModal] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -79,32 +81,29 @@ const AvailableRides = () => {
           },
         });
 
-        // Log response for debugging
         console.log('API Response:', response.data);
 
-        // Handle response structure
         let trips = [];
         if (response.data?.trips && Array.isArray(response.data.trips)) {
-          trips = response.data.trips; // Handle { total, page, perPage, trips: [] } structure
+          trips = response.data.trips;
         } else if (Array.isArray(response.data)) {
-          trips = response.data; // Handle direct array response
+          trips = response.data;
         } else if (response.data && typeof response.data === 'object') {
-          trips = [response.data]; // Handle single object response
+          trips = [response.data];
         } else {
           throw new Error('Unexpected API response format');
         }
 
-        // Map API response to expected format
         const mappedData = trips.map(trip => ({
-          id: trip._id || Math.random().toString(36).substr(2, 9), // Use _id from API
-          school: trip.tripName || 'Unknown Trip', // Use tripName as school
-          pickup: trip.pickupPoints?.map(point => point.address).join(', ') || 'Not specified', // Join multiple pickup points
-          drop: trip.destination?.address || 'Not specified', // Use destination address
-          date: trip.tripDate ? new Date(trip.tripDate).toLocaleDateString() : 'Not specified', // Format date
-          time: trip.startTime ? new Date(trip.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Not specified', // Format time
-          students: trip.numberOfStudents || 0, // Use numberOfStudents
-          note: trip.instructions || '', // Use instructions as note
-          buses: trip.numberOfBuses || 'TBD', // Use numberOfBuses
+          id: trip._id || Math.random().toString(36).substr(2, 9),
+          school: trip.tripName || 'Unknown Trip',
+          pickup: trip.pickupPoints?.map(point => point.address).join(', ') || 'Not specified',
+          drop: trip.destination?.address || 'Not specified',
+          date: trip.tripDate ? new Date(trip.tripDate).toLocaleDateString() : 'Not specified',
+          time: trip.startTime ? new Date(trip.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Not specified',
+          students: trip.numberOfStudents || 0,
+          note: trip.instructions || '',
+          buses: trip.numberOfBuses || 'TBD',
         }));
 
         setAvailableRides(mappedData);
@@ -128,33 +127,37 @@ const AvailableRides = () => {
     };
 
     fetchTrips();
-  }, []); // Empty dependency array ensures this runs on mount
+  }, []);
 
   const handleSendProposal = (ride) => {
     setSelectedRide(ride);
-    setProposalMessage(`I specialize in school transportation and have been handling school events including sports competitions, cultural programs, and educational trips. I ensure timely pickup and drop-off with complete safety measures.`);
+    setProposalMessage('');
     setIsProposalModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    setIsProposalModalOpen(false);
-    setSelectedRide(null);
-    setProposalMessage('');
+    setIsClosingModal(true);
+    setTimeout(() => {
+      setIsProposalModalOpen(false);
+      setSelectedRide(null);
+      setProposalMessage('');
+      setIsClosingModal(false);
+    }, 500); // Simulate a short delay for the spinner
   };
 
-  const handleSubmitProposal = async () => {
+  const handleSubmitProposal = async (rideId) => {
     try {
+      setIsSubmittingProposal(prev => ({ ...prev, [rideId]: true }));
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No authentication token found. Please log in.');
       }
 
-      // Send proposal to the new API endpoint
       const response = await axios.post(
         'https://fieldtriplinkbackend-production.up.railway.app/api/driver/proposal/send',
         {
           tripId: selectedRide.id,
-          driverNote: proposalMessage, // Map proposalMessage to driverNote
+          driverNote: proposalMessage,
         },
         {
           headers: {
@@ -164,7 +167,6 @@ const AvailableRides = () => {
         }
       );
 
-      // Display success message from API response
       toast.success(response.data.message || 'Proposal sent successfully!');
       handleCloseModal();
     } catch (err) {
@@ -177,6 +179,8 @@ const AvailableRides = () => {
         // Optionally redirect to login page
         // window.location.href = '/login';
       }
+    } finally {
+      setIsSubmittingProposal(prev => ({ ...prev, [rideId]: false }));
     }
   };
 
@@ -184,10 +188,35 @@ const AvailableRides = () => {
     console.log('Card clicked:', ride);
   };
 
+  // Shimmer effect component for loading state
+  const ShimmerCard = () => (
+    <div className="bg-white shadow-sm rounded-lg p-5 mb-4 border border-gray-200 animate-pulse">
+      <div className="flex justify-between items-start mb-4">
+        <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+        <div className="h-8 bg-gray-200 rounded w-28"></div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        </div>
+        <div>
+          <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        </div>
+      </div>
+      <div className="mt-4">
+        <div className="h-4 bg-gray-200 rounded w-full"></div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex h-screen overflow-hidden relative">
       {/* Sidebar for large screen */}
-      <div className="hidden lg:block lg:w-[20%]">
+      <div className="hidden lg:block lg:w-[17%]">
         <Sidebar isOpen={true} toggleSidebar={toggleSidebar} />
       </div>
 
@@ -204,7 +233,7 @@ const AvailableRides = () => {
       )}
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1 w-full lg:w-[80%]">
+      <div className="flex flex-col flex-1 w-full lg:w-[83%]">
         <Topbar toggleSidebar={toggleSidebar} />
 
         <main className="flex-1 overflow-y-auto pt-16 px-[40px] bg-gray-50">
@@ -216,94 +245,108 @@ const AvailableRides = () => {
               </div>
             </div>
 
-            {/* Stats */}
-            <div className="flex gap-4 items-center mb-6">
-              <div className="bg-white shadow rounded-lg p-4 w-[80%] flex items-center justify-center gap-[10px] h-[100px]">
-                <div className='bg-[#FFF5EE] h-[48px] w-[48px] flex items-center justify-center rounded-[50%]'>
-                  <CiLocationOn className='text-[24px] text-[#EE5B5B]' />
-                </div>
-                <p className="text-[14px] interregular text-gray-600">Total Available</p>
-                <p className="text-[24px] archivobold mt-1">{availableRides.length}</p>
-              </div>
-              <div className="w-[20%] flex gap-[10px]">
-                <button className='border border-[#EBEBEA] rounded-[6px] h-[36px] w-[48px] bg-[white] flex items-center justify-center'><CiFilter /></button>
-                <select className="border border-[#EBEBEA] bg-white rounded-md px-3 py-1.5 text-sm text-gray-600 w-full">
-                  <option>All Types</option>
-                  <option>Daily</option>
-                  <option>Weekly</option>
-                  <option>One-time</option>
-                </select>
-              </div>
-            </div>
-
             {/* Loading and Error States */}
-            {loading && <p className="text-gray-600">Loading trips...</p>}
-            {error && <p className="text-red-500">Error: {error}</p>}
-
-            {/* Ride Cards */}
-            {!loading && !error && availableRides.length === 0 && (
-              <p className="text-gray-600">No available trips found.</p>
-            )}
-            {!loading && !error && availableRides.map((ride) => (
-              <div 
-                key={ride.id} 
-                className="bg-white rounded-lg shadow p-5 mb-4 relative cursor-pointer hover:shadow-md transition-shadow duration-200"
-                onClick={() => handleCardClick(ride)}
-              >
-                <div className="flex justify-between items-center mb-[18px]">
-                  <div>
-                    <h2 className="text-[18px] archivosemibold">{ride.school}</h2>
-                  </div>
-                  <button 
-                    className="bg-[#EE5B5B] text-white font-medium px-4 py-1.5 rounded hover:bg-red-600"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSendProposal(ride);
-                    }}
-                  >
-                    Send Proposal
-                  </button>
-                </div>
-
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-y-2">
-                  <div>
-                    <p className="flex items-center gap-2 text-[#606060] text-[16px]  mb-[8px]">
-                      <CiLocationOn className='text-[#EE5B5B] text-[16px]'/>
-                      <span className="text-[#606060] text-[16px] archivomedium">Pickup:</span> {ride.pickup}
-                    </p>
-                    <p className="flex items-center  gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px] ">
-                      <CiLocationOn className='text-[#EE5B5B] text-[16px]'/>
-                      <span className="font-medium">Drop:</span> {ride.drop}
-                    </p>
-                    <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
-                      <LuUser className='text-[#EE5B5B] text-[16px]' />
-                    {ride.students} students
-                    </p>
-                  </div>
-                  <div>
-                    <p className="flex items-center gap-2 text-sm text-[#606060] text-[16px] mb-[8px] ">
-                      <SlCalender className='text-[#EE5B5B] text-[16px]'/>
-                      <span className="font-medium">Date:</span> {ride.date}
-                    </p>
-                    <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
-                      <CiClock2 className='text-[#EE5B5B] text-[16px]'/>
-                      <span className="font-medium">Time:</span> {ride.time}
-                    </p>
-                    <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
-                      <LuBus className='text-[#EE5B5B] text-[16px]'/>
-                      <span className="font-medium">Number of Buses:</span> {ride.buses}
-                    </p>
-                  </div>
-                </div>
-
-                {ride.note && (
-                  <div className="bg-[#DEE1E6] text-black text-sm p-2 mt-3 rounded flex items-center gap-2">
-                    <FaCheckCircle />
-                    <span className='interregular text-[14px]'>{ride.note}</span>
-                  </div>
-                )}
+            {loading ? (
+              <div className="space-y-4">
+                <ShimmerCard />
+                <ShimmerCard />
+                <ShimmerCard />
               </div>
-            ))}
+            ) : error ? (
+              <p className="text-red-500">Error: {error}</p>
+            ) : availableRides.length === 0 ? (
+              <p className="text-gray-600">No available trips found.</p>
+            ) : (
+              availableRides.map((ride) => (
+                <div 
+                  key={ride.id} 
+                  className="bg-white rounded-lg shadow p-5 mb-4 relative cursor-pointer hover:shadow-md transition-shadow duration-200"
+                  onClick={() => handleCardClick(ride)}
+                >
+                  <div className="flex justify-between items-center mb-[18px]">
+                    <div>
+                      <h2 className="text-[18px] archivosemibold">{ride.school}</h2>
+                    </div>
+                    <button 
+                      className={`flex items-center justify-center gap-2 bg-[#EE5B5B] text-white font-medium px-4 py-1.5 rounded hover:bg-red-600 ${
+                        isSubmittingProposal[ride.id] ? 'opacity-70 cursor-not-allowed' : ''
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSendProposal(ride);
+                      }}
+                      disabled={isSubmittingProposal[ride.id]}
+                    >
+                      {isSubmittingProposal[ride.id] ? (
+                        <>
+                          <svg
+                            className="animate-spin h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Sending...
+                        </>
+                      ) : (
+                        'Send Proposal'
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-y-2">
+                    <div>
+                      <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
+                        <CiLocationOn className='text-[#EE5B5B] text-[16px]'/>
+                        <span className="text-[#606060] text-[16px] archivomedium">Pickup:</span> {ride.pickup}
+                      </p>
+                      <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
+                        <CiLocationOn className='text-[#EE5B5B] text-[16px]'/>
+                        <span className="font-medium">Drop:</span> {ride.drop}
+                      </p>
+                      <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
+                        <LuUser className='text-[#EE5B5B] text-[16px]' />
+                        {ride.students} students
+                      </p>
+                    </div>
+                    <div>
+                      <p className="flex items-center gap-2 text-sm text-[#606060] text-[16px] mb-[8px]">
+                        <SlCalender className='text-[#EE5B5B] text-[16px]'/>
+                        <span className="font-medium">Date:</span> {ride.date}
+                      </p>
+                      <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
+                        <CiClock2 className='text-[#EE5B5B] text-[16px]'/>
+                        <span className="font-medium">Time:</span> {ride.time}
+                      </p>
+                      <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
+                        <LuBus className='text-[#EE5B5B] text-[16px]'/>
+                        <span className="font-medium">Number of Buses:</span> {ride.buses}
+                      </p>
+                    </div>
+                  </div>
+
+                  {ride.note && (
+                    <div className="bg-[#DEE1E6] text-black text-sm p-2 mt-3 rounded flex items-center gap-2">
+                      <FaCheckCircle />
+                      <span className='interregular text-[14px]'>{ride.note}</span>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </main>
       </div>
@@ -312,7 +355,6 @@ const AvailableRides = () => {
       {isProposalModalOpen && selectedRide && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm transition-opacity flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <div className="flex items-center gap-2">
                 <FaCommentDots className="text-red-500" />
@@ -320,15 +362,42 @@ const AvailableRides = () => {
               </div>
               <button
                 onClick={handleCloseModal}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                className={`flex items-center justify-center gap-2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200 ${
+                  isClosingModal ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
+                disabled={isClosingModal}
               >
-                <FaTimes className="text-gray-500" />
+                {isClosingModal ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 text-gray-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Closing...
+                  </>
+                ) : (
+                  <FaTimes className="text-gray-500" />
+                )}
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="p-6">
-              {/* Driver Profile Section */}
               <div className="mb-6">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center">
@@ -360,7 +429,6 @@ const AvailableRides = () => {
                 </div>
               </div>
 
-              {/* Proposal Message Section */}
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <FaCommentDots className="text-gray-600" />
@@ -375,19 +443,76 @@ const AvailableRides = () => {
               </div>
             </div>
 
-            {/* Modal Footer */}
             <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
               <button
                 onClick={handleCloseModal}
-                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium rounded-md transition-colors duration-200"
+                className={`flex items-center justify-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium rounded-md transition-colors duration-200 ${
+                  isClosingModal ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
+                disabled={isClosingModal}
               >
-                Cancel
+                {isClosingModal ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 text-gray-700"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Closing...
+                  </>
+                ) : (
+                  'Cancel'
+                )}
               </button>
               <button
-                onClick={handleSubmitProposal}
-                className="px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-medium rounded-md transition-colors duration-200"
+                onClick={() => handleSubmitProposal(selectedRide.id)}
+                className={`flex items-center justify-center gap-2 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-medium rounded-md transition-colors duration-200 ${
+                  isSubmittingProposal[selectedRide.id] ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
+                disabled={isSubmittingProposal[selectedRide.id]}
               >
-                Send Proposal
+                {isSubmittingProposal[selectedRide.id] ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 text-black"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Sending...
+                  </>
+                ) : (
+                  'Send Proposal'
+                )}
               </button>
             </div>
           </div>

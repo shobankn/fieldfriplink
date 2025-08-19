@@ -4,7 +4,7 @@ import Sidebar from '../component/sidebar/Sidebar';
 import { LuPlane, LuClock4, LuMapPin, LuUsers, LuCalendar, LuClock, LuBus } from 'react-icons/lu';
 import { HiOutlineCalendarDateRange } from "react-icons/hi2";
 
-const MyProposals = () => {
+const MyProporals = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [proposals, setProposals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,6 +29,7 @@ const MyProposals = () => {
             headers,
           }
         );
+        // al
 
         if (!response.ok) {
           throw new Error('Failed to fetch proposals');
@@ -128,7 +129,7 @@ const MyProposals = () => {
   return (
     <div className="flex h-screen overflow-hidden relative">
       {/* Sidebar for large screen */}
-      <div className="hidden lg:block lg:w-[20%]">
+      <div className="hidden lg:block lg:w-[17%]">
         <Sidebar isOpen={true} toggleSidebar={toggleSidebar} />
       </div>
 
@@ -145,7 +146,7 @@ const MyProposals = () => {
       )}
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1 w-full lg:w-[80%]">
+      <div className="flex flex-col flex-1 w-full lg:w-[83%]">
         <Topbar toggleSidebar={toggleSidebar} />
 
         <main className="flex-1 overflow-y-auto pt-16 px-[33px] bg-gray-50">
@@ -212,17 +213,7 @@ const MyProposals = () => {
                         }`}>
                           {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
                         </span>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12z" />
-                          </svg>
-                        </button>
-                        <button className="text-red-500 hover:text-red-700">
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M6.293 6.293a1 1 0 011.414 0L10 8.586l2.293-2.293a1 1 0 111.414 1.414L11.414 10l2.293 2.293a1 1 0 01-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 01-1.414-1.414L8.586 10 6.293 7.707a1 1 0 010-1.414z" />
-                          </svg>
-                        </button>
+
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
@@ -279,4 +270,4 @@ const MyProposals = () => {
   );
 };
 
-export default MyProposals;
+export default MyProporals;

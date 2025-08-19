@@ -23,7 +23,7 @@ const SchoolResponse = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Fetch proposals with accepted or rejected status from API
+  // Fetch both accepted and rejected proposals
   useEffect(() => {
     const fetchProposals = async () => {
       try {
@@ -34,21 +34,40 @@ const SchoolResponse = () => {
           headers['Authorization'] = `Bearer ${token}`;
         }
 
-        const response = await fetch(
-          'https://fieldtriplinkbackend-production.up.railway.app/api/driver/proposal?status=accepted,rejected&page=1&limit=10',
+        // Fetch accepted proposals
+        const acceptedResponse = await fetch(
+          'https://fieldtriplinkbackend-production.up.railway.app/api/driver/proposal?status=accepted&page=1&limit=10',
           {
             method: 'GET',
             headers,
           }
         );
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch proposals');
+        if (!acceptedResponse.ok) {
+          throw new Error('Failed to fetch accepted proposals');
         }
 
-        const data = await response.json();
-        const mappedProposals = data.proposals.map((proposal) => {
-          const trip = proposal.tripId;
+        // Fetch rejected proposals
+        const rejectedResponse = await fetch(
+          'https://fieldtriplinkbackend-production.up.railway.app/api/driver/proposal?status=rejected&page=1&limit=10',
+          {
+            method: 'GET',
+            headers,
+          }
+        );
+
+        if (!rejectedResponse.ok) {
+          throw new Error('Failed to fetch rejected proposals');
+        }
+
+        const acceptedData = await acceptedResponse.json();
+        const rejectedData = await rejectedResponse.json();
+
+        // Combine proposals from both responses
+        const allProposals = [...acceptedData.proposals, ...rejectedData.proposals];
+
+        const mappedProposals = allProposals.map((proposal) => {
+          const trip = proposal.tripId || {};
           const responseDate = new Date(proposal.acceptedAt || proposal.rejectedAt || proposal.updatedAt);
           const dateStr = responseDate.toLocaleDateString('en-US', {
             year: 'numeric',
@@ -58,12 +77,14 @@ const SchoolResponse = () => {
 
           return {
             id: proposal._id,
-            school: trip.tripName, // Using tripName as school name since API doesn't provide school name
-            area: trip.destination.address,
+            school: trip.tripName || 'Unknown Trip',
+            area: trip.destination?.address || 'N/A',
             status: proposal.status === 'accepted' ? 'Proposal Accepted' : 'Proposal Rejected',
-            statusType: proposal.status, // 'accepted' or 'rejected'
-            route: `${trip.pickupPoints[0]?.address || 'N/A'} → ${trip.destination.address}`,
-            students: trip.numberOfStudents,
+            statusType: proposal.status,
+            route: trip.pickupPoints && trip.pickupPoints[0]?.address && trip.destination?.address
+              ? `${trip.pickupPoints[0].address} → ${trip.destination.address}`
+              : 'N/A',
+            students: trip.numberOfStudents || 0,
             responseDate: dateStr,
             proposal: proposal.schoolNote || 'No additional notes provided by the school.',
             contactInfo: {
@@ -75,9 +96,9 @@ const SchoolResponse = () => {
         });
 
         const stats = {
-          totalResponses: data.proposals.length,
-          approved: data.proposals.filter(p => p.status === 'accepted').length,
-          rejected: data.proposals.filter(p => p.status === 'rejected').length
+          totalResponses: acceptedData.total + rejectedData.total,
+          approved: acceptedData.proposals.length,
+          rejected: rejectedData.proposals.length
         };
 
         setSchoolResponseData({ stats, proposals: mappedProposals });
@@ -129,7 +150,7 @@ const SchoolResponse = () => {
   return (
     <div className="flex h-screen overflow-hidden relative">
       {/* Sidebar for large screen */}
-      <div className="hidden lg:block lg:w-[20%]">
+      <div className="hidden lg:block lg:w-[17%]">
         <Sidebar isOpen={true} toggleSidebar={toggleSidebar} />
       </div>
 
@@ -146,7 +167,7 @@ const SchoolResponse = () => {
       )}
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1 w-full lg:w-[80%]">
+      <div className="flex flex-col flex-1 w-full lg:w-[83%]">
         <Topbar toggleSidebar={toggleSidebar} />
 
         <main className="flex-1 overflow-y-auto pt-16 px-[33px] bg-gray-50">
@@ -156,7 +177,7 @@ const SchoolResponse = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className=" text-black rounded-lg p-4 bg-white border border-[#E0E0E0] ">
+              <div className="text-black rounded-lg p-4 bg-white border border-[#E0E0E0]">
                 <div className="flex items-center gap-4">
                   <div className='bg-[#FFFBE5] h-[48px] w-[48px] rounded-[8px] flex items-center justify-center'>
                     <IoChatbubbleOutline className='text-[#FBC02D]' />
@@ -168,7 +189,7 @@ const SchoolResponse = () => {
                 </div>
               </div>
 
-              <div className=" rounded-lg p-4 bg-white border border-[#E0E0E0] ">
+              <div className="rounded-lg p-4 bg-white border border-[#E0E0E0]">
                 <div className="flex items-center gap-4">
                   <div className='bg-[#E8F5E9] h-[48px] w-[48px] rounded-[8px] flex items-center justify-center'>
                     <IoMdCheckmarkCircleOutline className='text-[#4CAF50]' />
@@ -181,7 +202,7 @@ const SchoolResponse = () => {
               </div>
 
               <div className="bg-white border border-[#E0E0E0] rounded-lg p-4">
-                <div className="flex items-center  gap-4">
+                <div className="flex items-center gap-4">
                   <div className='bg-[#FFEBEE] h-[48px] w-[48px] rounded-[8px] flex items-center justify-center'>
                     <RxCrossCircled className='text-[#F44336]' />
                   </div>
@@ -211,11 +232,11 @@ const SchoolResponse = () => {
                           <div className='flex gap-[5px] items-center'>
                             <h2 className="text-xl font-semibold">{response.school}</h2>
                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                              response.statusType === 'approved' 
-                                ? 'bg-green-100 text-[#4CAF50]' 
+                              response.statusType === 'accepted'
+                                ? 'bg-green-100 text-[#4CAF50]'
                                 : 'bg-red-100 text-[#F44336]'
                             }`}>
-                              {response.statusType === 'approved' ? (
+                              {response.statusType === 'accepted' ? (
                                 <><FaCheckCircle className="inline mr-1" /> {response.status}</>
                               ) : (
                                 <><FaTimesCircle className="inline mr-1" /> {response.status}</>
@@ -237,38 +258,30 @@ const SchoolResponse = () => {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
-                          {response.statusType === 'approved' ? (
-                            <p className="text-gray-600 interregular text-[14px] flex items-center gap-2">
-                              <SlCalender /> Scheduled
-                            </p>
-                          ) : (
-                            <>
-                              <p className="text-gray-600 interregular text-[14px] flex items-center gap-2">
-                                <IoLocationOutline /> {response.route}
-                              </p>
-                              <p className="text-gray-600 interregular text-[14px] flex items-center gap-2">
-                                <SlCalender /> {response.responseDate}
-                              </p>
-                            </>
-                          )}
+                          <p className="text-gray-600 interregular text-[14px] flex items-center gap-2">
+                            <IoLocationOutline /> {response.route}
+                          </p>
+                          <p className="text-gray-600 interregular text-[14px] flex items-center gap-2">
+                            <SlCalender /> {response.statusType === 'accepted' ? 'Scheduled' : response.responseDate}
+                          </p>
                         </div>
                       </div>
                     </div>
 
                     {/* School Response */}
                     <div className={`p-4 mx-4 rounded-[8px] mb-2 ${
-                      response.statusType === 'approved' ? 'bg-[#E8F5E9]' : 'bg-red-50'
+                      response.statusType === 'accepted' ? 'bg-[#E8F5E9]' : 'bg-red-50'
                     }`}>
-                      <h3 className="font-semibold mb-2" style={{ color: response.statusType === 'approved' ? '#4CAF50' : '#F44336' }}>
+                      <h3 className="font-semibold mb-2" style={{ color: response.statusType === 'accepted' ? '#4CAF50' : '#F44336' }}>
                         School Response:
                       </h3>
-                      <p style={{ color: response.statusType === 'approved' ? '#4CAF50' : '#F44336' }}>
+                      <p style={{ color: response.statusType === 'accepted' ? '#4CAF50' : '#F44336' }}>
                         {response.proposal}
                       </p>
                     </div>
 
-                    {/* Contact Information (only for approved) */}
-                    {response.statusType === 'approved' && (
+                    {/* Contact Information (only for accepted) */}
+                    {response.statusType === 'accepted' && (
                       <div className="p-5 bg-[#FFFBE5] mx-4 rounded-[8px] mb-2 flex justify-between">
                         <div>
                           <h3 className="font-medium mb-3 text-[#98690C]">School Contact Information:</h3>

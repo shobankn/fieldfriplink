@@ -87,7 +87,7 @@ const PinVerification = () => {
             />
             <button
               onClick={() => setUserType('School')}
-              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
+              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 cursor-pointer ${
                 userType === 'School' ? 'text-white' : 'text-[#de3b40]'
               } z-10`}
             >
@@ -95,7 +95,7 @@ const PinVerification = () => {
             </button>
             <button
               onClick={() => setUserType('Driver')}
-              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
+              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 cursor-pointer ${
                 userType === 'Driver' ? 'text-white' : 'text-[#de3b40]'
               } z-10`}
             >
@@ -125,20 +125,11 @@ const PinVerification = () => {
             </div>
           </div>
 
-          <div className="text-right mb-6 lg:mb-[60px]">
-            <button
-              onClick={handleBackToEmail}
-              className="text-[#de3b40] text-sm lg:text-[14px] inter-medium hover:underline"
-            >
-              Back to Email Verification
-            </button>
-          </div>
-
           <button
             type="submit"
             disabled={loading}
-            className={`w-full sm:w-[65%] sm:ml-[17.5%] bg-[#de3b40] hover:bg-red-600 text-white rounded-[8px] font-medium h-[48px] text-sm lg:text-base transition-colors duration-300 flex items-center justify-center ${
-              loading ? 'opacity-75 cursor-not-allowed' : ''
+            className={`w-full sm:w-[65%] sm:ml-[17.5%] bg-[#de3b40] hover:bg-red-600 text-white rounded-[8px] font-medium h-[48px] text-sm lg:text-base transition-colors duration-300 flex items-center justify-center mt-[32px] ${
+              loading ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer'
             }`}
           >
             {loading ? (
@@ -175,7 +166,7 @@ const PinVerification = () => {
           Don’t have an account?{' '}
           <button
             onClick={handleSignUp}
-            className="text-[#de3b40] inter-semibold hover:underline"
+            className="text-[#de3b40] inter-semibold hover:underline cursor-pointer"
           >
             Sign up
           </button>

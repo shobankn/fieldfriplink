@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import logo from '../images/logo.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const EmailVerification = () => {
   const [userType, setUserType] = useState('School');
@@ -22,10 +24,13 @@ const EmailVerification = () => {
       );
 
       if (response.data.message === 'Verification code sent') {
+        toast.success('Verification code sent successfully!');
         navigate('/pinverification', { state: { email, userType } });
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send verification code');
+      const errorMessage = err.response?.data?.message || 'Failed to send verification code';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -59,22 +64,22 @@ const EmailVerification = () => {
                 userType === 'School' ? 'translate-x-0' : 'translate-x-full'
               }`}
             />
-            <button
-              onClick={() => setUserType('School')}
-              className={`relative w-1/2 py-2 text-sm sm:text-[14px] font-semibold z-10 transition-colors duration-300 ${
-                userType === 'School' ? 'text-white' : 'text-[#DE3B40]'
-              }`}
-            >
-              School
-            </button>
-            <button
-              onClick={() => setUserType('Driver')}
-              className={`relative w-1/2 py-2 text-sm sm:text-[14px] font-semibold z-10 transition-colors duration-300 ${
-                userType === 'Driver' ? 'text-white' : 'text-[#DE3B40]'
-              }`}
-            >
-              Driver
-            </button>
+           <button
+  onClick={() => setUserType('School')}
+  className={`relative w-1/2 py-2 text-sm sm:text-[14px] font-semibold z-10 transition-colors duration-300 cursor-pointer ${
+    userType === 'School' ? 'text-white' : 'text-[#DE3B40]'
+  }`}
+>
+  School
+</button>
+<button
+  onClick={() => setUserType('Driver')}
+  className={`relative w-1/2 py-2 text-sm sm:text-[14px] font-semibold z-10 transition-colors duration-300 cursor-pointer ${
+    userType === 'Driver' ? 'text-white' : 'text-[#DE3B40]'
+  }`}
+>
+  Driver
+</button>
           </div>
         </div>
 
@@ -91,9 +96,7 @@ const EmailVerification = () => {
             />
           </div>
 
-          {error && (
-            <p className="text-red-500 text-sm text-center mb-4">{error}</p>
-          )}
+         
 
           <button
             type="submit"
@@ -128,6 +131,7 @@ const EmailVerification = () => {
           </button>
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 };

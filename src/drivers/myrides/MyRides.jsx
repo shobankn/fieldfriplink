@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
 import { IoLocationOutline } from "react-icons/io5";
@@ -12,7 +13,6 @@ import { RxCrossCircled } from "react-icons/rx";
 import { LuPlane } from "react-icons/lu";
 import { ImStopwatch } from "react-icons/im";
 import { LuShieldPlus } from "react-icons/lu";
-import { useNavigate } from 'react-router-dom';
 
 const rideData = {
   Scheduled: [],
@@ -22,10 +22,12 @@ const rideData = {
 };
 
 const MyRides = () => {
+  const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("Invitations");
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || "Invitations");
   const [rideDataState, setRideDataState] = useState(rideData);
   const [loading, setLoading] = useState(true);
+  const [buttonLoading, setButtonLoading] = useState({}); // New state for button-specific loading
   const navigate = useNavigate();
 
   const toggleSidebar = () => {
@@ -34,6 +36,7 @@ const MyRides = () => {
 
   // Function to handle invitation response
   const handleInvitationResponse = async (invitationId, action) => {
+    setButtonLoading((prev) => ({ ...prev, [invitationId + action]: true }));
     try {
       const token = localStorage.getItem('token');
       const headers = {
@@ -69,11 +72,14 @@ const MyRides = () => {
       }
     } catch (error) {
       console.error(`Error ${action} invitation:`, error);
+    } finally {
+      setButtonLoading((prev) => ({ ...prev, [invitationId + action]: false }));
     }
   };
 
   // Function to handle start ride
   const handleStartRide = async (tripId) => {
+    setButtonLoading((prev) => ({ ...prev, [tripId + 'start']: true }));
     try {
       const token = localStorage.getItem('token');
       const headers = {
@@ -112,11 +118,14 @@ const MyRides = () => {
       setActiveTab('Active');
     } catch (error) {
       console.error('Error starting ride:', error);
+    } finally {
+      setButtonLoading((prev) => ({ ...prev, [tripId + 'start']: false }));
     }
   };
 
   // Function to handle end ride
   const handleEndRide = async (tripId) => {
+    setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: true }));
     try {
       const token = localStorage.getItem('token');
       const headers = {
@@ -155,7 +164,18 @@ const MyRides = () => {
       setActiveTab('Completed');
     } catch (error) {
       console.error('Error ending ride:', error);
+    } finally {
+      setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: false }));
     }
+  };
+
+  // Function to handle view live navigation
+  const handleViewLive = (tripId) => {
+    setButtonLoading((prev) => ({ ...prev, [tripId + 'view']: true }));
+    navigate('/driver-live-tracking');
+    setTimeout(() => {
+      setButtonLoading((prev) => ({ ...prev, [tripId + 'view']: false }));
+    }, 1000); // Simulate loading for navigation
   };
 
   // Fetch Invitations
@@ -365,7 +385,7 @@ const MyRides = () => {
             students: trip.numberOfStudents,
             phone: '+92 21 345-6789',
             schoolId: trip.schoolId?._id || 'N/A',
-            rating: Math.floor(Math.random() * 5) + 1, // Mock rating as API doesn't provide
+            rating: Math.floor(Math.random() * 5) + 1,
             schoolName: `School ${trip.schoolId?._id.slice(-4) || 'Unknown'}`,
           };
         });
@@ -421,7 +441,7 @@ const MyRides = () => {
 
   return (
     <div className="flex h-screen overflow-hidden relative">
-      <div className="hidden lg:block lg:w-[20%]">
+      <div className="hidden lg:block lg:w-[17%]">
         <Sidebar isOpen={true} toggleSidebar={toggleSidebar} />
       </div>
 
@@ -436,7 +456,7 @@ const MyRides = () => {
         </div>
       )}
 
-      <div className="flex flex-col flex-1 w-full lg:w-[80%]">
+      <div className="flex flex-col flex-1 w-full lg:w-[83%]">
         <Topbar toggleSidebar={toggleSidebar} />
 
         <main className="flex-1 overflow-y-auto pt-16 px-[33px] bg-gray-50">
@@ -475,8 +495,8 @@ const MyRides = () => {
                 display: none;
               }
               .scrollbar-hide {
-                -ms-overflow-style: none; /* IE and Edge */
-                scrollbar-width: none; /* Firefox */
+                -ms-overflow-style: none;
+                scrollbar-width: none;
               }
             `}</style>
 
@@ -557,14 +577,32 @@ const MyRides = () => {
                       <button
                         onClick={() => handleEndRide(ride.id)}
                         className="bg-red-500 text-white px-4 py-1.5 rounded-md hover:bg-red-600 flex items-center gap-1"
+                        disabled={buttonLoading[ride.id + 'end']}
                       >
-                        <RxCrossCircled /> End Ride
+                        {buttonLoading[ride.id + 'end'] ? (
+                          <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : (
+                          <RxCrossCircled />
+                        )}
+                        End Ride
                       </button>
                       <button
-                        onClick={() => navigate('/driver-live-tracking')}
+                        onClick={() => handleViewLive(ride.id)}
                         className="bg-red-500 text-white flex items-center gap-1 px-4 py-1.5 rounded-md text-sm hover:bg-red-600"
+                        disabled={buttonLoading[ride.id + 'view']}
                       >
-                        <LuPlane /> View Live
+                        {buttonLoading[ride.id + 'view'] ? (
+                          <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : (
+                          <LuPlane />
+                        )}
+                        View Live
                       </button>
                     </div>
                   )}
@@ -574,14 +612,32 @@ const MyRides = () => {
                       <button
                         onClick={() => handleInvitationResponse(ride.id, 'rejected')}
                         className="bg-[#EF4444] archivomedium text-[14px] text-white px-4 py-1.5 rounded-md hover:bg-red-600 flex items-center gap-1"
+                        disabled={buttonLoading[ride.id + 'rejected']}
                       >
-                        <RxCrossCircled /> Reject Invitation
+                        {buttonLoading[ride.id + 'rejected'] ? (
+                          <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : (
+                          <RxCrossCircled />
+                        )}
+                        Reject Invitation
                       </button>
                       <button
                         onClick={() => handleInvitationResponse(ride.id, 'accepted')}
                         className="bg-green-500 text-[#0A4D20] archivomedium px-4 py-1.5 rounded-md hover:bg-green-600 flex items-center gap-1"
+                        disabled={buttonLoading[ride.id + 'accepted']}
                       >
-                        <FaCheck /> Accept Invitation
+                        {buttonLoading[ride.id + 'accepted'] ? (
+                          <svg className="animate-spin h-5 w-5 mr-2 text-[#0A4D20]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : (
+                          <FaCheck />
+                        )}
+                        Accept Invitation
                       </button>
                     </div>
                   )}
@@ -589,8 +645,15 @@ const MyRides = () => {
                   {activeTab === "Scheduled" && (
                     <button
                       onClick={() => handleStartRide(ride.id)}
-                      className="mt-4 bg-yellow-400 text-black font-semibold px-4 py-1.5 rounded-md hover:bg-yellow-500 ml-auto"
+                      className="mt-4 bg-yellow-400 text-black font-semibold px-4 py-1.5 rounded-md hover:bg-yellow-500 ml-auto flex items-center gap-1"
+                      disabled={buttonLoading[ride.id + 'start']}
                     >
+                      {buttonLoading[ride.id + 'start'] ? (
+                        <svg className="animate-spin h-5 w-5 mr-2 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      ) : null}
                       Start Ride
                     </button>
                   )}

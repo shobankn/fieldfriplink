@@ -42,6 +42,7 @@ import ScrollToTop from './School/ScrollToTop';
 import TripFeedback from './School/TripManagment/TripFeedBack';
 import ProtectedRoute from './School/ProtectRoute'
 import Messages from './School/messages/Messages';
+import DriverChat from './drivers/DChat/DriverChat';
 
 function App() {
 
@@ -106,6 +107,7 @@ function App() {
       <Route path='/driverreviews' element={<DriverReviews/>}/>
       <Route path='/schoolresponse' element={<SchoolResponse/>}/>
       <Route path='/driver-live-tracking' element={<LiveGPSTracking/>}/>
+      <Route path='/chat' element={<DriverChat/>}/>
 
 
     </Routes>

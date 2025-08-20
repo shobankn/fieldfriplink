@@ -523,6 +523,8 @@ useEffect(() => {
                             </div>
                           </div>
                         </div>
+
+
                         <div className="pt-4">
                          <button
                           onClick={() => {
@@ -544,6 +546,7 @@ useEffect(() => {
                         </button>
 
                         </div>
+                        
                       </>
                     ) : (
                       <div className="text-red-500 inter-regular text-center">Failed to load driver details</div>

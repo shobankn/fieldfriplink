@@ -81,9 +81,15 @@ const TripManagementBody = () => {
 
 
           type: trip.tripType === 'onetime' ? 'One-time' : 'Recurring',
-          date: trip.tripDate
-            ? new Date(trip.tripDate).toLocaleDateString()
-            : 'N/A',
+
+
+        date: trip.tripType === "recurring"
+  ? (trip.recurringDays?.length ? trip.recurringDays.join(", ") : "N/A")
+  : (trip.tripDate ? new Date(trip.tripDate).toISOString().split("T")[0] : "N/A"),
+
+
+
+
           time: trip.startTime
             ? new Date(trip.startTime).toLocaleTimeString('en-GB', {
                 hour: '2-digit',
@@ -231,15 +237,15 @@ const TripManagementBody = () => {
         </div>
         <div className="flex items-center space-x-2">
           <Clock className="w-4 h-4 shrink-0" />
-          <span className="text-[14px] inter-regular">
-  {loading ? (
-    <Skeleton width={60} />
-  ) : (
-    <>
-      {trip.time} → {trip.returnTime}
-    </>
-  )}
-</span>
+                      <span className="text-[14px] inter-regular">
+              {loading ? (
+                <Skeleton width={60} />
+              ) : (
+                <>
+                  {trip.time} → {trip.returnTime}
+                </>
+              )}
+            </span>
         </div>
         <div className="flex items-center space-x-2">
           <Users className="w-4 h-4 shrink-0" />
@@ -324,7 +330,24 @@ const TripManagementBody = () => {
           </span>
         </div>
         <div className="flex-shrink-0">
-          {loading ? <Skeleton width={20} height={20} /> : <MessageCircle />}
+        <button
+              onClick={() => {
+                const driver = trip.assignedDrivers[0]; // ✅ pick first driver
+                console.log("creatorId =", driver?.driverId);
+                console.log("creatorPic =", driver?.profileImage);
+                console.log("full driver data =", driver);
+
+                navigate("/messages", {
+                  state: {
+                   creatorId: driver?._id,            // ✅ use _id instead of driverId
+            creatorPic: driver?.profileImage, 
+                  },
+                });
+              }}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <MessageCircle className="w-5 h-5 text-red-500" />
+            </button>
         </div>
       </div>
 
@@ -334,8 +357,15 @@ const TripManagementBody = () => {
           <Calendar className="w-4 h-4" />
           <span className="text-[14px] inter-regular">{loading ? <Skeleton width={80} /> : trip.date}</span>
           <Clock className="ml-2 mr-2 w-4 h-4" />
-          <span className="text-[14px] inter-regular">{loading ? <Skeleton width={60} /> : trip.time}</span>
-        </div>
+    <span className="text-[14px] inter-regular">
+              {loading ? (
+                <Skeleton width={60} />
+              ) : (
+                <>
+                  {trip.time} → {trip.returnTime}
+                </>
+              )}
+            </span>        </div>
         <div className="flex items-center space-x-2 min-w-[120px]">
           <Users className="w-4 h-4" />
           <span className="text-[14px] inter-regular">{loading ? <Skeleton width={80} /> : `${trip.students} students`}</span>
@@ -412,7 +442,24 @@ const TripManagementBody = () => {
           </div>
         </div>
         <div className="flex-shrink-0">
-          {loading ? <Skeleton width={20} height={20} /> : <MessageCircle />}
+            <button
+              onClick={() => {
+                const driver = trip.assignedDrivers[0]; // ✅ pick first driver
+                console.log("creatorId =", driver?._id);
+                console.log("creatorPic =", driver?.profileImage);
+                console.log("full driver data =", driver);
+
+                navigate("/messages", {
+                  state: {
+                    creatorId: driver?._id,            // ✅ driverId is _id
+                    creatorPic: driver?.profileImage,  // ✅ profile image
+                  },
+                });
+              }}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <MessageCircle className="w-5 h-5 text-red-500" />
+            </button>
         </div>
       </div>
 
@@ -425,8 +472,15 @@ const TripManagementBody = () => {
           </div>
           <div className="flex items-center space-x-1">
             <Clock className="w-4 h-4" />
-            <span>{loading ? <Skeleton width={60} /> : trip.time}</span>
-          </div>
+    <span className="text-[14px] inter-regular">
+              {loading ? (
+                <Skeleton width={60} />
+              ) : (
+                <>
+                  {trip.time} → {trip.returnTime}
+                </>
+              )}
+            </span>          </div>
           <div className="flex items-center space-x-1">
             <Users className="w-4 h-4" />
             <span className="text-[14px] inter-regular">{loading ? <Skeleton width={80} /> : `${trip.students} students`}</span>
@@ -514,7 +568,15 @@ const TripManagementBody = () => {
         </div>
         <div className="flex items-center space-x-2">
           <Clock className="w-4 h-4 shrink-0" />
-          <span className="text-[14px] inter-regular">{loading ? <Skeleton width={60} /> : trip.time}</span>
+              <span className="text-[14px] inter-regular">
+              {loading ? (
+                <Skeleton width={60} />
+              ) : (
+                <>
+                  {trip.time} → {trip.returnTime}
+                </>
+              )}
+            </span>
         </div>
         <div className="flex items-center space-x-2">
           <Users className="w-4 h-4" />
@@ -573,7 +635,15 @@ const CompletedTripCard = ({ trip }) => {
           </div>
           <div className="flex items-center space-x-2 min-w-[120px]">
             <Clock className="w-4 h-4" />
-            <span>{loading ? <Skeleton width={60} /> : trip.time}</span>
+                <span className="text-[14px] inter-regular">
+              {loading ? (
+                <Skeleton width={60} />
+              ) : (
+                <>
+                  {trip.time} → {trip.returnTime}
+                </>
+              )}
+            </span>
           </div>
           <div className="flex items-center space-x-2 min-w-[120px]">
             <Users className="w-4 h-4" />

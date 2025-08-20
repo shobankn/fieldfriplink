@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import profile from '../images/profile/profile4.jpeg';
-import logo from '../images/newlogo.png';
+import logo from '../images/Group 1171286290.png';
 import {
   LayoutDashboard,
   Plus,

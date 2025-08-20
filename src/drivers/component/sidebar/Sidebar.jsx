@@ -57,8 +57,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
         {/* Logo/Title */}
         <div className="mb-8 pl-[20px]">
-          <h2 className="text-[18px] interbold text-gray-800 flex items-center gap-[10px]">
-            <img src={logo} alt="FieldTripLink Logo" className="h-18.5 w-18.5" /> FieldTripLink
+          <h2 className="text-[18px] max-[1320px]:text-[15px]  interbold text-gray-800 flex items-center gap-[10px]">
+            <img src={logo} alt="FieldTripLink Logo" className="h-18.5 w-18.5 max-[1320px]:h-[15] max-[1320px]:w-[15]" /> FieldTripLink
           </h2>
         </div>
 
@@ -81,7 +81,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                     onClick={toggleSidebar}
                   >
                     <div className="absolute inset-0 bg-inherit z-[-1]" />
-                    <div className="flex items-center gap-3 pl-[25px]">
+                    <div className="flex items-center gap-3 pl-[25px] max-[1320px]:text-[15px] ">
                       <Icon className="text-lg" />
                       <span className="font-medium">{item.name}</span>
                     </div>

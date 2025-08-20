@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
 import { FaInfoCircle, FaDownload, FaTrash } from 'react-icons/fa';
-import { MdOutlineFileUpload } from "react-icons/md";
+import { LuDownload, LuUpload } from "react-icons/lu";
 import axios from 'axios';
 import { FaCheck } from "react-icons/fa6";
 import { toast, ToastContainer } from 'react-toastify';
@@ -18,6 +18,7 @@ const uploadFields = [
 const Documents = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [files, setFiles] = useState({});
+  const [previews, setPreviews] = useState({});
   const [profileData, setProfileData] = useState({
     accountStatus: 'pending_approval',
     cnicFrontImage: '',
@@ -40,7 +41,10 @@ const Documents = () => {
         setLoading(true);
         const token = localStorage.getItem('token');
         if (!token) {
-          toast.error('No authentication token found. Please log in again.');
+          toast.error('No authentication token found. Please log in again.', {
+            toastId: 'no-token',
+            autoClose: 5000,
+          });
           console.error('No token found in localStorage');
           setLoading(false);
           return;
@@ -54,7 +58,11 @@ const Documents = () => {
 
         console.log('API Response:', response.data);
 
-        const { user, profile } = response.data.data || response.data;
+        // Handle different possible response structures
+        const data = response.data.data || response.data;
+        const user = data.user || data;
+        const profile = data.profile || user;
+
         if (!user || !profile) {
           throw new Error('Invalid API response structure: Missing user or profile data');
         }
@@ -74,10 +82,20 @@ const Documents = () => {
           vehicleReg: profile.vehicleRegistrationImage ? { name: 'Vehicle Registration Uploaded' } : null,
         });
 
+        setPreviews({
+          cnicFront: profile.cnicFrontImage || '',
+          cnicBack: profile.cnicBackImage || '',
+          license: profile.drivingLicenseImage || '',
+          vehicleReg: profile.vehicleRegistrationImage || '',
+        });
+
         setLoading(false);
       } catch (error) {
         console.error('Error fetching profile data:', error.response?.data || error.message);
-        toast.error(`Failed to load document data: ${error.response?.data?.message || error.message}`);
+        toast.error(`Failed to load document data: ${error.response?.data?.message || error.message}`, {
+          toastId: 'fetch-error',
+          autoClose: 5000,
+        });
         setLoading(false);
       }
     };
@@ -88,7 +106,9 @@ const Documents = () => {
   const handleFileChange = (e, id) => {
     const file = e.target.files[0];
     if (file) {
-      setFiles({ ...files, [id]: file });
+      setFiles((prev) => ({ ...prev, [id]: file }));
+      const previewUrl = URL.createObjectURL(file);
+      setPreviews((prev) => ({ ...prev, [id]: previewUrl }));
     }
   };
 
@@ -107,7 +127,10 @@ const Documents = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        toast.error('No authentication token found. Please log in again.');
+        toast.error('No authentication token found. Please log in again.', {
+          toastId: 'no-token-delete',
+          autoClose: 5000,
+        });
         return;
       }
 
@@ -130,17 +153,30 @@ const Documents = () => {
         ...prev,
         [fieldId]: null,
       }));
+      setPreviews((prev) => ({
+        ...prev,
+        [fieldId]: '',
+      }));
 
-      toast.success(`${uploadFields.find((f) => f.id === fieldId).label} deleted successfully!`);
+      toast.success(`${uploadFields.find((f) => f.id === fieldId).label} deleted successfully!`, {
+        toastId: `delete-${fieldId}`,
+        autoClose: 5000,
+      });
     } catch (error) {
       console.error('Error deleting document:', error.response?.data || error.message);
-      toast.error(`Failed to delete document: ${error.response?.data?.message || error.message}`);
+      toast.error(`Failed to delete document: ${error.response?.data?.message || error.message}`, {
+        toastId: `delete-error-${fieldId}`,
+        autoClose: 5000,
+      });
     }
   };
 
   const handleConfirmDelete = async () => {
     if (deleteConfirmation.toLowerCase() !== 'delete') {
-      toast.error('Please type "delete" to confirm.');
+      toast.error('Please type "delete" to confirm.', {
+        toastId: 'confirm-delete-error',
+        autoClose: 5000,
+      });
       return;
     }
 
@@ -160,7 +196,10 @@ const Documents = () => {
 
   const handleDownload = (url, label) => {
     if (!url) {
-      toast.error(`No ${label} available for download.`);
+      toast.error(`No ${label} available for download.`, {
+        toastId: `download-error-${label}`,
+        autoClose: 5000,
+      });
       return;
     }
     const link = document.createElement('a');
@@ -171,12 +210,25 @@ const Documents = () => {
     document.body.removeChild(link);
   };
 
+  const handleUpload = (fieldId) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,.pdf';
+    input.onchange = (e) => handleFileChange(e, fieldId);
+    document.body.appendChild(input);
+    input.click();
+    document.body.removeChild(input);
+  };
+
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
       const token = localStorage.getItem('token');
       if (!token) {
-        toast.error('No authentication token found. Please log in again.');
+        toast.error('No authentication token found. Please log in again.', {
+          toastId: 'no-token-submit',
+          autoClose: 5000,
+        });
         return;
       }
 
@@ -198,27 +250,53 @@ const Documents = () => {
         }
       );
 
-      const updatedProfile = response.data.profile || response.data.data.profile;
+      console.log('Submit API Response:', response.data); // Log the response for debugging
+
+      // Handle different possible response structures
+      const data = response.data.data || response.data;
+      const profile = data.profile || data;
+
+      if (!profile) {
+        throw new Error('Invalid API response structure: Missing profile data');
+      }
+
+      // Update profile data with the new values from the API response
       setProfileData((prev) => ({
         ...prev,
-        cnicFrontImage: updatedProfile.cnicFrontImage || prev.cnicFrontImage,
-        cnicBackImage: updatedProfile.cnicBackImage || prev.cnicBackImage,
-        drivingLicenseImage: updatedProfile.drivingLicenseImage || prev.drivingLicenseImage,
-        vehicleRegistrationImage: updatedProfile.vehicleRegistrationImage || prev.vehicleRegistrationImage,
-        accountStatus: updatedProfile.accountStatus || prev.accountStatus,
+        cnicFrontImage: profile.cnicFrontImage || prev.cnicFrontImage,
+        cnicBackImage: profile.cnicBackImage || prev.cnicBackImage,
+        drivingLicenseImage: profile.drivingLicenseImage || prev.drivingLicenseImage,
+        vehicleRegistrationImage: profile.vehicleRegistrationImage || prev.vehicleRegistrationImage,
+        accountStatus: profile.accountStatus || prev.accountStatus || 'pending_approval',
       }));
 
-      toast.success('Documents submitted successfully for verification!');
+      // Update previews with the new URLs
+      setPreviews({
+        cnicFront: profile.cnicFrontImage || previews.cnicFront || '',
+        cnicBack: profile.cnicBackImage || previews.cnicBack || '',
+        license: profile.drivingLicenseImage || previews.license || '',
+        vehicleReg: profile.vehicleRegistrationImage || previews.vehicleReg || '',
+      });
+
+      // Ensure only one toast is shown for success
+      toast.success('Documents submitted successfully for verification!', {
+        toastId: 'submit-success',
+        autoClose: 5000,
+      });
     } catch (error) {
       console.error('Error uploading documents:', error.response?.data || error.message);
-      toast.error(`Failed to submit documents: ${error.response?.data?.message || error.message}`);
+      // Ensure only one toast is shown for error
+      toast.error(`Failed to submit documents: ${error.response?.data?.message || error.message}`, {
+        toastId: 'submit-error',
+        autoClose: 5000,
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const allFieldsUploaded = uploadFields.every((field) => files[field.id]);
-  const uploadedCount = uploadFields.filter((field) => files[field.id]).length;
+  const allFieldsUploaded = uploadFields.every((field) => files[field.id] || profileData[field.apiKey]);
+  const uploadedCount = uploadFields.filter((field) => files[field.id] || profileData[field.apiKey]).length;
   const progressPercentage = Math.round((uploadedCount / uploadFields.length) * 100);
 
   // Shimmer effect component for loading state
@@ -306,7 +384,7 @@ const Documents = () => {
                 {/* Upload Fields */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
                   {uploadFields.map((field) => {
-                    const hasFile = files[field.id];
+                    const hasFile = files[field.id] || profileData[field.apiKey];
                     const isYellowField = field.id === 'cnicFront' || field.id === 'license';
                     const borderColor = hasFile
                       ? 'border-green-500'
@@ -339,7 +417,7 @@ const Documents = () => {
                       : '#FFFFFF';
 
                     // Determine document status
-                    const documentStatus = profileData[field.apiKey]
+                    const documentStatus = profileData[field.apiKey] || previews[field.id]
                       ? profileData.accountStatus === 'verified'
                         ? 'Verified'
                         : 'Pending'
@@ -350,18 +428,23 @@ const Documents = () => {
                         key={field.id}
                         className={`border-2 ${borderColor} border-dashed rounded-lg p-1 sm:p-4 flex flex-col items-center justify-center text-center relative h-[322px]`}
                       >
-                        {profileData[field.apiKey] ? (
+                        {profileData[field.apiKey] || previews[field.id] ? (
                           <div className="flex justify-center items-center w-[100%] h-[90%]">
                             <img
-                              src={profileData[field.apiKey]}
+                              src={previews[field.id] || profileData[field.apiKey]}
                               alt={field.label}
                               className="w-full h-full object-contain"
-                              onError={() => toast.error(`Failed to load ${field.label} image.`)}
+                              onError={() => {
+                                toast.error(`Failed to load ${field.label} image.`, {
+                                  toastId: `image-error-${field.id}`,
+                                  autoClose: 5000,
+                                });
+                              }}
                             />
                           </div>
                         ) : (
                           <>
-                            <MdOutlineFileUpload color={iconColor} className='text-[48px] interregular' />
+                            <LuDownload color={iconColor} className='text-[48px] interregular' />
                             <p className="font-medium text-[14px] sm:text-[15px] md:text-[16px]">{field.label} {field.required && '*'}</p>
                             <p className="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3 truncate w-full">
                               Upload image or PDF
@@ -376,13 +459,13 @@ const Documents = () => {
                               <span
                                 className={`inline-flex items-center gap-1 ${textColor} ${buttonColor} px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded cursor-pointer`}
                               >
-                                <MdOutlineFileUpload color={buttonIconColor} className='text-[16px] sm:text-[18px]' />
+                                <LuDownload color={buttonIconColor} className='text-[16px] sm:text-[18px]' />
                                 {hasFile ? 'Uploaded' : 'Upload'}
                               </span>
                             </label>
                           </>
                         )}
-                        {profileData[field.apiKey] && (
+                        {(profileData[field.apiKey] || previews[field.id]) && (
                           <>
                             {/* Status Indicator on the Left */}
                             <div className="absolute top-2 left-2">
@@ -394,12 +477,18 @@ const Documents = () => {
                                 {documentStatus}
                               </span>
                             </div>
-                            {/* Download and Delete Icons on the Right */}
+                            {/* Upload, Download, and Delete Icons on the Right */}
                             <div className="absolute top-2 right-2 flex gap-2">
+                              <LuUpload
+                                className="text-blue-500 cursor-pointer"
+                                size={16}
+                                onClick={() => handleUpload(field.id)}
+                                title="Upload New"
+                              />
                               <FaDownload
                                 className="text-green-500 cursor-pointer"
                                 size={16}
-                                onClick={() => handleDownload(profileData[field.apiKey], field.label)}
+                                onClick={() => handleDownload(previews[field.id] || profileData[field.apiKey], field.label)}
                                 title="Download"
                               />
                               <FaTrash
@@ -416,8 +505,7 @@ const Documents = () => {
                   })}
                 </div>
 
-                <div className='mb-[12px]'>
-                </div>
+                <div className='mb-[12px]'></div>
 
                 {/* Notes */}
                 <div className="bg-blue-50 border-l-4 border-blue-400 p-3 sm:p-4 rounded mb-4 sm:mb-6 text-xs sm:text-sm text-blue-700">
@@ -515,7 +603,18 @@ const Documents = () => {
           )}
         </main>
       </div>
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        limit={1}
+      />
     </div>
   );
 };

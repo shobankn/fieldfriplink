@@ -295,8 +295,6 @@ const MyRides = () => {
 
   // Fetch Active Rides
   useEffect(() => {
-    if (activeTab !== 'Active') return;
-
     const fetchActiveRides = async () => {
       try {
         setLoading(true);
@@ -350,12 +348,10 @@ const MyRides = () => {
     };
 
     fetchActiveRides();
-  }, [activeTab]);
+  }, []);
 
   // Fetch Completed Rides
   useEffect(() => {
-    if (activeTab !== 'Completed') return;
-
     const fetchCompletedRides = async () => {
       try {
         setLoading(true);
@@ -411,7 +407,7 @@ const MyRides = () => {
     };
 
     fetchCompletedRides();
-  }, [activeTab]);
+  }, []);
 
   // Shimmer effect component for loading state
   const ShimmerCard = () => (
@@ -563,8 +559,8 @@ const MyRides = () => {
                       </p>
                       <p className="flex items-center gap-2 text-sm text-[#6B7280] text-[14px] interregular mb-[12px]">
                         <CiClock2 className="text-gray-600" />
-                        <span className="font-medium">Start Time:</span> {ride.startTime}
-                        <span className="font-medium ml-4">End Time:</span> {ride.endTime}
+                        <span className="font-medium">Start Time:</span> {ride.startTime} -
+                        <span className="font-medium">End Time:</span>{ride.endTime}
                       </p>
                     </div>
                   </div>

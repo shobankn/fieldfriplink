@@ -46,7 +46,8 @@ const MyProporals = () => {
               drop: 'N/A',
               students: 0,
               date: 'N/A',
-              time: 'N/A',
+              startTime: 'N/A',
+              endTime: 'N/A',
               buses: 0,
               status: proposal.status,
               message: proposal.driverNote,
@@ -56,8 +57,10 @@ const MyProporals = () => {
 
           const trip = proposal.tripId;
           const startDate = new Date(trip.startTime || trip.tripDate || Date.now());
+          const endDate = new Date(trip.returnTime || Date.now());
           const dateStr = startDate.toISOString().split('T')[0];
-          const timeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+          const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+          const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
           const submittedStr = calculateSubmittedTime(proposal.submittedAt);
 
           return {
@@ -68,7 +71,8 @@ const MyProporals = () => {
             drop: trip.destination?.address || 'N/A',
             students: trip.numberOfStudents || 0,
             date: dateStr,
-            time: timeStr,
+            startTime: startTimeStr,
+            endTime: endTimeStr,
             buses: trip.numberOfBuses || 0,
             status: proposal.status,
             message: proposal.driverNote,
@@ -235,7 +239,8 @@ const MyProporals = () => {
                       </div>
                       <div className="flex items-center gap-[10px]">
                         <LuClock className="text-[#EF4444]" />
-                        <span className="interregular"><span className="font-medium">Time:</span> {proposal.time}</span>
+                        <span className="interregular"><span className="font-medium">Start Time:</span> {proposal.startTime} </span> - 
+                        <span className="interregular "><span className="font-medium">End Time:</span> {proposal.endTime}</span>
                       </div>
                       <div className="flex items-center gap-[10px]">
                         <LuBus className="text-[#EF4444]" />

@@ -56,10 +56,10 @@ const Register = () => {
         if (response.ok && data.success) {
           setSchools(data.data || []);
         } else {
-          toast.error('Failed to fetch schools');
+          toast.error('Failed to fetch schools', { toastId: 'fetch-schools-error' });
         }
       } catch (err) {
-        toast.error('Error fetching schools');
+        toast.error('Error fetching schools', { toastId: 'fetch-schools-error' });
         console.error('API Error:', err);
       }
     };
@@ -79,10 +79,19 @@ const Register = () => {
 
   const handleInputChange = (e) => {
     const { name, type, value, files } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'file' ? files[0] : value
-    });
+    // For phone input, allow only numeric values
+    if (name === 'phone') {
+      const numericValue = value.replace(/[^0-9]/g, '');
+      setFormData({
+        ...formData,
+        [name]: numericValue
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: type === 'file' ? files[0] : value
+      });
+    }
   };
 
   const handleSchoolSelect = (school) => {
@@ -142,7 +151,7 @@ const Register = () => {
       for (const field of requiredFields) {
         if (!formData[field.key]) {
           setError(`Please fill in the ${field.label} field`);
-          toast.error(`Please fill in the ${field.label} field`);
+          toast.error(`Please fill in the ${field.label} field`, { toastId: 'field-error' });
           setLoading(false);
           return;
         }
@@ -150,21 +159,21 @@ const Register = () => {
 
       if (!validateEmail(formData.email)) {
         setError('Please enter a valid email address');
-        toast.error('Please enter a valid email address');
+        toast.error('Please enter a valid email address', { toastId: 'email-error' });
         setLoading(false);
         return;
       }
 
       if (!validatePhone(formData.phone)) {
         setError('Please enter a valid phone number (10-15 digits)');
-        toast.error('Please enter a valid phone number (10-15 digits)');
+        toast.error('Please enter a valid phone number (10-15 digits)', { toastId: 'phone-error' });
         setLoading(false);
         return;
       }
 
       if (!validateCNIC(formData.cnicNumber)) {
         setError('Please enter a valid CNIC number (xxxxx-xxxxxxx-x)');
-        toast.error('Please enter a valid CNIC number (xxxxx-xxxxxxx-x)');
+        toast.error('Please enter a valid CNIC number (xxxxx-xxxxxxx-x)', { toastId: 'cnic-error' });
         setLoading(false);
         return;
       }
@@ -180,7 +189,7 @@ const Register = () => {
       for (const { file, name } of files) {
         if (file && !validImageTypes.includes(file.type)) {
           setError(`Please upload a valid image file (JPEG/PNG) for ${name}`);
-          toast.error(`Please upload a valid image file (JPEG/PNG) for ${name}`);
+          toast.error(`Please upload a valid image file (JPEG/PNG) for ${name}`, { toastId: 'image-error' });
           setLoading(false);
           return;
         }
@@ -209,18 +218,18 @@ const Register = () => {
 
         if (response.ok) {
           setSuccess('Driver registered successfully!');
-          toast.success('Driver registered successfully!');
+          toast.success('Driver registered successfully!', { toastId: 'driver-success' });
           setFormData(initialFormData);
           setTimeout(() => {
             navigate('/login');
           }, 2000);
         } else {
           setError(data.message || 'Failed to register driver. Please check your inputs and try again.');
-          toast.error(data.message || 'Failed to register driver. Please check your inputs and try again.');
+          toast.error(data.message || 'Failed to register driver. Please check your inputs and try again.', { toastId: 'driver-error' });
         }
       } catch (err) {
         setError('Network error occurred. Please check your connection and try again.');
-        toast.error('Network error occurred. Please check your connection and try again.');
+        toast.error('Network error occurred. Please check your connection and try again.', { toastId: 'network-error' });
         console.error('API Error:', err);
       } finally {
         setLoading(false);
@@ -230,7 +239,7 @@ const Register = () => {
       for (const field of requiredFields) {
         if (!formData[field]) {
           setError(`Please fill in the ${field} field`);
-          toast.error(`Please fill in the ${field} field`);
+          toast.error(`Please fill in the ${field} field`, { toastId: 'field-error' });
           setLoading(false);
           return;
         }
@@ -238,7 +247,7 @@ const Register = () => {
 
       if (!validateEmail(formData.email)) {
         setError('Please enter a valid email address');
-        toast.error('Please enter a valid email address');
+        toast.error('Please enter a valid email address', { toastId: 'email-error' });
         setLoading(false);
         return;
       }
@@ -271,18 +280,18 @@ const Register = () => {
 
         if (response.ok) {
           setSuccess('School admin registered successfully!');
-          toast.success('School admin registered successfully!');
+          toast.success('School admin registered successfully!', { toastId: 'school-success' });
           setFormData(initialFormData);
           setTimeout(() => {
             navigate('/login');
           }, 2000);
         } else {
           setError(data.message || 'Failed to register school admin. Please try again.');
-          toast.error(data.message || 'Failed to register school admin. Please try again.');
+          toast.error(data.message || 'Failed to register school admin. Please try again.', { toastId: 'school-error' });
         }
       } catch (err) {
         setError('Network error occurred. Please check your connection and try again.');
-        toast.error('Network error occurred. Please check your connection and try again.');
+        toast.error('Network error occurred. Please check your connection and try again.', { toastId: 'network-error' });
         console.error('API Error:', err);
       } finally {
         setLoading(false);
@@ -619,8 +628,6 @@ const Register = () => {
               ) : null}
               {loading ? 'Processing...' : 'Create Account'}
             </button>
-
-
 
             <p className="text-center text-sm lg:text-[14px] interregular mt-4">
               Already have an account?{' '}

@@ -36,7 +36,11 @@ const AvailableRides = () => {
     if (wordCount <= MAX_WORDS) {
       setProposalMessage(text);
     } else {
-      toast.error(`Proposal message cannot exceed ${MAX_WORDS} words.`);
+      toast.dismiss();
+      toast.error(`Proposal message cannot exceed ${MAX_WORDS} words.`, {
+        toastId: 'proposal-word-limit',
+        autoClose: 3000,
+      });
     }
   };
 
@@ -44,7 +48,6 @@ const AvailableRides = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Fetch driver profile
   useEffect(() => {
     const fetchDriverProfile = async () => {
       try {
@@ -60,25 +63,23 @@ const AvailableRides = () => {
           },
         });
 
-        console.log('Driver Profile Response:', response.data);
         setDriverProfile(response.data);
       } catch (err) {
         console.error('Error fetching driver profile:', err);
         const errorMessage = err.response?.status === 401
           ? 'Session expired. Please log in again.'
           : err.response?.data?.message || 'Failed to load driver profile.';
-        toast.error(errorMessage);
-        if (err.response?.status === 401) {
-          // Optionally redirect to login page
-          // window.location.href = '/login';
-        }
+        toast.dismiss();
+        toast.error(errorMessage, {
+          toastId: 'profile-error',
+          autoClose: 3000,
+        });
       }
     };
 
     fetchDriverProfile();
   }, []);
 
-  // Fetch trips from API
   useEffect(() => {
     const fetchTrips = async () => {
       try {
@@ -97,8 +98,6 @@ const AvailableRides = () => {
           },
         });
 
-        console.log('API Response:', response.data);
-
         let trips = [];
         if (response.data?.trips && Array.isArray(response.data.trips)) {
           trips = response.data.trips;
@@ -110,13 +109,27 @@ const AvailableRides = () => {
           throw new Error('Unexpected API response format');
         }
 
+        const dayMap = {
+          mon: 'Monday',
+          tue: 'Tuesday',
+          wed: 'Wednesday',
+          thu: 'Thursday',
+          fri: 'Friday',
+          sat: 'Saturday',
+          sun: 'Sunday'
+        };
+
         const mappedData = trips.map(trip => ({
           id: trip._id || Math.random().toString(36).substr(2, 9),
           school: trip.tripName || 'Unknown Trip',
           pickup: trip.pickupPoints?.map(point => point.address).join(', ') || 'Not specified',
           drop: trip.destination?.address || 'Not specified',
-          date: trip.tripDate ? new Date(trip.tripDate).toLocaleDateString() : 'Not specified',
-          time: trip.startTime ? new Date(trip.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Not specified',
+          isRecurring: trip.tripType === 'recurring',
+          date: trip.tripType === 'recurring' && trip.recurringDays
+            ? trip.recurringDays.map(day => dayMap[day.toLowerCase()] || day).join(', ')
+            : trip.tripDate ? new Date(trip.tripDate).toLocaleDateString() : 'Not specified',
+          startTime: trip.startTime ? new Date(trip.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Not specified',
+          endTime: trip.returnTime ? new Date(trip.returnTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Not specified',
           students: trip.numberOfStudents || 0,
           note: trip.instructions || '',
           buses: trip.numberOfBuses || 'TBD',
@@ -125,7 +138,11 @@ const AvailableRides = () => {
         setAvailableRides(mappedData);
         setLoading(false);
         if (mappedData.length === 0) {
-          toast.info('No available trips found.');
+          toast.dismiss();
+          toast.info('No available trips found.', {
+            toastId: 'no-trips',
+            autoClose: 3000,
+          });
         }
       } catch (err) {
         console.error('Error fetching trips:', err);
@@ -133,12 +150,12 @@ const AvailableRides = () => {
           ? 'Session expired. Please log in again.'
           : err.response?.data?.message || err.message || 'Failed to load trips. Please try again.';
         setError(errorMessage);
-        toast.error(errorMessage);
+        toast.dismiss();
+        toast.error(errorMessage, {
+          toastId: 'trips-error',
+          autoClose: 3000,
+        });
         setLoading(false);
-        if (err.response?.status === 401) {
-          // Optionally redirect to login page
-          // window.location.href = '/login';
-        }
       }
     };
 
@@ -152,16 +169,19 @@ const AvailableRides = () => {
   };
 
   const handleCloseModal = () => {
+    if (isClosingModal) return;
     setIsClosingModal(true);
     setTimeout(() => {
       setIsProposalModalOpen(false);
       setSelectedRide(null);
       setProposalMessage('');
       setIsClosingModal(false);
-    }, 500); // Simulate a short delay for the spinner
+      toast.dismiss();
+    }, 300);
   };
 
   const handleSubmitProposal = async (rideId) => {
+    if (isSubmittingProposal[rideId]) return;
     try {
       setIsSubmittingProposal(prev => ({ ...prev, [rideId]: true }));
       const token = localStorage.getItem('token');
@@ -183,18 +203,23 @@ const AvailableRides = () => {
         }
       );
 
-      toast.success(response.data.message || 'Proposal sent successfully!');
+      toast.dismiss();
+      toast.success(response.data.message || 'Proposal sent successfully!', {
+        toastId: 'proposal-success',
+        autoClose: 2000,
+      });
+
       handleCloseModal();
     } catch (err) {
       console.error('Error submitting proposal:', err);
       const errorMessage = err.response?.status === 401
         ? 'Session expired. Please log in again.'
         : err.response?.data?.message || 'Failed to send proposal. Please try again.';
-      toast.error(errorMessage);
-      if (err.response?.status === 401) {
-        // Optionally redirect to login page
-        // window.location.href = '/login';
-      }
+      toast.dismiss();
+      toast.error(errorMessage, {
+        toastId: 'proposal-error',
+        autoClose: 2000,
+      });
     } finally {
       setIsSubmittingProposal(prev => ({ ...prev, [rideId]: false }));
     }
@@ -204,7 +229,6 @@ const AvailableRides = () => {
     console.log('Card clicked:', ride);
   };
 
-  // Shimmer effect component for loading state
   const ShimmerCard = () => (
     <div className="bg-white shadow-sm rounded-lg p-5 mb-4 border border-gray-200 animate-pulse">
       <div className="flex justify-between items-start mb-4">
@@ -231,12 +255,10 @@ const AvailableRides = () => {
 
   return (
     <div className="flex h-screen overflow-hidden relative">
-      {/* Sidebar for large screen */}
       <div className="hidden lg:block lg:w-[17%]">
         <Sidebar isOpen={true} toggleSidebar={toggleSidebar} />
       </div>
 
-      {/* Sidebar drawer for small screens */}
       {isSidebarOpen && (
         <div className="fixed inset-0 z-50 bg-[#7676767a] bg-opacity-50 lg:hidden" onClick={toggleSidebar}>
           <div
@@ -248,7 +270,6 @@ const AvailableRides = () => {
         </div>
       )}
 
-      {/* Main Content */}
       <div className="flex flex-col flex-1 w-full lg:w-[83%]">
         <Topbar toggleSidebar={toggleSidebar} />
 
@@ -261,7 +282,6 @@ const AvailableRides = () => {
               </div>
             </div>
 
-            {/* Loading and Error States */}
             {loading ? (
               <div className="space-y-4">
                 <ShimmerCard />
@@ -282,6 +302,9 @@ const AvailableRides = () => {
                   <div className="flex justify-between items-center mb-[18px]">
                     <div>
                       <h2 className="text-[18px] archivosemibold">{ride.school}</h2>
+                      <p className="text-sm text-gray-600">
+                        {ride.isRecurring ? 'Days: ' : 'Date: '} {ride.date}
+                      </p>
                     </div>
                     <button 
                       className={`flex items-center justify-center gap-2 bg-[#EE5B5B] text-white font-medium px-4 py-1.5 rounded hover:bg-red-600 ${
@@ -341,11 +364,11 @@ const AvailableRides = () => {
                     <div>
                       <p className="flex items-center gap-2 text-sm text-[#606060] text-[16px] mb-[8px]">
                         <SlCalender className='text-[#EE5B5B] text-[16px]'/>
-                        <span className="font-medium">Date:</span> {ride.date}
+                        <span className="font-medium">{ride.isRecurring ? 'Days' : 'Date'}:</span> {ride.date}
                       </p>
-                      <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
+                      <p className="flex items-center gap-2 text-sm text-[#606060] text-[16px] mb-[8px]">
                         <CiClock2 className='text-[#EE5B5B] text-[16px]'/>
-                        <span className="font-medium">Time:</span> {ride.time}
+                        <span className="font-medium">Start Time:</span> {ride.startTime} -<span className="font-medium ">End Time:</span> {ride.endTime}
                       </p>
                       <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
                         <LuBus className='text-[#EE5B5B] text-[16px]'/>
@@ -367,7 +390,6 @@ const AvailableRides = () => {
         </main>
       </div>
 
-      {/* Proposal Modal */}
       {isProposalModalOpen && selectedRide && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm transition-opacity flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -537,7 +559,18 @@ const AvailableRides = () => {
           </div>
         </div>
       )}
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        limit={1}
+      />
     </div>
   );
 };

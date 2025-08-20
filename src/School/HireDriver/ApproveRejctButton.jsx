@@ -6,7 +6,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
 const DriverActions = ({ driverId }) => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start with loading as true
   const [driverStatus, setDriverStatus] = useState(null);
   const BaseUrl = 'https://fieldtriplinkbackend-production.up.railway.app/api';
   let navigate = useNavigate();
@@ -16,15 +16,21 @@ const DriverActions = ({ driverId }) => {
     const fetchStatus = async () => {
       try {
         const token = localStorage.getItem('token');
-        if (!token) return;
+        if (!token) {
+          setLoading(false);
+          toast.error('Please log in first.');
+          return;
+        }
 
         const { data } = await axios.get(`${BaseUrl}/school/driver/${driverId}/details`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-         setDriverStatus(data?.schoolDriver?.status)
+        setDriverStatus(data?.schoolDriver?.status);
       } catch (err) {
         console.error('Failed to fetch driver status:', err);
+        toast.error('Failed to load driver status.');
+      } finally {
+        setLoading(false); // Stop loading once data is fetched or error occurs
       }
     };
 
@@ -72,6 +78,42 @@ const DriverActions = ({ driverId }) => {
 
   const handleSuspendDriver = () =>
     updateDriverStatus('suspended', 'Driver suspended successfully!', 'Failed to suspend driver.');
+
+  // Only render buttons after loading is complete and status is available
+  if (loading) {
+    return (
+      <div className="flex gap-3">
+        <div className="flex text-[14px] sm:text-[16px] px-3 py-2 sm:px-4 sm:py-2 text-gray-500 bg-gray-200 rounded-[10px] inter-medium">
+          <svg className="animate-spin h-5 w-5 mr-1 text-gray-600" viewBox="0 0 24 24">
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
+          </svg>
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
+  if (!driverStatus) {
+    return (
+      <div className="flex gap-3">
+        <div className="flex text-[14px] sm:text-[16px] px-3 py-2 sm:px-4 sm:py-2 text-gray-500 bg-gray-200 rounded-[10px] inter-medium">
+          No status available
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

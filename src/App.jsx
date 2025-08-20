@@ -25,8 +25,8 @@ import Login from './auth/Login';
 import Resgister from './auth/Resgister';
 import ForgetPassword from './auth/Forgetpassword';
 import Notifications from './drivers/notifications/Notifications';
-import MyProposals from './drivers/Proposals/myproporals';
-import MyRIdes from './drivers/myrides/MyRIdes';
+import MyProporals from './drivers/Proposals/MyProporals'
+import MyRides from './drivers/myrides/MyRides';
 import AvailableRides from './drivers/Availablerides/AvailableRides';
 import Documents from './drivers/Documents/Documents';
 import DriverProfile from './drivers/DriverProfile/DriverProfile';
@@ -98,8 +98,8 @@ function App() {
       <Route path='/emailvarification' element={<EmailVarification/>}/>
       <Route path='/pinverification' element={<PinVarification/>}/>
       <Route path='/notifications' element={<Notifications/>}/>
-      <Route path='/proposals' element={<MyProposals/>}/>
-      <Route path='/myrides' element={<MyRIdes/>}/>
+      <Route path='/proposals' element={<MyProporals/>}/>
+      <Route path='/myrides' element={<MyRides/>}/>
       <Route path='/availablerides' element={<AvailableRides/>}/>
       <Route path='/documents' element={<Documents/>}/>
       <Route path='/driverprofile' element={<DriverProfile/>}/>

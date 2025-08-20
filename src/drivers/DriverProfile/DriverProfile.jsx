@@ -89,10 +89,43 @@ const DriverProfile = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       setSelectedImage(file);
+      try {
+        setIsSaving(true);
+        const token = localStorage.getItem('token');
+        const formData = new FormData();
+        formData.append('profileImage', file);
+
+        const response = await axios.post(
+          'https://fieldtriplinkbackend-production.up.railway.app/api/driver/update-profile',
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+
+        setProfileData((prev) => ({
+          ...prev,
+          profileImage: response.data.user.profileImage || prev.profileImage,
+        }));
+        setEditData((prev) => ({
+          ...prev,
+          profileImage: response.data.user.profileImage || prev.profileImage,
+        }));
+        toast.success('Profile image updated successfully!');
+      } catch (error) {
+        console.error('Error updating profile image:', error);
+        toast.error(error.response?.data?.message || 'Failed to update profile image. Please try again.');
+      } finally {
+        setIsSaving(false);
+        setSelectedImage(null);
+      }
     }
   };
 
@@ -241,27 +274,39 @@ const DriverProfile = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">Full Name</label>
-                      <p className="text-gray-900 font-medium">{profileData.fullName}</p>
+                      <p className={`font-medium ${profileData.fullName ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
+                        {profileData.fullName || 'Not Available'}
+                      </p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">CNIC</label>
-                      <p className="text-gray-900 font-medium">{profileData.cnic}</p>
+                      <p className={`font-medium ${profileData.cnic ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
+                        {profileData.cnic || 'Not Available'}
+                      </p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
-                      <p className="text-gray-900 font-medium">{profileData.email}</p>
+                      <p className={`font-medium ${profileData.email ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
+                        {profileData.email || 'Not Available'}
+                      </p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">Phone</label>
-                      <p className="text-gray-900 font-medium">{profileData.phone || 'Not provided'}</p>
+                      <p className={`font-medium ${profileData.phone ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
+                        {profileData.phone || 'Not Available'}
+                      </p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">City</label>
-                      <p className="text-gray-900 font-medium">{profileData.city}</p>
+                      <p className={`font-medium ${profileData.city ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
+                        {profileData.city || 'Not Available'}
+                      </p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">Partner School</label>
-                      <p className="text-gray-900 font-medium">{profileData.partnerSchool || 'Not provided'}</p>
+                      <p className={`font-medium ${profileData.partnerSchool ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
+                        {profileData.partnerSchool || 'Not Available'}
+                      </p>
                     </div>
                   </div>
                 </div>

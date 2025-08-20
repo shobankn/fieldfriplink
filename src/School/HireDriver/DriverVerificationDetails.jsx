@@ -40,6 +40,7 @@ const DriverVerificationDetails = () => {
         });
 
         const { user, profile,schoolDriver } = response.data;
+        console.log(response.data);
 
         // Transform backend data to match frontend structure
         const transformedData = {
@@ -135,27 +136,29 @@ const DriverVerificationDetails = () => {
     setZoomLevel((prev) => Math.max(prev - 0.2, 0.5)); // Min zoom: 0.5x
   };
 
-  const DocumentItem = ({ document, label }) => (
-    <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-white rounded-lg">
-          <FileText className="w-5 h-5 text-gray-600" />
-        </div>
-        <div className="flex-1">
-          <h4 className="font-medium text-gray-900">{label}</h4>
-          {document.uploaded && (
-            <p className="text-sm text-gray-500">{document.fileName}</p>
-          )}
-        </div>
-        <button
-          onClick={() => handleImageClick(document.url)}
-          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-colors"
-        >
-          <ImageIcon className="w-4 h-4" />
-        </button>
+const DocumentItem = ({ document, label, onImageClick }) => (
+  <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
+    <div className="flex items-center gap-3">
+      <div className="p-2 bg-white rounded-lg">
+        <FileText className="w-5 h-5 text-gray-600" />
       </div>
+      <div className="flex-1 min-w-0">
+        <h4 className="font-medium text-gray-900">{label}</h4>
+        {document.uploaded && (
+          <p className="text-sm text-gray-500 truncate" title={document.fileName}>
+            {document.fileName}
+          </p>
+        )}
+      </div>
+      <button
+        onClick={() => onImageClick(document.url)}
+        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-colors"
+      >
+        <ImageIcon className="w-4 h-4" />
+      </button>
     </div>
-  );
+  </div>
+);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -365,50 +368,56 @@ const DriverVerificationDetails = () => {
                 </div>
 
                 {/* Submitted Documents */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <div className="flex items-center gap-2 mb-6">
-                    <FileText className="w-5 h-5 text-red-500" />
-                    <h3 className="text-lg inter-semibold text-gray-900">Submitted Documents</h3>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* CNIC Front */}
-                    <div>
-                      <span className="text-sm inter-medium text-gray-700 block mb-2">CNIC Front</span>
-                      <DocumentItem 
-                        document={driverData.submittedDocuments.cnicFront}
-                        label="CNIC Front"
-                      />
-                    </div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+  <div className="flex items-center gap-2 mb-6">
+    <FileText className="w-5 h-5 text-red-500" />
+    <h3 className="text-lg inter-semibold text-gray-900">Submitted Documents</h3>
+  </div>
+  
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {/* CNIC Front */}
+    <div>
+      <span className="text-sm inter-medium text-gray-700 block mb-2">CNIC Front</span>
+      <DocumentItem 
+        document={driverData.submittedDocuments.cnicFront}
+        label="CNIC Front"
+        onImageClick={handleImageClick}
+      />
+    </div>
 
-                    {/* CNIC Back */}
-                    <div>
-                      <span className="text-sm inter-medium text-gray-700 block mb-2">CNIC Back</span>
-                      <DocumentItem 
-                        document={driverData.submittedDocuments.cnicBack}
-                        label="CNIC Back"
-                      />
-                    </div>
+    {/* CNIC Back */}
+    <div>
+      <span className="text-sm inter-medium text-gray-700 block mb-2">CNIC Back</span>
+      <DocumentItem 
+        document={driverData.submittedDocuments.cnicBack}
+        label="CNIC Back"
+        onImageClick={handleImageClick}
+      />
+    </div>
 
-                    {/* Driving License */}
-                    <div>
-                      <span className="text-sm inter-medium text-gray-700 block mb-2">Driving License</span>
-                      <DocumentItem 
-                        document={driverData.submittedDocuments.drivingLicense}
-                        label="Driving License"
-                      />
-                    </div>
+    {/* Driving License */}
+    <div>
+      <span className="text-sm inter-medium text-gray-700 block mb-2">Driving License</span>
+      <DocumentItem 
+        document={driverData.submittedDocuments.drivingLicense}
+        label="Driving License"
+        onImageClick={handleImageClick}
+      />
+    </div>
 
-                    {/* Vehicle Registration */}
-                    <div>
-                      <span className="text-sm inter-medium text-gray-700 block mb-2">Vehicle Registration</span>
-                      <DocumentItem 
-                        document={driverData.submittedDocuments.vehicleRegistration}
-                        label="Vehicle Registration"
-                      />
-                    </div>
-                  </div>
-                </div>
+    {/* Vehicle Registration */}
+    <div>
+      <span className="text-sm inter-medium text-gray-700 block mb-2">Vehicle Registration</span>
+      <DocumentItem 
+        document={driverData.submittedDocuments.vehicleRegistration}
+        label="Vehicle Registration"
+        onImageClick={handleImageClick}
+      />
+    </div>
+  </div>
+</div>
+
+                
               </div>
 
               {/* Right Column - Sidebar */}
@@ -440,16 +449,19 @@ const DriverVerificationDetails = () => {
                   <h3 className="text-lg inter-semibold text-gray-900 mb-4">Submission Details</h3>
                   
                   <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Submitted:</span>
-                      <span className="inter-semibold text-gray-900">{driverData.submissionDetails.submitted}</span>
-                    </div>
+                    <div className="flex flex-col lg:flex-col 2xl:flex-row justify-between items-start 2xl:items-center gap-1">
+                    <span className="text-gray-600">Submitted:</span>
+                    <span className="inter-semibold text-gray-900">{driverData.submissionDetails.submitted}</span>
+                  </div>
+
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Status:</span>
                       <span className="inter-semibold text-gray-900">{driverData.submissionDetails.status}</span>
                     </div>
                   </div>
                 </div>
+
+                
               </div>
             </div>
           )

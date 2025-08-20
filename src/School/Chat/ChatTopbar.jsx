@@ -9,7 +9,7 @@ const ChatTopBar = ({ receiver, receiverId, className,isOnline, lastSeen }) => {
 
 
   return (
-    <div className='fixed top-46 right-0 left-80 lg:left-150  bg-white/95 backdrop-blur-md border-b border-gray-200 z-20 h-16'>
+    <div className='fixed top-44 right-0 left-80 lg:left-150  bg-white/95 backdrop-blur-md border-b border-gray-200 z-20 h-16'>
       <div className="flex items-center justify-between h-full px-6">
         <div className="flex items-center space-x-4">
           <div className="relative">

@@ -276,7 +276,7 @@ const handleDeleteTrip = async (id) => {
                       <span className="inter-medium text-gray-900"> {trip.proposals?.length || 0}</span>
                     </div>
                       <div className="flex my-auto  justify-end gap-2">
-                      <Share2 className="  w-5 h-5 text-[#636AE8]"/>
+                      {/* <Share2 className="  w-5 h-5 text-[#636AE8]"/> */}
                      <Eye
                     onClick={() => handleNavigate(trip._id)}
                     className="cursor-pointer w-5 h-5 text-[#3498DB] transition duration-200 ease-in-out transform hover:scale-125 hover:text-blue-600 active:scale-95 hover:drop-shadow-md"

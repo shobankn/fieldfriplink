@@ -42,9 +42,9 @@ const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessa
   console.log('[ChatWindow] Messages:', messages);
 
   return (
-    <div className="flex-1 w-full flex flex-col bg-gray-50">
+    <div className="flex-1    flex flex-col bg-gray-50">
       {/* Header or fixed elements can go here if needed */}
-      <div className="flex-1 w-full  mt-15  h-[calc(100vh-80px)] overflow-y-auto px-4 py-4">
+      <div className="flex-1   mx-auto  mt-15  h-[calc(100vh-80px)] overflow-y-auto px-4 py-4">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full">
             <div className="w-32 h-32 mb-6 opacity-50">
@@ -76,9 +76,9 @@ const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessa
               return (
                 <div
                   key={msg._id || msg.tempId || msg.messageId || index}
-                  className={`mb-4 flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
+                  className={`mb-4  flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`flex items-end gap-2 max-w-[70%] group ${isMyMessage ? 'flex-row-reverse' : 'flex-row'}`}>
+                  <div className={`flex items-end gap-2 w-[70%] group ${isMyMessage ? 'flex-row-reverse' : 'flex-row'}`}>
                     {!isMyMessage && showAvatar && (
                       <div className="w-8 h-8 mb-1 flex-shrink-0">
                         <img
@@ -89,14 +89,14 @@ const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessa
                       </div>
                     )}
 
-                    <div className={`flex items-center gap-2 ${isMyMessage ? 'flex-row-reverse' : 'flex-row'}`}>
+                    <div className={`flex  items-center whitespace-normal break-words gap-2 ${isMyMessage ? 'flex-row-reverse' : 'flex-row'}`}>
                       <Trash
                         onClick={() => handleDeleteMessage(msg._id || msg.messageId)}
                         className="w-4 h-4 text-gray-400 hover:text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-all duration-200 flex-shrink-0"
                       />
 
                       <div
-                        className={`px-4 py-3 rounded-2xl shadow-sm ${
+                        className={`px-4 py-3 rounded-2xl shadow-sm  ${
                           isMyMessage
                             ? 'bg-red-400 text-white rounded-br-md'
                             : 'bg-[#F1F2F2] text-[#000000B2] rounded-bl-md border border-gray-100'
@@ -114,7 +114,7 @@ const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessa
                             {msg.content?.trim() && <p className="text-sm mt-2">{msg.content}</p>}
                           </div>
                         ) : (
-                          <p className="text-sm leading-relaxed">{msg.content || 'Message content not available'}</p>
+                          <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">{msg.content || 'Message content not available'}</p>
                         )}
 
                         <div className={`flex items-center justify-${isMyMessage ? 'end' : 'start'} mt-2 gap-1`}>

@@ -23,17 +23,17 @@ const Login = () => {
 
   // Check if user is already logged in
   const token = localStorage.getItem('token');
+  const storedUserType = localStorage.getItem('userType');
   useEffect(() => {
-    if (token) {
-      // If token exists, redirect based on userType or role
-      // For simplicity, assuming userType is 'Driver' or 'School' for redirection
-      if (userType === 'Driver') {
+    if (token && storedUserType) {
+      // Redirect to the dashboard matching the stored userType
+      if (storedUserType === 'Driver') {
         navigate('/driverdashboard');
-      } else {
+      } else if (storedUserType === 'School') {
         navigate('/dashboard');
       }
     }
-  }, [token, navigate, userType]);
+  }, [token, storedUserType, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,13 +45,15 @@ const Login = () => {
         password,
       });
 
-      const { token, user } = response.data;
+      const { token: newToken, user } = response.data;
 
       const expectedRole = userType === 'Driver' ? 'driver' : 'school_admin';
+      const redirectUserType = userType === 'Driver' ? 'Driver' : 'School';
 
       if (user.role === expectedRole) {
-        // Save token if role matches
-        localStorage.setItem('token', token);
+        // Save token and userType to localStorage
+        localStorage.setItem('token', newToken);
+        localStorage.setItem('userType', redirectUserType);
 
         // Redirect logic based on role
         if (expectedRole === 'driver') {
@@ -62,7 +64,7 @@ const Login = () => {
           navigate('/dashboard');
         }
       } else {
-        toast.error('User not found');
+        toast.error('User role does not match the selected type.');
       }
     } catch (error) {
       const msg =
@@ -90,9 +92,9 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
-  // If token exists, redirect immediately
-  if (token) {
-    return <Navigate to={userType === 'Driver' ? '/driverdashboard' : '/dashboard'} replace />;
+  // If token exists and userType is set, redirect immediately
+  if (token && storedUserType) {
+    return <Navigate to={storedUserType === 'Driver' ? '/driverdashboard' : '/dashboard'} replace />;
   }
 
   return (

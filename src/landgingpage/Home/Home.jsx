@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '../../Navbar/Navbar';
 import Footer from '../footer/Footer';
 import { useNavigate } from 'react-router-dom';
@@ -6,8 +6,23 @@ import { FiShield } from "react-icons/fi";
 import { LuUsers } from "react-icons/lu";
 import { FaRegClock } from "react-icons/fa6";
 
+// Check authentication and user type from localStorage
+const isAuthenticated = !!localStorage.getItem('token');
+const userType = localStorage.getItem('userType');
+
 const Home = () => {
   const navigate = useNavigate();
+
+  // Redirect if logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (userType === 'Driver') {
+        navigate('/driverdashboard');
+      } else if (userType === 'School') {
+        navigate('/dashboard');
+      }
+    }
+  }, [navigate, isAuthenticated, userType]);
 
   const handleGetStarted = () => {
     navigate('/register');
@@ -27,7 +42,7 @@ const Home = () => {
 
   return (
     <div className="w-full overflow-x-hidden max-w-[1920px] mx-auto">
-      <Navbar/>
+      <Navbar />
       {/* Hero Section */}
       <section className="bg-[#d02323] text-white px-4 sm:px-6 lg:px-[80px] py-8 sm:py-12 flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-10 min-h-[400px] lg:h-[500px]">
         <div className="lg:w-1/2 w-full text-center lg:text-left">
@@ -165,16 +180,16 @@ const Home = () => {
             <p className="text-white italic text-sm sm:text-base">"FieldTripLink saved our science museum trip when our regular driver called in sick. The replacement driver was professional, on time, and the kids had a great experience."</p>
             <div className="flex mt-4 sm:mt-[21px] gap-2 sm:gap-[10px]">
               <span className="inline-block bg-[#E83E3E] h-10 w-10 sm:h-[48px] sm:w-[48px] text-center leading-10 sm:leading-[48px] rounded-full text-sm sm:text-base">
-                RJ
+                OJ
               </span>
               <p className="text-sm sm:text-base">
-                Oliver
+                Oliver Johnson
                 <br />
                 Certified School Owner
               </p>
             </div>
           </div>
-          <div className="bg-[#2A2A2A] p-6 sm:p-[32px] shadow-md w-full sm:w-[500px] lg:w-[550px] rounded-[8px] text-white">
+          <div className="bg-[#2A2A2A] p-6 sm:p-[32px] shadow-md w-full sm:w-[500px] lg:w-[550px] rounded-[8px] tokenext-white">
             <p className="text-white italic text-sm sm:text-base">"As a retired driver, FieldTripLink lets me stay connected to the community while earning extra income. The platform is easy to use and the schools are always grateful."</p>
             <div className="flex mt-4 sm:mt-[21px] gap-2 sm:gap-[10px]">
               <span className="inline-block bg-[#FFD700] h-10 w-10 sm:h-[48px] sm:w-[48px] text-center leading-10 sm:leading-[48px] rounded-full text-sm sm:text-base">

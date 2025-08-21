@@ -10,15 +10,15 @@ const Home = () => {
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    navigate('/login');
+    navigate('/register');
   };
 
   const handleSchoolAdmin = () => {
-    navigate('/login');
+    navigate('/login', { state: { userType: 'School' } });
   };
 
   const handleBusDriver = () => {
-    navigate('/login');
+    navigate('/login', { state: { userType: 'Driver' } });
   };
 
   const handleHowItWorks = () => {
@@ -136,19 +136,19 @@ const Home = () => {
         </div>
         <div className="text-center mt-6 sm:mt-8 lg:mt-10 w-full lg:w-1/2">
           <h1 className="archivobold text-2xl sm:text-3xl lg:text-[36px] mb-6">Ready to Get Started?</h1>
-         <button
-  className="bg-red-500 w-full sm:w-[300px] lg:w-[400px] h-[40px] interbold text-sm sm:text-[14px] text-white rounded-[6px] mt-4 sm:mt-[32px] hover:bg-red-600 cursor-pointer"
-  onClick={handleSchoolAdmin}
->
-  I'm a School Administrator
-</button>
-<br />
-<button
-  className="bg-yellow-400 w-full sm:w-[300px] lg:w-[400px] h-[40px] interbold text-sm sm:text-[14px] text-black rounded-[6px] mt-4 hover:bg-yellow-500 cursor-pointer"
-  onClick={handleBusDriver}
->
-  I'm a Bus Driver
-</button>
+          <button
+            className="bg-red-500 w-full sm:w-[300px] lg:w-[400px] h-[40px] interbold text-sm sm:text-[14px] text-white rounded-[6px] mt-4 sm:mt-[32px] hover:bg-red-600 cursor-pointer"
+            onClick={handleSchoolAdmin}
+          >
+            I'm a School Administrator
+          </button>
+          <br />
+          <button
+            className="bg-yellow-400 w-full sm:w-[300px] lg:w-[400px] h-[40px] interbold text-sm sm:text-[14px] text-black rounded-[6px] mt-4 hover:bg-yellow-500 cursor-pointer"
+            onClick={handleBusDriver}
+          >
+            I'm a Bus Driver
+          </button>
         </div>
       </section>
 
@@ -168,9 +168,9 @@ const Home = () => {
                 RJ
               </span>
               <p className="text-sm sm:text-base">
-                Robert Johnson
+                Oliver
                 <br />
-                Certified Bus Driver
+                Certified School Owner
               </p>
             </div>
           </div>

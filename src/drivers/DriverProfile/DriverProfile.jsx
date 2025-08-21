@@ -12,6 +12,7 @@ const DriverProfile = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [schools, setSchools] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [profileData, setProfileData] = useState({
     fullName: '',
     email: '',
@@ -62,6 +63,8 @@ const DriverProfile = () => {
       } catch (error) {
         console.error('Error fetching profile data:', error);
         toast.error('Failed to load profile data. Please try again.');
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -226,8 +229,8 @@ const DriverProfile = () => {
                   <h2 className="text-lg font-medium text-gray-900 mb-6">Profile Photo</h2>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                     <div className="relative">
-                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-yellow-400 flex items-center justify-center overflow-hidden">
-                        {profileData.profileImage ? (
+                      <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center overflow-hidden ${isLoading ? 'bg-gray-200 animate-pulse' : 'bg-yellow-400'}`}>
+                        {!isLoading && (profileData.profileImage ? (
                           <img
                             src={profileData.profileImage}
                             alt="Profile"
@@ -235,14 +238,18 @@ const DriverProfile = () => {
                           />
                         ) : (
                           <User className="w-8 h-8 md:w-10 md:h-10 text-white" />
-                        )}
+                        ))}
                       </div>
                       <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
                         <div className="w-2 h-2 bg-white rounded-full"></div>
                       </div>
                     </div>
                     <div className="flex flex-col gap-0">
-                      <span className="font-medium text-gray-900">{profileData.fullName}</span>
+                      {isLoading ? (
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-32"></div>
+                      ) : (
+                        <span className="font-medium text-gray-900">{profileData.fullName}</span>
+                      )}
                       <label className="mt-2 px-2 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-medium rounded-md transition-colors duration-200 flex items-center gap-2 cursor-pointer">
                         <Upload className="w-4 h-4" />
                         Upload New Photo
@@ -274,39 +281,63 @@ const DriverProfile = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">Full Name</label>
-                      <p className={`font-medium ${profileData.fullName ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
-                        {profileData.fullName || 'Not Available'}
-                      </p>
+                      {isLoading ? (
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                      ) : (
+                        <p className={`font-medium ${profileData.fullName ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
+                          {profileData.fullName || 'Not Available'}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">CNIC</label>
-                      <p className={`font-medium ${profileData.cnic ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
-                        {profileData.cnic || 'Not Available'}
-                      </p>
+                      {isLoading ? (
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                      ) : (
+                        <p className={`font-medium ${profileData.cnic ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
+                          {profileData.cnic || 'Not Available'}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
-                      <p className={`font-medium ${profileData.email ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
-                        {profileData.email || 'Not Available'}
-                      </p>
+                      {isLoading ? (
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                      ) : (
+                        <p className={`font-medium ${profileData.email ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
+                          {profileData.email || 'Not Available'}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">Phone</label>
-                      <p className={`font-medium ${profileData.phone ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
-                        {profileData.phone || 'Not Available'}
-                      </p>
+                      {isLoading ? (
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                      ) : (
+                        <p className={`font-medium ${profileData.phone ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
+                          {profileData.phone || 'Not Available'}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">City</label>
-                      <p className={`font-medium ${profileData.city ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
-                        {profileData.city || 'Not Available'}
-                      </p>
+                      {isLoading ? (
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                      ) : (
+                        <p className={`font-medium ${profileData.city ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
+                          {profileData.city || 'Not Available'}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">Partner School</label>
-                      <p className={`font-medium ${profileData.partnerSchool ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
-                        {profileData.partnerSchool || 'Not Available'}
-                      </p>
+                      {isLoading ? (
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                      ) : (
+                        <p className={`font-medium ${profileData.partnerSchool ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
+                          {profileData.partnerSchool || 'Not Available'}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>

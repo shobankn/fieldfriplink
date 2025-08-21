@@ -23,6 +23,13 @@ const SchoolResponse = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  // Function to handle phone call
+  const handleCall = (phoneNumber) => {
+    if (phoneNumber && phoneNumber !== 'N/A') {
+      window.location.href = `tel:${phoneNumber}`;
+    }
+  };
+
   // Fetch both accepted and rejected proposals
   useEffect(() => {
     const fetchProposals = async () => {
@@ -88,8 +95,8 @@ const SchoolResponse = () => {
             responseDate: dateStr,
             proposal: proposal.schoolNote || 'No additional notes provided by the school.',
             contactInfo: {
-              phone: '+92 21 345-6789', // Hardcoded as API doesn't provide contact info
-              email: 'transport@school.edu.pk' // Hardcoded as API doesn't provide contact info
+              phone: trip.schoolId?.phoneNumber || 'N/A', // Dynamic phone number from API
+              email: 'transport@school.edu.pk' // Hardcoded as API doesn't provide email
             },
             congratulations: proposal.status === 'accepted'
           };
@@ -294,7 +301,11 @@ const SchoolResponse = () => {
 
                         {/* Action Buttons */}
                         <div className="flex gap-3 mt-4">
-                          <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold flex items-center justify-center interregular px-4 py-2 rounded-md text-sm">
+                          <button 
+                            onClick={() => handleCall(response.contactInfo.phone)}
+                            className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold flex items-center justify-center interregular px-4 py-2 rounded-md text-sm"
+                            disabled={response.contactInfo.phone === 'N/A'}
+                          >
                             <IoCallOutline className='me-1' />
                             Call
                           </button>

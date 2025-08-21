@@ -450,7 +450,7 @@ const handleSaveChanges = async () => {
                       value={formData.completeAddress}
                       onChange={(e) => handleInputChange('completeAddress', e.target.value)}
                       rows={3}
-                      className={`outline-none w-full px-3 py-2 border border-gray-300 rounded-lg transition-colors resize-none ${
+                      className={`outline-none w-full px-3 py-0.5 border border-gray-300 rounded-lg transition-colors resize-none ${
                         isEditing ? 'focus:ring-2 focus:ring-red-500 focus:border-red-500' : 'bg-gray-100'
                       }`}
                       placeholder="Enter complete address"

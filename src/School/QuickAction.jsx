@@ -32,7 +32,7 @@ const QuickActions = () => {
       icon: MessageSquare,
       // color: 'bg-purple-100',
        iconColor: 'text-[#6B7280]',
-       path: '#',
+       path: '/messages',
     },
   ];
 

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
 import { FaBell, FaCheckCircle, FaCheck } from 'react-icons/fa';
@@ -20,25 +22,21 @@ const Notifications = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        const headers = {};
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
+        if (!token) {
+          toast.error('Authentication required. Please log in.');
+          setLoading(false);
+          return;
         }
 
-        const response = await fetch(
+        const response = await axios.get(
           'https://fieldtriplinkbackend-production.up.railway.app/api/common/notifications',
           {
-            method: 'GET',
-            headers,
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch notifications');
-        }
-
-        const data = await response.json();
-        const mappedNotifications = data.map((notification, index) => {
+        const { data } = response.data;
+        const mappedNotifications = data.map((notification) => {
           const notificationDate = new Date(notification.createdAt);
           const timeDiff = Math.floor((Date.now() - notificationDate) / (1000 * 60));
           const timeStr =
@@ -49,19 +47,20 @@ const Notifications = () => {
               : `${Math.floor(timeDiff / 1440)}d ago`;
 
           return {
-            id: notification._id || index + 1,
+            id: notification._id,
             title: notification.title || 'Notification',
-            message: notification.message || 'No message provided.',
+            message: notification.body || 'No message provided.',
             time: timeStr,
             type: notification.type || 'info',
-            read: notification.read || false,
+            read: notification.isRead || false,
           };
         });
 
         setNotifications(mappedNotifications);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching notifications:', error);
+        console.error('Error fetching notifications:', error.response || error.message);
+        toast.error(error.response?.data?.message || 'Failed to fetch notifications');
         setLoading(false);
       }
     };
@@ -69,29 +68,87 @@ const Notifications = () => {
     fetchNotifications();
   }, []);
 
-  const markAllRead = () => {
-    setNotifications((prev) =>
-      prev.map((n) => ({ ...n, read: true }))
-    );
+  const markAllRead = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Authentication required. Please log in.');
+        return;
+      }
+
+      await axios.put(
+        'https://fieldtriplinkbackend-production.up.railway.app/api/common/notifications/mark-all-read',
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      toast.success('All notifications marked as read');
+    } catch (error) {
+      console.error('Error marking all read:', error.response || error.message);
+      toast.error(error.response?.data?.message || 'Failed to mark all notifications as read');
+    }
   };
 
-  const clearAll = () => setNotifications([]);
+  const clearAll = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Authentication required. Please log in.');
+        return;
+      }
 
-  const deleteNotification = (id) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+      await axios.delete(
+        'https://fieldtriplinkbackend-production.up.railway.app/api/common/notifications',
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setNotifications([]);
+      toast.success('All notifications cleared');
+    } catch (error) {
+      console.error('Error clearing notifications:', error.response || error.message);
+      toast.error(error.response?.data?.message || 'Failed to clear notifications');
+    }
+  };
+
+  const deleteNotification = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Authentication required. Please log in.');
+        return;
+      }
+
+      await axios.delete(
+        `https://fieldtriplinkbackend-production.up.railway.app/api/common/notifications/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      toast.success('Notification deleted');
+    } catch (error) {
+      console.error('Error deleting notification:', error.response || error.message);
+      toast.error(error.response?.data?.message || 'Failed to delete notification');
+    }
   };
 
   const getIcon = (type) => {
     switch (type) {
-      case 'success': return <FaCheckCircle className="text-green-600 text-xl sm:text-2xl" />;
-      case 'info': return <AiOutlineInfoCircle className="text-blue-500 text-xl sm:text-2xl" />;
-      case 'warning': return <RiErrorWarningFill className="text-yellow-500 text-xl sm:text-2xl" />;
-      default: return <FaBell className="text-xl sm:text-2xl" />;
+      case 'success':
+      case 'invitation': // Map 'invitation' to success icon for consistency
+        return <FaCheckCircle className="text-green-600 text-xl sm:text-2xl" />;
+      case 'info':
+        return <AiOutlineInfoCircle className="text-blue-500 text-xl sm:text-2xl" />;
+      case 'warning':
+        return <RiErrorWarningFill className="text-yellow-500 text-xl sm:text-2xl" />;
+      default:
+        return <FaBell className="text-xl sm:text-2xl" />;
     }
   };
 
   return (
     <div className="flex h-screen overflow-hidden relative">
+      <ToastContainer />
       {/* Sidebar for large screens */}
       <div className="hidden lg:block lg:w-[17%]">
         <Sidebar isOpen={true} toggleSidebar={toggleSidebar} />
@@ -190,7 +247,7 @@ const Notifications = () => {
                   <div
                     key={n.id}
                     className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-0 m-0 pl-[10px] sm:pl-[10px] sm:p-0 sm:m-0 lg:p-4 lg:pl-4 rounded-lg shadow-sm ${
-                      n.type === 'success' ? 'bg-[#F7FFF7] border border-[#E6F7E6]' :
+                      n.type === 'success' || n.type === 'invitation' ? 'bg-[#F7FFF7] border border-[#E6F7E6]' :
                       n.type === 'info' ? 'bg-[#F7F9FF] border border-[#E0E6F7]' :
                       n.type === 'warning' ? 'bg-white' : 'bg-white'
                     }`}

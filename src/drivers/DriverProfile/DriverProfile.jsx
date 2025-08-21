@@ -5,6 +5,7 @@ import { Edit, X, Save, Upload, User } from 'lucide-react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { requestFcmToken } from "../../Fcm"; // adjust path if needed
 
 const DriverProfile = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -129,46 +130,103 @@ const DriverProfile = () => {
     }
   };
 
-  const handleSave = async () => {
-    try {
-      setIsSaving(true);
-      const token = localStorage.getItem('token');
-      const formData = new FormData();
-      formData.append('name', editData.fullName);
-      formData.append('email', editData.email);
-      formData.append('phone', editData.phone);
-      formData.append('address', editData.city);
-      formData.append('cnicNumber', editData.cnic);
-      if (selectedImage) {
-        formData.append('profileImage', selectedImage);
-      }
+  // const handleSave = async () => {
+  //   try {
+  //     setIsSaving(true);
+  //     const token = localStorage.getItem('token');
+  //     const formData = new FormData();
+  //     formData.append('name', editData.fullName);
+  //     formData.append('email', editData.email);
+  //     formData.append('phone', editData.phone);
+  //     formData.append('address', editData.city);
+  //     formData.append('cnicNumber', editData.cnic);
+  //     if (selectedImage) {
+  //       formData.append('profileImage', selectedImage);
+  //     }
 
-      const response = await axios.post(
-        'https://fieldtriplinkbackend-production.up.railway.app/api/driver/update-profile',
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
+  //     const response = await axios.post(
+  //       'https://fieldtriplinkbackend-production.up.railway.app/api/driver/update-profile',
+  //       formData,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           'Content-Type': 'multipart/form-data',
+  //         },
+  //       }
+  //     );
 
-      setProfileData({
-        ...editData,
-        profileImage: response.data.user.profileImage || editData.profileImage,
-      });
-      localStorage.setItem('partnerSchool', editData.partnerSchool);
-      setIsEditModalOpen(false);
-      setSelectedImage(null);
-      toast.success('Profile updated successfully!');
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error(error.response?.data?.message || 'Failed to update profile. Please try again.');
-    } finally {
-      setIsSaving(false);
+  //     setProfileData({
+  //       ...editData,
+  //       profileImage: response.data.user.profileImage || editData.profileImage,
+  //     });
+  //     localStorage.setItem('partnerSchool', editData.partnerSchool);
+  //     setIsEditModalOpen(false);
+  //     setSelectedImage(null);
+  //     toast.success('Profile updated successfully!');
+  //   } catch (error) {
+  //     console.error('Error updating profile:', error);
+  //     toast.error(error.response?.data?.message || 'Failed to update profile. Please try again.');
+  //   } finally {
+  //     setIsSaving(false);
+  //   }
+  // };
+
+
+
+const handleSave = async () => { 
+  try {
+    setIsSaving(true);
+    const token = localStorage.getItem('token');
+
+    // Get FCM token object
+    const fcmTokenObj = await requestFcmToken();
+    const fcmToken = fcmTokenObj?.token; // extract actual token string
+
+    const formData = new FormData();
+    formData.append('name', editData.fullName);
+    formData.append('email', editData.email);
+    formData.append('phone', editData.phone);
+    formData.append('address', editData.city);
+    formData.append('cnicNumber', editData.cnic);
+    
+    if (selectedImage) {
+      formData.append('profileImage', selectedImage);
     }
-  };
+
+    // Append actual FCM token string
+    if (fcmToken) {
+      formData.append('fcmToken', fcmToken);
+    }
+
+    const response = await axios.post(
+      'https://fieldtriplinkbackend-production.up.railway.app/api/driver/update-profile',
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+
+    setProfileData({
+      ...editData,
+      profileImage: response.data.user.profileImage || editData.profileImage,
+    });
+    localStorage.setItem('partnerSchool', editData.partnerSchool);
+    setIsEditModalOpen(false);
+    setSelectedImage(null);
+    toast.success('Profile updated successfully!');
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    toast.error(error.response?.data?.message || 'Failed to update profile. Please try again.');
+  } finally {
+    setIsSaving(false);
+  }
+};
+
+
+
 
   const handleCancel = () => {
     setEditData({ ...profileData });

@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import TimePicker from 'react-time-picker';
+
 
 const PostTripForm = () => {
   const [formData, setFormData] = useState({
@@ -39,6 +41,7 @@ const PostTripForm = () => {
   const dateInputRef = useRef(null);
   const pickupTimeRef = useRef(null);
   const returnTimeRef = useRef(null);
+  
 
   const BaseUrl = 'https://fieldtriplinkbackend-production.up.railway.app/api';
 
@@ -303,6 +306,9 @@ const PostTripForm = () => {
     }
   };
 
+
+  
+
   return (
     <div className="min-h-screen">
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
@@ -387,116 +393,105 @@ const PostTripForm = () => {
               <h2 className="text-lg font-semibold text-gray-900">Schedule</h2>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-             <div className="relative">
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    Pickup Time <span className="text-red-500">*</span>
-  </label>
-            <div 
-              className={`relative flex items-center rounded-lg transition-colors 
-                ${errors.pickupTime 
-                  ? "border border-red-500 ring-2 ring-red-500" 
-                  : "border border-gray-300 focus-within:ring-2 focus-within:ring-red-500 focus-within:border-red-500"}`}
-              onClick={handlePickupTimeClick}
-            >
-              <input
-                type="time"
-                name="pickupTime"
-                value={formData.pickupTime}
-                onChange={handleInputChange}
-                ref={pickupTimeRef}
-                className="w-full px-3 py-2 bg-transparent outline-none text-gray-900 rounded-lg"
-              />
-            </div>
-            {errors.pickupTime && (
-              <p className="absolute text-red-500 text-xs mt-1">{errors.pickupTime}</p>
-            )}
-          </div>
 
-             <div className="relative">
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    Return Time
-  </label>
-  <div
-    className={`relative flex items-center rounded-lg transition-colors 
-      ${errors.returnTime
-        ? "border border-red-500 ring-2 ring-red-500"
-        : "border border-gray-300 focus-within:ring-2 focus-within:ring-red-500 focus-within:border-red-500"}`}
-    onClick={handleReturnTimeClick}
-  >
-    <input
-      type="time"
-      name="returnTime"
-      value={formData.returnTime}
-      onChange={handleInputChange}
-      ref={returnTimeRef}
-      className="w-full px-3 py-2 bg-transparent outline-none text-gray-900 rounded-lg"
-    />
-  </div>
-  {errors.returnTime && (
-    <p className="absolute text-red-500 text-xs mt-1">{errors.returnTime}</p>
-  )}
-</div>
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Pickup Time <span className="text-red-500">*</span>
+                </label>
+                <div 
+                  className={`relative flex items-center border rounded-lg transition-colors ${
+                    errors.pickupTime ? "border-red-500 ring-2 ring-red-500" : "border-gray-300"
+                  }`}
+                  onClick={handlePickupTimeClick}
+                >
+                  <input
+                    type="time"
+                    name="pickupTime"
+                    value={formData.pickupTime}
+                    onChange={handleInputChange}
+                    ref={pickupTimeRef}
+                    className="w-full px-3 py-2 bg-transparent outline-none text-gray-900 rounded-lg "
+                  />
+                  
+                </div>
+                {errors.pickupTime && (
+                  <p className="absolute text-red-500 text-xs mt-1">{errors.pickupTime}</p>
+                )}
+              </div>
 
 
-
-
-           <div className="col-span-full lg:col-span-2 relative">
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    {activeTab === 'one-time' ? 'Trip Date' : 'Recurring Days'} 
-    <span className="text-red-500">*</span>
-  </label>
-
-  {activeTab === 'one-time' ? (
-    <div
-      className={`relative flex items-center rounded-lg transition-colors 
-        ${errors.tripDate
-          ? "border border-red-500 ring-2 ring-red-500"
-          : "border border-gray-300 focus-within:ring-2 focus-within:ring-red-500 focus-within:border-red-500"}`}
-      onClick={handleDateContainerClick}
-    >
-      <input
-        type="date"
-        name="tripDate"
-        value={formData.tripDate}
-        onChange={handleInputChange}
-        min={new Date().toISOString().split("T")[0]}
-        ref={dateInputRef}
-        className="w-full px-3 py-2 bg-transparent outline-none text-gray-900 rounded-lg"
-      />
-      {/* <Calendar className="w-5 h-5 text-gray-600 mr-3 cursor-pointer" /> */}
-    </div>
-  ) : (
-    <div className="flex space-x-2">
-      {['M', 'T', 'W', 'Th', 'F', 'S'].map((day) => (
-        <button
-          key={day}
-          type="button"
-          onClick={() => toggleRecurringDay(day)}
-          className={`w-12 h-12 rounded-lg border 
-            ${formData.recurringDays.includes(
-              { M: 'mon', T: 'tue', W: 'wed', Th: 'thu', F: 'fri', S: 'sat' }[day]
-            )
-              ? 'bg-red-600 text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-100'} 
-            border-gray-300 flex items-center justify-center text-sm font-medium transition-colors`}
-        >
-          {day}
-        </button>
-      ))}
-    </div>
-  )}
-
-  {errors.tripDate && activeTab === 'one-time' && (
-    <p className="absolute text-red-500 text-xs mt-1">{errors.tripDate}</p>
-  )}
-  {errors.recurringDays && activeTab === 'recurring' && (
-    <p className="absolute text-red-500 text-xs mt-1">{errors.recurringDays}</p>
-  )}
-</div>
-
-
-
-
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Return Time <span className="text-red-500">*</span>
+                </label>
+                <div 
+                  className={`relative flex items-center border rounded-lg transition-colors ${
+                    errors.returnTime ? "border-red-500 ring-2 ring-red-500" : "border-gray-300"
+                  }`}
+                  onClick={handleReturnTimeClick}
+                >
+                  <input
+                    type="time"
+                    name="returnTime"
+                    value={formData.returnTime}
+                    onChange={handleInputChange}
+                    ref={returnTimeRef}
+                    className="w-full px-3 py-2 bg-transparent outline-none text-gray-900 rounded-lg "
+                  />
+                </div>
+                {errors.returnTime && (
+                  <p className="absolute text-red-500 text-xs mt-1">{errors.returnTime}</p>
+                )}
+              </div>
+              <div className="col-span-full lg:col-span-2 relative">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {activeTab === 'one-time' ? 'Trip Date' : 'Recurring Days'} 
+                  <span className="text-red-500">*</span>
+                </label>
+                {activeTab === 'one-time' ? (
+                  <div 
+                    className={`relative flex items-center border rounded-lg transition-colors ${
+                      errors.tripDate ? "border-red-500 ring-2 ring-red-500" : "border-gray-300"
+                    }`}
+                    onClick={handleDateContainerClick}
+                  >
+                    <input
+                      type="date"
+                      name="tripDate"
+                      value={formData.tripDate}
+                      onChange={handleInputChange}
+                      min={new Date().toISOString().split("T")[0]}
+                      ref={dateInputRef}
+                      className="w-full px-3 py-2 bg-transparent outline-none text-gray-900 rounded-lg "
+                    />
+                  </div>
+                ) : (
+                  <div className="flex space-x-2">
+                    {['M', 'T', 'W', 'Th', 'F', 'S'].map((day) => (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => toggleRecurringDay(day)}
+                        className={`w-12 h-12 rounded-lg border 
+                          ${formData.recurringDays.includes(
+                            { M: 'mon', T: 'tue', W: 'wed', Th: 'thu', F: 'fri', S: 'sat' }[day]
+                          )
+                            ? 'bg-red-600 text-white'
+                            : 'bg-white text-gray-700 hover:bg-gray-100'} 
+                          border-gray-300 flex items-center justify-center text-sm font-medium transition-colors`}
+                      >
+                        {day}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {errors.tripDate && activeTab === 'one-time' && (
+                  <p className="absolute text-red-500 text-xs mt-1">{errors.tripDate}</p>
+                )}
+                {errors.recurringDays && activeTab === 'recurring' && (
+                  <p className="absolute text-red-500 text-xs mt-1">{errors.recurringDays}</p>
+                )}
+              </div>
             </div>
           </div>
           <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4">
@@ -551,7 +546,7 @@ const PostTripForm = () => {
               </div>
             </div>
           </div>
-          <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4">
+          <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4 lg:sticky lg:top-4 lg:self-start">
             <div className="flex items-center space-x-2 mb-6">
               <Users className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">Requirements</h2>
@@ -608,7 +603,7 @@ const PostTripForm = () => {
                     name="preferredGender"
                     value={formData.preferredGender}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors appearance-none bg-white"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors appearance-none bg-white text-gray-900"
                   >
                     <option value="No preference">No preference</option>
                     <option value="Male">Male</option>
@@ -617,10 +612,6 @@ const PostTripForm = () => {
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 </div>
               </div>
-            </div>
-          </div>
-          <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4 lg:col-start-2">
-            <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
               <div className="lg:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Extra Instructions (Optional)</label>
                 <textarea
@@ -632,7 +623,7 @@ const PostTripForm = () => {
                   placeholder="e.g. Need female attendant, AC required, etc."
                 />
               </div>
-              <div className="flex mb-3 flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
+              <div className="flex mb-3 flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 lg:col-span-2">
                 <button
                   type="button"
                   onClick={() => navigate(-1)}

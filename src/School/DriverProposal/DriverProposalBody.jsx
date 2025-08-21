@@ -225,10 +225,10 @@ useEffect(() => {
               className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-500 text-sm break-words"
             />
           </div>
-          <button className="justify-center inter-bold flex items-center space-x-2 px-4 py-2 border border-red-600 rounded-lg hover:bg-gray-50 text-sm w-full sm:w-auto">
+          {/* <button className="justify-center inter-bold flex items-center space-x-2 px-4 py-2 border border-red-600 rounded-lg hover:bg-gray-50 text-sm w-full sm:w-auto">
             <Filter className="w-4 h-4 text-red-500" />
             <span className="text-red-500">Filters</span>
-          </button>
+          </button> */}
         </div>
 
         {/* Driver Cards */}

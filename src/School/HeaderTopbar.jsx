@@ -63,7 +63,7 @@ const HeaderTopBar = ({ onMenuClick }) => {
       {profileData?.user?.name}
     </span>
 
-    {/* {profileData?.user?.accountStatus === "active" ? (
+    {profileData?.user?.accountStatus === "active" ? (
       <span className="flex items-center text-green-600 text-xs font-medium leading-none">
         Verified
         <svg
@@ -84,7 +84,7 @@ const HeaderTopBar = ({ onMenuClick }) => {
         Pending
         <Clock className="w-3.4 h-3.5 ml-0.5" />
       </span>
-    )} */}
+    )}
   </div>
 </div>
 

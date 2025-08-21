@@ -21,7 +21,7 @@ const DriverVerificationInterface = () => {
 
   // Map backend driverStatus to frontend status
   const statusMap = {
-    pending_approval: 'pending',
+     pending: 'Pending',
     approved: 'Verified',
     suspended: 'Suspended'
   };

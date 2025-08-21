@@ -43,6 +43,8 @@ import TripFeedback from './School/TripManagment/TripFeedBack';
 import ProtectedRoute from './School/ProtectRoute'
 import Messages from './School/messages/Messages';
 import DriverChat from './drivers/DChat/DriverChat';
+import SchoolProfileView from './School/Setting/ProfileViwPage';
+import Profileview from './School/Setting/Profileview';
 
 function App() {
 
@@ -78,6 +80,7 @@ function App() {
       <Route path='/hire-driver/:id'element={<ProtectedRoute><HireDriverDetails/></ProtectedRoute>}/>
       <Route path='/proposal' element={<ProtectedRoute><DriverProposal/></ProtectedRoute>}/>
       <Route path='/messages' element={<ProtectedRoute><Messages/></ProtectedRoute>}/>
+     
 
       {/* <Route path='/assign-job' element={<InviteDriverPopUp/>}/> */}
             <Route 
@@ -85,7 +88,9 @@ function App() {
         element={<ProtectedRoute><TripFeedback /></ProtectedRoute>} 
       />
 
-      <Route path='/setting' element={<Setting/>}/>
+      {/* <Route path='/setting' element={<Setting/>}/> */}
+      <Route path='/setting/update-profile' element={<ProtectedRoute><Setting/></ProtectedRoute>} />
+       <Route path='/setting' element={<ProtectedRoute><Profileview/></ProtectedRoute>} />
 
 
 

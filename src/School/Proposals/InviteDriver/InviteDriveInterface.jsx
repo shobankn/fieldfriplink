@@ -142,6 +142,8 @@ const handleSendJobPost = async (trip, note = "Please accept the invitation") =>
 };
 
 
+
+
   const filteredDrivers = drivers.filter(
     (driver) =>
       driver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -155,7 +157,6 @@ const handleSendJobPost = async (trip, note = "Please accept the invitation") =>
 
       </h1>
       <Navbar />
-      <ToastContainer/>
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Header */}

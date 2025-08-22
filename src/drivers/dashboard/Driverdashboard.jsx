@@ -416,12 +416,14 @@ const Driverdashboard = () => {
             <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold text-gray-800">Schedule</h3>
-                <button
-                  onClick={() => navigate('/myrides', { state: { activeTab: 'Scheduled' } })}
-                  className="text-yellow-600 hover:text-yellow-700 text-sm font-medium"
-                >
-                  View All
-                </button>
+                {scheduledRides.length > 0 && !loading.scheduled && (
+                  <button
+                    onClick={() => navigate('/myrides', { state: { activeTab: 'Scheduled' } })}
+                    className="text-yellow-600 hover:text-yellow-700 text-sm font-medium"
+                  >
+                    View All
+                  </button>
+                )}
               </div>
 
               <div className="space-y-4">

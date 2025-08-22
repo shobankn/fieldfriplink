@@ -643,7 +643,7 @@ const PostTripForm = () => {
               </div>
               <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  No of Busses <span className="text-red-500">*</span>
+                  No of Buses <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"

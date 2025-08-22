@@ -165,7 +165,7 @@ const Notification = () => {
           {notifications.length === 0 && !error && (
             <p className="text-gray-600 text-[14px] inter-medium">No notifications available</p>
           )}
-          {notifications.slice(0, 4).map((item, index) => {
+          {notifications.slice(-4).map((item, index) => {
             const Icon = typeMapping[item.type]?.icon || FileText;
             const colorClass = bgColors[item.type];
 

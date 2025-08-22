@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import logo from '../images/logo.png';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
@@ -11,6 +11,29 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false); // State for password visibility
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Set userType based on state from navigation
+  useEffect(() => {
+    const userTypeFromState = location.state?.userType;
+    if (userTypeFromState === 'School' || userTypeFromState === 'Driver') {
+      setUserType(userTypeFromState);
+    }
+  }, [location.state]);
+
+  // Check if user is already logged in
+  const token = localStorage.getItem('token');
+  const storedUserType = localStorage.getItem('userType');
+  useEffect(() => {
+    if (token && storedUserType) {
+      // Redirect to the dashboard matching the stored userType
+      if (storedUserType === 'Driver') {
+        navigate('/driverdashboard');
+      } else if (storedUserType === 'School') {
+        navigate('/dashboard');
+      }
+    }
+  }, [token, storedUserType, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,22 +45,26 @@ const Login = () => {
         password,
       });
 
-      const { token, user } = response.data;
+      const { token: newToken, user } = response.data;
 
-      // Save token if needed
-      localStorage.setItem('token', token);
+      const expectedRole = userType === 'Driver' ? 'driver' : 'school_admin';
+      const redirectUserType = userType === 'Driver' ? 'Driver' : 'School';
 
-      // Redirect logic based on role
-      if (user.role === 'driver') {
-        toast.success('Driver login successful!');
-        navigate('/driverdashboard');
-      } else {
-        if (user.role === 'school_admin') {
+      if (user.role === expectedRole) {
+        // Save token and userType to localStorage
+        localStorage.setItem('token', newToken);
+        localStorage.setItem('userType', redirectUserType);
+
+        // Redirect logic based on role
+        if (expectedRole === 'driver') {
+          toast.success('Driver login successful!');
+          navigate('/driverdashboard');
+        } else {
           toast.success('School Admin login successful!');
           navigate('/dashboard');
-        } else {
-          toast.error('Unauthorized access: You are not a school admin.');
         }
+      } else {
+        toast.error('User role does not match the selected type.');
       }
     } catch (error) {
       const msg =
@@ -65,6 +92,11 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
+  // If token exists and userType is set, redirect immediately
+  if (token && storedUserType) {
+    return <Navigate to={storedUserType === 'Driver' ? '/driverdashboard' : '/dashboard'} replace />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Section */}
@@ -85,22 +117,22 @@ const Login = () => {
                 userType === 'School' ? 'translate-x-0' : 'translate-x-full'
               }`}
             />
-           <button
-  onClick={() => setUserType('School')}
-  className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
-    userType === 'School' ? 'text-white' : 'text-[#de3b40]'
-  } z-10 cursor-pointer`}
->
-  School
-</button>
-<button
-  onClick={() => setUserType('Driver')}
-  className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
-    userType === 'Driver' ? 'text-white' : 'text-[#de3b40]'
-  } z-10 cursor-pointer`}
->
-  Driver
-</button>
+            <button
+              onClick={() => setUserType('School')}
+              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
+                userType === 'School' ? 'text-white' : 'text-[#de3b40]'
+              } z-10 cursor-pointer`}
+            >
+              School
+            </button>
+            <button
+              onClick={() => setUserType('Driver')}
+              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
+                userType === 'Driver' ? 'text-white' : 'text-[#de3b40]'
+              } z-10 cursor-pointer`}
+            >
+              Driver
+            </button>
           </div>
         </div>
 
@@ -137,47 +169,45 @@ const Login = () => {
           </div>
 
           <div className="text-right mb-6 lg:mb-[60px]">
-           <button
-  onClick={handleForgotPassword}
-  className="text-[#de3b40] text-sm lg:text-[14px] inter-medium hover:underline cursor-pointer"
->
-  Forgot Password
-</button>
-
+            <button
+              onClick={handleForgotPassword}
+              className="text-[#de3b40] text-sm lg:text-[14px] inter-medium hover:underline cursor-pointer"
+            >
+              Forgot Password
+            </button>
           </div>
 
-         <button
-  type="submit"
-  disabled={loading}
-  className={`w-full bg-[#de3b40] hover:bg-red-600 text-white rounded-[8px] font-medium h-[48px] text-sm lg:text-base transition-colors duration-300 flex items-center justify-center ${
-    loading ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer'
-  }`}
->
-  {loading ? (
-    <svg
-      className="animate-spin h-5 w-5 text-white mr-2"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      ></circle>
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-      ></path>
-    </svg>
-  ) : null}
-  {loading ? 'Processing...' : 'Sign In'}
-</button>
-
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full bg-[#de3b40] hover:bg-red-600 text-white rounded-[8px] font-medium h-[48px] text-sm lg:text-base transition-colors duration-300 flex items-center justify-center ${
+              loading ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer'
+            }`}
+          >
+            {loading ? (
+              <svg
+                className="animate-spin h-5 w-5 text-white mr-2"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            ) : null}
+            {loading ? 'Processing...' : 'Sign In'}
+          </button>
         </form>
 
         <p className="text-center text-sm lg:text-[14px] interregular mt-4 lg:mt-4">

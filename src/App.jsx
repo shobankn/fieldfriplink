@@ -18,7 +18,6 @@ import HireDriver from './School/HireDriver/HireDriver';
 import HireDriverDetails from './School/HireDriver/HireDriverDetails';
 import Setting from './School/Setting/Setting';
 import DriverProposal from './School/DriverProposal/DriverProposal';
-import InviteDriverPopUp from './School/Proposals/InviteDriver/InviteDriverPopup';
 import About from './landgingpage/About/About';
 import Driverdashboard from './drivers/dashboard/Driverdashboard';
 import Login from './auth/Login';
@@ -80,6 +79,7 @@ function App() {
       <Route path='/hire-driver/:id'element={<ProtectedRoute><HireDriverDetails/></ProtectedRoute>}/>
       <Route path='/proposal' element={<ProtectedRoute><DriverProposal/></ProtectedRoute>}/>
       <Route path='/messages' element={<ProtectedRoute><Messages/></ProtectedRoute>}/>
+      {/* <Route path='/live' element={<DriverSimulator/>}/> */}
      
 
       {/* <Route path='/assign-job' element={<InviteDriverPopUp/>}/> */}

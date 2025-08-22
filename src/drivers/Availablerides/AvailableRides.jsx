@@ -23,8 +23,19 @@ const AvailableRides = () => {
   const [driverProfile, setDriverProfile] = useState(null);
   const [isSubmittingProposal, setIsSubmittingProposal] = useState({});
   const [isClosingModal, setIsClosingModal] = useState(false);
+  const [appliedProposals, setAppliedProposals] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit] = useState(10);
 
   const MAX_WORDS = 500;
+
+  const truncateTripName = (name) => {
+    if (name.length > 20) {
+      return name.substring(0, 20) + '...';
+    }
+    return name;
+  };
 
   const countWords = (text) => {
     return text.trim().split(/\s+/).filter(word => word.length > 0).length;
@@ -81,6 +92,42 @@ const AvailableRides = () => {
   }, []);
 
   useEffect(() => {
+    const fetchAppliedProposals = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No authentication token found. Please log in.');
+        }
+
+        const response = await axios.get(
+          'https://fieldtriplinkbackend-production.up.railway.app/api/driver/proposal?status=applied&page=1&limit=10',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        if (!response.data?.proposals) {
+          throw new Error('Unexpected API response format for proposals');
+        }
+
+        const appliedTripIds = response.data.proposals
+          .filter(proposal => proposal.tripId && proposal.status.toLowerCase() === 'applied')
+          .map(proposal => proposal.tripId._id);
+
+        setAppliedProposals(appliedTripIds);
+      } catch (err) {
+        console.error('Error fetching applied proposals:', err);
+        setAppliedProposals([]);
+      }
+    };
+
+    fetchAppliedProposals();
+  }, []);
+
+  useEffect(() => {
     const fetchTrips = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -91,16 +138,24 @@ const AvailableRides = () => {
         setLoading(true);
         setError(null);
 
-        const response = await axios.get('https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips?status=published', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await axios.get(
+          `https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips?status=published&page=${currentPage}&limit=${limit}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
 
         let trips = [];
+        let total = 1;
+        let responseLimit = limit;
+
         if (response.data?.trips && Array.isArray(response.data.trips)) {
           trips = response.data.trips;
+          total = response.data.total || 1;
+          responseLimit = response.data.limit || limit;
         } else if (Array.isArray(response.data)) {
           trips = response.data;
         } else if (response.data && typeof response.data === 'object') {
@@ -136,6 +191,7 @@ const AvailableRides = () => {
         }));
 
         setAvailableRides(mappedData);
+        setTotalPages(Math.ceil(total / responseLimit));
         setLoading(false);
         if (mappedData.length === 0) {
           toast.dismiss();
@@ -160,7 +216,7 @@ const AvailableRides = () => {
     };
 
     fetchTrips();
-  }, []);
+  }, [currentPage]);
 
   const handleSendProposal = (ride) => {
     setSelectedRide(ride);
@@ -209,6 +265,7 @@ const AvailableRides = () => {
         autoClose: 2000,
       });
 
+      setAppliedProposals(prev => [...prev, selectedRide.id]);
       handleCloseModal();
     } catch (err) {
       console.error('Error submitting proposal:', err);
@@ -227,6 +284,12 @@ const AvailableRides = () => {
 
   const handleCardClick = (ride) => {
     console.log('Card clicked:', ride);
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
   };
 
   const ShimmerCard = () => (
@@ -293,98 +356,127 @@ const AvailableRides = () => {
             ) : availableRides.length === 0 ? (
               <p className="text-gray-600">No available trips found.</p>
             ) : (
-              availableRides.map((ride) => (
-                <div 
-                  key={ride.id} 
-                  className="bg-white rounded-lg shadow p-5 mb-4 relative cursor-pointer hover:shadow-md transition-shadow duration-200"
-                  onClick={() => handleCardClick(ride)}
-                >
-                  <div className="flex justify-between items-center mb-[18px]">
-                    <div>
-                      <h2 className="text-[18px] archivosemibold">{ride.school}</h2>
-                      <p className="text-sm text-gray-600">
-                        {ride.isRecurring ? 'Days: ' : 'Date: '} {ride.date}
-                      </p>
+              <>
+                {availableRides.map((ride) => (
+                  <div 
+                    key={ride.id} 
+                    className="bg-white rounded-lg shadow p-5 mb-4 relative cursor-pointer hover:shadow-md transition-shadow duration-200"
+                    onClick={() => handleCardClick(ride)}
+                  >
+                    <div className="flex justify-between items-center mb-[18px]">
+                      <div>
+                        <h2 className="text-[18px] archivosemibold">{truncateTripName(ride.school)}</h2>
+                        <p className="text-sm text-gray-600">
+                          {ride.isRecurring ? 'Days: ' : 'Date: '} {ride.date}
+                        </p>
+                      </div>
+                      <button 
+                        className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded font-medium text-white ${
+                          appliedProposals.includes(ride.id)
+                            ? 'bg-[#F0B100] cursor-not-allowed'
+                            : 'bg-[#EE5B5B] hover:bg-red-600'
+                        } ${isSubmittingProposal[ride.id] ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!appliedProposals.includes(ride.id)) {
+                            handleSendProposal(ride);
+                          }
+                        }}
+                        disabled={isSubmittingProposal[ride.id] || appliedProposals.includes(ride.id)}
+                      >
+                        {isSubmittingProposal[ride.id] ? (
+                          <>
+                            <svg
+                              className="animate-spin h-5 w-5 text-white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
+                            </svg>
+                            Sending...
+                          </>
+                        ) : appliedProposals.includes(ride.id) ? (
+                          'Applied'
+                        ) : (
+                          'Send Proposal'
+                        )}
+                      </button>
                     </div>
-                    <button 
-                      className={`flex items-center justify-center gap-2 bg-[#EE5B5B] text-white font-medium px-4 py-1.5 rounded hover:bg-red-600 ${
-                        isSubmittingProposal[ride.id] ? 'opacity-70 cursor-not-allowed' : ''
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSendProposal(ride);
-                      }}
-                      disabled={isSubmittingProposal[ride.id]}
+
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-y-2">
+                      <div>
+                        <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
+                          <CiLocationOn className='text-[#EE5B5B] text-[16px]'/>
+                          <span className="text-[#606060] text-[16px] archivomedium">Pickup:</span> {ride.pickup}
+                        </p>
+                        <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
+                          <CiLocationOn className='text-[#EE5B5B] text-[16px]'/>
+                          <span className="font-medium">Drop:</span> {ride.drop}
+                        </p>
+                        <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
+                          <LuUser className='text-[#EE5B5B] text-[16px]' />
+                          {ride.students} students
+                        </p>
+                      </div>
+                      <div>
+                        <p className="flex items-center gap-2 text-sm text-[#606060] text-[16px] mb-[8px]">
+                          <SlCalender className='text-[#EE5B5B] text-[16px]'/>
+                          <span className="font-medium">{ride.isRecurring ? 'Days' : 'Date'}:</span> {ride.date}
+                        </p>
+                        <p className="flex items-center gap-2 text-sm text-[#606060] text-[16px] mb-[8px]">
+                          <CiClock2 className='text-[#EE5B5B] text-[16px]'/>
+                          <span className="font-medium">Start Time:</span> {ride.startTime} -<span className="font-medium ">End Time:</span> {ride.endTime}
+                        </p>
+                        <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
+                          <LuBus className='text-[#EE5B5B] text-[16px]'/>
+                          <span className="font-medium">Number of Buses:</span> {ride.buses}
+                        </p>
+                      </div>
+                    </div>
+
+                    {ride.note && (
+                      <div className="bg-[#DEE1E6] text-black text-sm p-2 mt-3 rounded flex items-center gap-2">
+                        <FaCheckCircle />
+                        <span className='interregular text-[14px]'>{ride.note}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center gap-2 mt-6">
+                    <button
+                      className={`px-4 py-2 rounded-md ${currentPage === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-[#EE5B5B] text-white hover:bg-red-600'}`}
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
                     >
-                      {isSubmittingProposal[ride.id] ? (
-                        <>
-                          <svg
-                            className="animate-spin h-5 w-5 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            ></path>
-                          </svg>
-                          Sending...
-                        </>
-                      ) : (
-                        'Send Proposal'
-                      )}
+                      Previous
+                    </button>
+                    <span className="text-sm text-gray-600">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      className={`px-4 py-2 rounded-md ${currentPage === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-[#EE5B5B] text-white hover:bg-red-600'}`}
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
                     </button>
                   </div>
-
-                  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-y-2">
-                    <div>
-                      <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
-                        <CiLocationOn className='text-[#EE5B5B] text-[16px]'/>
-                        <span className="text-[#606060] text-[16px] archivomedium">Pickup:</span> {ride.pickup}
-                      </p>
-                      <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
-                        <CiLocationOn className='text-[#EE5B5B] text-[16px]'/>
-                        <span className="font-medium">Drop:</span> {ride.drop}
-                      </p>
-                      <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
-                        <LuUser className='text-[#EE5B5B] text-[16px]' />
-                        {ride.students} students
-                      </p>
-                    </div>
-                    <div>
-                      <p className="flex items-center gap-2 text-sm text-[#606060] text-[16px] mb-[8px]">
-                        <SlCalender className='text-[#EE5B5B] text-[16px]'/>
-                        <span className="font-medium">{ride.isRecurring ? 'Days' : 'Date'}:</span> {ride.date}
-                      </p>
-                      <p className="flex items-center gap-2 text-sm text-[#606060] text-[16px] mb-[8px]">
-                        <CiClock2 className='text-[#EE5B5B] text-[16px]'/>
-                        <span className="font-medium">Start Time:</span> {ride.startTime} -<span className="font-medium ">End Time:</span> {ride.endTime}
-                      </p>
-                      <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
-                        <LuBus className='text-[#EE5B5B] text-[16px]'/>
-                        <span className="font-medium">Number of Buses:</span> {ride.buses}
-                      </p>
-                    </div>
-                  </div>
-
-                  {ride.note && (
-                    <div className="bg-[#DEE1E6] text-black text-sm p-2 mt-3 rounded flex items-center gap-2">
-                      <FaCheckCircle />
-                      <span className='interregular text-[14px]'>{ride.note}</span>
-                    </div>
-                  )}
-                </div>
-              ))
+                )}
+              </>
             )}
           </div>
         </main>

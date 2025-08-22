@@ -27,7 +27,7 @@ const MyRides = () => {
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || "Invitations");
   const [rideDataState, setRideDataState] = useState(rideData);
   const [loading, setLoading] = useState(true);
-  const [buttonLoading, setButtonLoading] = useState({}); // New state for button-specific loading
+  const [buttonLoading, setButtonLoading] = useState({});
   const navigate = useNavigate();
 
   const toggleSidebar = () => {
@@ -162,8 +162,11 @@ const MyRides = () => {
       });
 
       setActiveTab('Completed');
+      // Show toast notification
+      alert('Ride has been successfully ended!');
     } catch (error) {
       console.error('Error ending ride:', error);
+      alert('Failed to end ride. Please try again.');
     } finally {
       setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: false }));
     }
@@ -172,10 +175,10 @@ const MyRides = () => {
   // Function to handle view live navigation
   const handleViewLive = (tripId) => {
     setButtonLoading((prev) => ({ ...prev, [tripId + 'view']: true }));
-    navigate('/driver-live-tracking');
+    navigate('/driver-live-tracking', { state: { activeTab } });
     setTimeout(() => {
       setButtonLoading((prev) => ({ ...prev, [tripId + 'view']: false }));
-    }, 1000); // Simulate loading for navigation
+    }, 1000);
   };
 
   // Fetch Invitations
@@ -220,7 +223,7 @@ const MyRides = () => {
             startTime: startTimeStr,
             endTime: endTimeStr,
             students: trip.numberOfStudents,
-            phone: '+92 21 345-6789',
+            phone: trip.schoolId?.phoneNumber || 'N/A',
             schoolId: trip.schoolId?._id || 'N/A',
           };
         });
@@ -277,7 +280,7 @@ const MyRides = () => {
             startTime: startTimeStr,
             endTime: endTimeStr,
             students: trip.numberOfStudents,
-            phone: '+92 21 345-6789',
+            phone: trip.schoolId?.phoneNumber || 'N/A',
             schoolId: trip.schoolId?._id || 'N/A',
           };
         });
@@ -334,7 +337,7 @@ const MyRides = () => {
             startTime: startTimeStr,
             endTime: endTimeStr,
             students: trip.numberOfStudents,
-            phone: '+92 21 345-6789',
+            phone: trip.schoolId?.phoneNumber || 'N/A',
             schoolId: trip.schoolId?._id || 'N/A',
           };
         });
@@ -391,10 +394,10 @@ const MyRides = () => {
             startTime: startTimeStr,
             endTime: endTimeStr,
             students: trip.numberOfStudents,
-            phone: '+92 21 345-6789',
+            phone: trip.schoolId?.phoneNumber || 'N/A',
             schoolId: trip.schoolId?._id || 'N/A',
-            rating: Math.floor(Math.random() * 5) + 1,
-            schoolName: `School ${trip.schoolId?._id.slice(-4) || 'Unknown'}`,
+            rating: trip.driverRating,
+            schoolName: trip.schoolId?.schoolName || 'Unknown',
           };
         });
 
@@ -532,8 +535,14 @@ const MyRides = () => {
                       <h2 className="text-lg archivosemibold text-[18px]">{ride.school}</h2>
                       {activeTab === "Completed" && (
                         <div className="flex items-center flex-col gap-2">
-                          <span className="text-yellow-500">{'★'.repeat(ride.rating)}{'☆'.repeat(5 - ride.rating)}</span>
-                          <p className="text-sm text-gray-500">By {ride.schoolName}</p>
+                          {ride.rating ? (
+                            <>
+                              <span className="text-yellow-500">{'★'.repeat(ride.rating)}{'☆'.repeat(5 - ride.rating)}</span>
+                              <p className="text-sm text-gray-500">By {ride.schoolName}</p>
+                            </>
+                          ) : (
+                            <span className="text-gray-500">Not Rated yet</span>
+                          )}
                         </div>
                       )}
                     </div>

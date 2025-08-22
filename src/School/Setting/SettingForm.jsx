@@ -354,11 +354,11 @@ const SchoolSettingsForm = () => {
                       />
                       <div>
                         <h3 className="text-lg inter-medium text-gray-900 mb-1">Upload Media</h3>
-                        <p className="text-sm text-gray-600 mb-4">Logo uploaded successfully</p>
+                        <p className="text-sm text-gray-600 mb-4">profile uploaded successfully</p>
                         <label htmlFor="logo-upload">
                           <span className="inline-flex items-center px-4 py-2 bg-red-500 text-white text-sm inter-medium rounded-lg hover:bg-red-600 transition-colors cursor-pointer">
                             <Upload className="w-4 h-4 mr-2" />
-                            Change Logo
+                            Change Profile
                           </span>
                           <input
                             id="logo-upload"

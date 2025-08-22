@@ -110,8 +110,8 @@ const DashboardStats = () => {
         },
         {
           title: 'Average Rating',
-          value: '4.8',
-          change: '+0.2 from last month',
+          value: '0',
+          change: '0% from last month',
           icon: Star,
           color: 'bg-orange-500',
         },

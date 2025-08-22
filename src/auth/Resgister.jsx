@@ -94,6 +94,16 @@ const Register = () => {
     }
   };
 
+  const handleCnicChange = (e) => {
+    const { name, value } = e.target;
+    // Allow only numbers and hyphens, and enforce CNIC format (xxxxx-xxxxxxx-x)
+    const cnicValue = value.replace(/[^0-9-]/g, '');
+    setFormData({
+      ...formData,
+      [name]: cnicValue
+    });
+  };
+
   const handleSchoolSelect = (school) => {
     setFormData({
       ...formData,
@@ -141,11 +151,7 @@ const Register = () => {
         { key: 'password', label: 'Password' },
         { key: 'cnicNumber', label: 'CNIC Number' },
         { key: 'city', label: 'City' },
-        { key: 'schoolId', label: 'School' },
-        { key: 'cnicFront', label: 'CNIC Front Image' },
-        { key: 'cnicBack', label: 'CNIC Back Image' },
-        { key: 'driversLicense', label: "Driver's License" },
-        { key: 'vehicleRegistrationDocument', label: 'Vehicle Registration Document' }
+        { key: 'schoolId', label: 'School' }
       ];
 
       for (const field of requiredFields) {
@@ -203,10 +209,10 @@ const Register = () => {
       formDataToSend.append('cnicNumber', formData.cnicNumber);
       formDataToSend.append('city', formData.city);
       formDataToSend.append('schoolId', formData.schoolId);
-      formDataToSend.append('drivingLicenseImage', formData.driversLicense);
-      formDataToSend.append('cnicFrontImage', formData.cnicFront);
-      formDataToSend.append('cnicBackImage', formData.cnicBack);
-      formDataToSend.append('vehicleRegistrationImage', formData.vehicleRegistrationDocument);
+      if (formData.driversLicense) formDataToSend.append('drivingLicenseImage', formData.driversLicense);
+      if (formData.cnicFront) formDataToSend.append('cnicFrontImage', formData.cnicFront);
+      if (formData.cnicBack) formDataToSend.append('cnicBackImage', formData.cnicBack);
+      if (formData.vehicleRegistrationDocument) formDataToSend.append('vehicleRegistrationImage', formData.vehicleRegistrationDocument);
 
       try {
         const response = await fetch('https://fieldtriplinkbackend-production.up.railway.app/api/auth/register-driver', {
@@ -305,6 +311,14 @@ const Register = () => {
     setIsDropdownOpen(false);
   };
 
+  // Truncate file name to 30 characters
+  const truncateFileName = (name) => {
+    if (name && name.length > 30) {
+      return name.substring(0, 27) + '...';
+    }
+    return name;
+  };
+
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       <div className="w-full lg:w-[45%] bg-white flex items-center justify-center px-6 lg:px-[35px] py-6 lg:py-0">
@@ -352,7 +366,7 @@ const Register = () => {
                 value={formData.UserName}
                 onChange={handleInputChange}
                 placeholder="Enter your username"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-black"
               />
             </div>
             <div>
@@ -363,7 +377,7 @@ const Register = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Enter your email"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-black"
               />
             </div>
             <div>
@@ -374,7 +388,7 @@ const Register = () => {
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder="Enter your phone (e.g., 03001234567)"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-black"
               />
             </div>
 
@@ -388,7 +402,7 @@ const Register = () => {
                     value={formData.schoolName}
                     onChange={handleInputChange}
                     placeholder="Enter your school name"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-black"
                   />
                 </div>
                 <div>
@@ -399,7 +413,7 @@ const Register = () => {
                     value={formData.city}
                     onChange={handleInputChange}
                     placeholder="Enter your city"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-black"
                   />
                 </div>
                 <div>
@@ -411,7 +425,7 @@ const Register = () => {
                       value={formData.location}
                       onChange={handleInputChange}
                       placeholder="Enter school location"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400 pr-10"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-black pr-10"
                     />
                     <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
                       <BsMap />
@@ -429,9 +443,9 @@ const Register = () => {
                     type="text"
                     name="cnicNumber"
                     value={formData.cnicNumber}
-                    onChange={handleInputChange}
+                    onChange={handleCnicChange}
                     placeholder="Enter your CNIC number (e.g., 35202-1234567-1)"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-black"
                   />
                 </div>
                 <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
@@ -439,10 +453,10 @@ const Register = () => {
                     <label className="block text-sm lg:text-[14px] inter-semibold mb-1">School</label>
                     <div className="relative" ref={dropdownRef}>
                       <div
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer"
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                       >
-                        <span className="flex-1 truncate text-gray-400">
+                        <span className={`flex-1 truncate ${formData.schoolName ? 'text-black' : 'text-gray-400'}`}>
                           {formData.schoolName || 'Select a school'}
                         </span>
                         <IoChevronDown
@@ -480,7 +494,7 @@ const Register = () => {
                       placeholder="Enter your service city"
                       value={formData.city}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-black"
                     />
                   </div>
                 </div>
@@ -488,10 +502,12 @@ const Register = () => {
                   <div className="flex-1">
                     <label className="block text-sm lg:text-[14px] inter-semibold mb-1">CNIC Front</label>
                     <div
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer"
+                      className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer overflow-hidden"
                       onClick={() => handleFileClick(cnicFrontRef)}
                     >
-                      <span className="flex-1 truncate text-gray-400">{formData.cnicFront ? formData.cnicFront.name : 'Upload CNIC Front'}</span>
+                      <span className={`flex-1 truncate ${formData.cnicFront ? 'text-black' : 'text-gray-400'}`}>
+                        {formData.cnicFront ? truncateFileName(formData.cnicFront.name) : 'Upload CNIC Front'}
+                      </span>
                       <HiUpload className="text-gray-500" />
                     </div>
                     <input
@@ -506,10 +522,12 @@ const Register = () => {
                   <div className="flex-1">
                     <label className="block text-sm lg:text-[14px] inter-semibold mb-1">CNIC Back</label>
                     <div
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer"
+                      className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer overflow-hidden"
                       onClick={() => handleFileClick(cnicBackRef)}
                     >
-                      <span className="flex-1 truncate text-gray-400">{formData.cnicBack ? formData.cnicBack.name : 'Upload CNIC Back'}</span>
+                      <span className={`flex-1 truncate ${formData.cnicBack ? 'text-black' : 'text-gray-400'}`}>
+                        {formData.cnicBack ? truncateFileName(formData.cnicBack.name) : 'Upload CNIC Back'}
+                      </span>
                       <HiUpload className="text-gray-500" />
                     </div>
                     <input
@@ -525,10 +543,12 @@ const Register = () => {
                 <div>
                   <label className="block text-sm lg:text-[14px] inter-semibold mb-1">Driver's License</label>
                   <div
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer"
+                    className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer overflow-hidden"
                     onClick={() => handleFileClick(driversLicenseRef)}
                   >
-                    <span className="flex-1 truncate text-gray-400">{formData.driversLicense ? formData.driversLicense.name : "Upload Driver's License"}</span>
+                    <span className={`flex-1 truncate ${formData.driversLicense ? 'text-black' : 'text-gray-400'}`}>
+                      {formData.driversLicense ? truncateFileName(formData.driversLicense.name) : "Upload Driver's License"}
+                    </span>
                     <HiUpload className="text-gray-500" />
                   </div>
                   <input
@@ -543,10 +563,12 @@ const Register = () => {
                 <div>
                   <label className="block text-sm lg:text-[14px] inter-semibold mb-1">Vehicle Registration Document</label>
                   <div
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer"
+                    className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer overflow-hidden"
                     onClick={() => handleFileClick(vehicleRegistrationRef)}
                   >
-                    <span className="flex-1 truncate text-gray-400">{formData.vehicleRegistrationDocument ? formData.vehicleRegistrationDocument.name : 'Upload Vehicle Registration Document'}</span>
+                    <span className={`flex-1 truncate ${formData.vehicleRegistrationDocument ? 'text-black' : 'text-gray-400'}`}>
+                      {formData.vehicleRegistrationDocument ? truncateFileName(formData.vehicleRegistrationDocument.name) : 'Upload Vehicle Registration Document'}
+                    </span>
                     <HiUpload className="text-gray-500" />
                   </div>
                   <input
@@ -570,7 +592,7 @@ const Register = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="Create a strong password"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-gray-400 pr-10"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-black pr-10"
                 />
                 <button
                   type="button"

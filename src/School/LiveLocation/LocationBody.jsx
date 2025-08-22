@@ -1,51 +1,44 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import io from 'socket.io-client';
+import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { MapPin, Clock, Users, Bus, Navigation, CheckCircle, Circle, AlertCircle } from 'lucide-react';
+import { jwtDecode } from "jwt-decode";
 
-// Sample trip data
-const tripsData = [
-  {
-    id: 1,
-    name: "Morning Route A",
-    driver: "Ahmed Khan",
-    students: 25,
-    eta: "15 mins",
-    status: "active",
-    currentLocation: "Gulshan-e-Iqbal Block 13",
-    nextStop: "Green Valley School",
-    speed: "35 km/h",
-    progress: [
-      { id: 1, name: "Pickup Point 1", time: "07:00 AM", status: "completed", icon: CheckCircle },
-      { id: 2, name: "Pickup Point 2", time: "07:15 AM", status: "completed", icon: CheckCircle },
-      { id: 3, name: "Pickup Point 3", time: "07:30 AM", status: "current", icon: MapPin },
-      { id: 4, name: "Green Valley School", time: "07:45 AM", status: "pending", icon: Clock }
-    ],
-    totalStudents: 25,
-    totalBuses: 10
-  },
-  {
-    id: 2,
-    name: "Field Trip Return",
-    driver: "Sarah Ali",
-    students: 32,
-    eta: "8 mins",
-    status: "active",
-    currentLocation: "Shahra-e-Faisal Main Road",
-    nextStop: "City School Campus",
-    speed: "40 km/h",
-    progress: [
-      { id: 1, name: "Museum Departure", time: "02:00 PM", status: "completed", icon: CheckCircle },
-      { id: 2, name: "Highway Junction", time: "02:20 PM", status: "completed", icon: CheckCircle },
-      { id: 3, name: "Main City Entry", time: "02:35 PM", status: "current", icon: MapPin },
-      { id: 4, name: "City School Campus", time: "02:50 PM", status: "pending", icon: Clock }
-    ],
-    totalStudents: 32,
-    totalBuses: 8
-  }
-];
+// Assume toast is imported elsewhere or add: import { toast } from 'react-hot-toast'; // or react-toastify
+
+const SOCKET_URL = 'https://fieldtriplinkbackend-production.up.railway.app';
+const API_URL = 'https://fieldtriplinkbackend-production.up.railway.app/api/school/my-trips?status=active';
+const GOOGLE_MAPS_API_KEY = 'AIzaSyCFPBHuJfrROgkSCPySDf7c3uCETWpQGfU';
+
+// Helper function to generate progress timeline from trip data (pickup points + destination)
+const generateProgress = (trip) => {
+  const progress = trip.pickupPoints.map((point, index) => ({
+    id: index + 1,
+    name: point.address,
+    time: 'TBD',
+    status: index === 0 ? 'current' : 'pending',
+    icon: index === 0 ? MapPin : Clock,
+  }));
+  progress.push({
+    id: progress.length + 1,
+    name: trip.destination.address,
+    time: 'TBD',
+    status: 'pending',
+    icon: Clock,
+  });
+  return progress;
+};
 
 const LiveTrackingComponent = () => {
-  const [selectedTrip, setSelectedTrip] = useState(tripsData[0]);
+  const [trips, setTrips] = useState([]);
+  const [selectedTrip, setSelectedTrip] = useState(null);
+  const [tripLocations, setTripLocations] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [socket, setSocket] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [schoolId, setSchoolId] = useState(null);
+  const [selectedPosition, setSelectedPosition] = useState(null);
 
   // Update time every minute
   useEffect(() => {
@@ -55,8 +48,140 @@ const LiveTrackingComponent = () => {
     return () => clearInterval(timer);
   }, []);
 
+  // Fetch active trips
+  useEffect(() => {
+    const fetchTrips = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Authentication required. Please log in.');
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await axios.get(API_URL, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        const activeTrips = response.data.trips
+          .filter(trip => trip.tripStatus === 'active')
+          .map(trip => ({
+            id: trip._id,
+            name: trip.tripName,
+            driver: trip.assignedDrivers.length > 0
+              ? trip.assignedDrivers.map(d => d.name).join(', ')
+              : 'Unassigned',
+            students: trip.numberOfStudents,
+            eta: 'Calculating...',
+            status: trip.tripStatus,
+            currentLocation: 'Fetching...',
+            nextStop: trip.pickupPoints.length > 0 ? trip.pickupPoints[1]?.address || trip.destination.address : 'N/A',
+            speed: '0 km/h',
+            progress: generateProgress(trip),
+            totalStudents: trip.numberOfStudents,
+            totalBuses: trip.numberOfBuses,
+          }));
+        setTrips(activeTrips);
+        if (activeTrips.length > 0) {
+          setSelectedTrip(activeTrips[0]);
+          setSchoolId(response.data.trips[0].schoolId);
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching trips:', err);
+        setLoading(false);
+      }
+    };
+
+    fetchTrips();
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.warn("⏳ No token found, skipping socket connection...");
+      return;
+    }
+
+    let decoded;
+    try {
+      decoded = jwtDecode(token);
+      console.log("📌 Extracted schoolId from token:", decoded.userId);
+    } catch (err) {
+      console.error("❌ Failed to decode token:", err);
+      return;
+    }
+
+    const schoolId = decoded.userId;
+    if (!schoolId) {
+      console.warn("⏳ No schoolId found in token, skipping socket connection...");
+      return;
+    }
+
+    console.log("🔌 Initializing socket connection...");
+    const newSocket = io(SOCKET_URL, { transports: ["websocket"] });
+    setSocket(newSocket);
+
+    newSocket.on("connect", () => {
+      console.log("✅ Socket connected:", newSocket.id);
+      newSocket.emit("JOIN_APP", { userId: schoolId });
+      console.log(`🏫 Emitted JOIN_APP for schoolId: ${schoolId}`);
+    });
+
+    newSocket.on("disconnect", (reason) => {
+      console.log("⚠️ Socket disconnected. Reason:", reason);
+    });
+
+    newSocket.on("connect_error", (err) => {
+      console.error("❌ Socket connection error:", err.message);
+    });
+
+    newSocket.on("LOCATION_UPDATE", (data) => {
+      console.log("📍 LOCATION_UPDATE received:", data);
+        newSocket.on("LOCATION_UPDATE", (data) => {
+    console.log("📍 LOCATION_UPDATE received:", data);
+
+
+
+     if (trips.some((trip) => trip.id === data.tripId)) {
+       console.log(`✅ Trip ${data.tripId} matched with active trips.`);
+
+      setTripLocations((prev) => ({
+        ...prev,
+        [data.tripId]: {
+          lat: data.location.lat,
+          lng: data.location.lng,
+          speed: data.speed,
+          timestamp: data.timestamp,
+        },
+      }));
+
+      setSelectedTrip((prev) =>
+        prev && prev.id === data.tripId
+          ? {
+              ...prev,
+              currentLocation: `${data.location.lat}, ${data.location.lng}`,
+              speed: `${data.speed} km/h`,
+              eta: "Updating...",
+            }
+          : prev
+      );
+    } else {
+      console.log(`❌ Trip ${data.tripId} not found in active trips.`);
+     }
+  });
+    });
+
+    return () => {
+      console.log("🛑 Cleaning up socket connection...");
+      newSocket.disconnect();
+    };
+  }, [trips]);
+
   const handleTripSelect = (trip) => {
     setSelectedTrip(trip);
+    setSelectedPosition(null);
   };
 
   const getStatusColor = (status) => {
@@ -85,61 +210,78 @@ const LiveTrackingComponent = () => {
     }
   };
 
+  const selectedLocation = selectedTrip ? tripLocations[selectedTrip.id] : null;
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 lg:px-6 py-0">
       <div className="max-w-full mx-auto">
         {/* Header */}
         <div className="mb-6">
+          
+
+          
           <h1 className="text-2xl md:text-3xl inter-bold text-gray-900 mb-2">Live GPS Tracking</h1>
           <p className="text-gray-600">Monitor your active trips in real-time.</p>
         </div>
 
         {/* Top Row - Two Columns */}
-        <div className="grid  grid-cols-1 lg:grid-cols-3  gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 items-start">
           {/* Left Column - Active Trips */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6  lg:col-span-1">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-1">
             <h2 className="text-lg inter-semibold text-gray-900 mb-4">Active Trips</h2>
-            
-            <div className="space-y-3">
-              {tripsData.map((trip) => (
-                <div
-                  key={trip.id}
-                  onClick={() => handleTripSelect(trip)}
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                    selectedTrip.id === trip.id
-                      ? 'bg-green-100 border-green-200'
-                      : 'bg-gray-50 border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="inter-semibold text-gray-900">{trip.name}</h3>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs inter-regular text-green-600 ">Live</span>
+            {loading ? (
+              <div className="space-y-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="p-4 rounded-lg border border-gray-200 bg-gray-50 animate-pulse">
+                    <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-3"></div>
+                    <div className="flex justify-between">
+                      <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/4"></div>
                     </div>
                   </div>
-                  
-                  <p className="text-sm inter-regular text-gray-600 mb-3">Driver: {trip.driver}</p>
-                  
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-1">
-                      <Users className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-600 inter-regular">{trip.students} students</span>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {trips.map((trip) => (
+                  <div
+                    key={trip.id}
+                    onClick={() => handleTripSelect(trip)}
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                      selectedTrip?.id === trip.id
+                        ? 'bg-green-100 border-green-200'
+                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="inter-semibold text-gray-900">{trip.name}</h3>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs inter-regular text-green-600">Live</span>
+                      </div>
                     </div>
-                    <div className="bg-green-100 inter-regular text-green-800 px-2 py-1 rounded-full text-xs ">
-                      ETA: {trip.eta}
+                    <p className="text-sm inter-regular text-gray-600 mb-3">Driver: {trip.driver}</p>
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-600 inter-regular">{trip.students} students</span>
+                      </div>
+                      {/* <div className="bg-green-100 inter-regular text-green-800 px-2 py-1 rounded-full text-xs">
+                        ETA: {trip.eta}
+                      </div> */}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right Column - Live Location */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 sm:p-6  lg:col-span-2">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 sm:p-6 lg:col-span-2">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg inter-semibold text-gray-900">
-                {selectedTrip.name} - Live Location
+                {selectedTrip ? `${selectedTrip.name} - Live Location` : 'Select a Trip'}
               </h2>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -147,105 +289,120 @@ const LiveTrackingComponent = () => {
               </div>
             </div>
 
-            {/* Map Placeholder */}
-            <div className="bg-gray-100 rounded-lg h-64 lg:h-72 flex items-center justify-center mb-6 relative overflow-hidden">
-              {/* Map Background Pattern */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="grid grid-cols-8  h-full">
-                  {Array.from({ length: 64 }).map((_, i) => (
-                    <div key={i} className="border border-gray-300"></div>
-                  ))}
-                </div>
-              </div>
+            {/* Map */}
+            {loading || !selectedTrip ? (
+              <div className="bg-gray-100 rounded-lg h-64 lg:h-72 animate-pulse"></div>
+            ) : (
+              <div className="rounded-lg h-64 lg:h-72 overflow-hidden relative"> 
+                <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY}>
+                  <GoogleMap
+                    mapContainerStyle={{ height: '100%', width: '100%' }}
+                    center={
+                      selectedLocation
+                        ? { lat: selectedLocation.lat, lng: selectedLocation.lng }
+                        : { lat: 34.16977089044261, lng: 73.22476850235304 } // 🟢 Default: Abbottabad
+                    }
+                    zoom={selectedLocation ? 13 : 13} // 🟢 Always zoom in properly
+                  >
+
+                    {selectedLocation && (
+                      <Marker position={{ lat: selectedLocation.lat, lng: selectedLocation.lng }} />
+                    )}
+                    {selectedLocation && (
+                      <Marker
+                        position={{ lat: selectedLocation.lat, lng: selectedLocation.lng }}
+                        
+                        onClick={() => setSelectedPosition({ lat: selectedLocation.lat, lng: selectedLocation.lng })}
+                      />
+                    )}
+                    {selectedPosition && selectedLocation && (
+                      <InfoWindow
+                        position={selectedPosition}
+                        onCloseClick={() => setSelectedPosition(null)}
+                      >
+                        <div>
+                          Current Location: {selectedTrip.currentLocation}<br />
+                          Speed: {selectedTrip.speed}<br />
+                          Updated: {new Date(selectedLocation.timestamp).toLocaleTimeString()}
+                        </div>
+                      </InfoWindow>
+                    )}
+                  </GoogleMap>
+                </LoadScript>
               
-              {/* Location Pin */}
-              <div className="relative z-10 text-center">
-                <div className="inline-flex items-center justify-center w-10 h-10 sm:w-16 sm:h-16 bg-blue-500 rounded-full shadow-lg animate-bounce">
-                  <MapPin className=" sm:w-8 sm:h-8 text-white" />
-                </div>
-                <div className="mt-4 max-w-xs">
-                  <h3 className="font-semibold text-gray-900 mb-2">Interactive Map</h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Real-time GPS tracking would be displayed here using maps integration
-                  </p>
-                </div>
               </div>
-
-              {/* Emergency Button */}
-              <button className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white p-3 rounded-full shadow-lg transition-colors">
-                <AlertCircle className="w-5 h-5" />
-              </button>
-            </div>
-
-          
-           
+            )}
           </div>
         </div>
 
         {/* Bottom Row - Full Width Trip Progress */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg inter-semibold text-gray-900 mb-6">Trip Progress</h2>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
-            {/* Progress Timeline */}
-            <div className="space-y-4">
-              {selectedTrip.progress.map((point, index) => {
-                const IconComponent = point.icon;
-                return (
-                  <div key={point.id} className="flex items-center gap-4">
-                    <div className={`flex-shrink-0 ${getStatusColor(point.status)}`}>
-                      <IconComponent className="w-5 h-5" />
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h4 className="inter-medium text-gray-900 truncate">{point.name}</h4>
-                        <span className={`px-2 py-1 inter-medium rounded-full text-xs font-medium capitalize ${getStatusBadge(point.status)}`}>
-                          {point.status}
-                        </span>
+          {loading || !selectedTrip ? (
+            <div className="space-y-4 animate-pulse">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
+                  <div className="flex-1">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-1"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
+              {/* Progress Timeline */}
+              <div className="space-y-4">
+                {selectedTrip.progress.map((point, index) => {
+                  const IconComponent = point.icon;
+                  return (
+                    <div key={point.id} className="flex items-center gap-4">
+                      <div className={`flex-shrink-0 ${getStatusColor(point.status)}`}>
+                        <IconComponent className="w-5 h-5" />
                       </div>
-                      <p className="text-sm text-gray-500 mt-1">{point.time}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <h4 className="inter-medium text-gray-900 truncate">{point.name}</h4>
+                          <span className={`px-2 py-1 inter-medium rounded-full text-xs font-medium capitalize ${getStatusBadge(point.status)}`}>
+                            {point.status}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-1">{point.time}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Statistics */}
+              <div className="flex">
+                <div className="grid grid-cols-2 gap-4 sm:gap-8 w-full max-w-md">
+                  {/* Students */}
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5">
+                    <div className="mb-2 sm:mb-0 sm:mr-4 flex items-center justify-center">
+                      <Users className="w-7 h-7 text-blue-500" />
+                    </div>
+                    <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+                      <span className="text-sm sm:text-base inter-medium text-gray-600">Students</span>
+                      <span className="text-2xl sm:text-3xl font-bold text-gray-900">{selectedTrip.totalStudents}</span>
                     </div>
                   </div>
-                );
-              })}
+
+                  {/* No. of Buses */}
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5">
+                    <div className="mb-2 sm:mb-0 sm:mr-4 flex items-center justify-center">
+                      <Bus className="w-8 h-8 text-orange-500" />
+                    </div>
+                    <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+                      <span className="text-sm sm:text-base inter-medium text-gray-600">No. of Buses</span>
+                      <span className="text-2xl sm:text-3xl font-bold text-gray-900">{selectedTrip.totalBuses}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            {/* Statistics */}
-           <div className="flex">
-  <div className="grid grid-cols-2 gap-4 sm:gap-8 w-full max-w-md">
-    {/* Students */}
-    <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5">
-      {/* Icon */}
-      <div className="mb-2 sm:mb-0 sm:mr-4 flex items-center justify-center">
-        <Users className="w-7 h-7 text-blue-500" />
-      </div>
-
-      {/* Text Content */}
-      <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-        <span className="text-sm sm:text-base inter-medium text-gray-600">Students</span>
-        <span className="text-2xl sm:text-3xl font-bold text-gray-900">{selectedTrip.totalStudents}</span>
-      </div>
-    </div>
-
-    {/* No. of Buses */}
-    <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5">
-      {/* Icon */}
-      <div className="mb-2 sm:mb-0 sm:mr-4 flex items-center justify-center">
-        <Bus className="w-8 h-8 text-orange-500" />
-      </div>
-
-      {/* Text Content */}
-      <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-        <span className="text-sm sm:text-base inter-medium text-gray-600">No. of Buses</span>
-        <span className="text-2xl sm:text-3xl font-bold text-gray-900">{selectedTrip.totalBuses}</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-          </div>
+          )}
         </div>
       </div>
     </div>

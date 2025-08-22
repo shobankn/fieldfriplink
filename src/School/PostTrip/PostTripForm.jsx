@@ -45,6 +45,15 @@ const PostTripForm = () => {
 
   const BaseUrl = 'https://fieldtriplinkbackend-production.up.railway.app/api';
 
+
+  const removePickupAddress = (index) => {
+  setFormData((prev) => ({
+    ...prev,
+    pickupAddresses: prev.pickupAddresses.filter((_, i) => i !== index),
+  }));
+};
+
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -394,30 +403,45 @@ const PostTripForm = () => {
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
+
+
+
               <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Pickup Time <span className="text-red-500">*</span>
                 </label>
-                <div 
-                  className={`relative flex items-center border rounded-lg transition-colors ${
-                    errors.pickupTime ? "border-red-500 ring-2 ring-red-500" : "border-gray-300"
-                  }`}
-                  onClick={handlePickupTimeClick}
-                >
-                  <input
-                    type="time"
-                    name="pickupTime"
-                    value={formData.pickupTime}
-                    onChange={handleInputChange}
-                    ref={pickupTimeRef}
-                    className="w-full px-3 py-2 bg-transparent outline-none text-gray-900 rounded-lg "
-                  />
-                  
-                </div>
+
+                  <div 
+                    className={`relative flex items-center border rounded-lg transition-colors ${
+                      errors.pickupTime ? "border-red-500 ring-2 ring-red-500" : "border-gray-300"
+                    }`}
+                    onClick={handlePickupTimeClick}
+                  >
+                    <input
+                      type="time"
+                      name="pickupTime"
+                      value={formData.pickupTime}
+                      onChange={handleInputChange}
+                      ref={pickupTimeRef}
+                      className={`w-full px-3 py-2 bg-transparent outline-none text-gray-900 rounded-lg
+                        focus:ring-2 focus:ring-red-500 focus:border-red-500`} 
+                    />
+                  </div>
+
+
+
+
+
+
+                
                 {errors.pickupTime && (
                   <p className="absolute text-red-500 text-xs mt-1">{errors.pickupTime}</p>
                 )}
+
+
               </div>
+
+
 
 
               <div className="relative">
@@ -443,6 +467,12 @@ const PostTripForm = () => {
                   <p className="absolute text-red-500 text-xs mt-1">{errors.returnTime}</p>
                 )}
               </div>
+
+
+
+
+
+              
               <div className="col-span-full lg:col-span-2 relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {activeTab === 'one-time' ? 'Trip Date' : 'Recurring Days'} 
@@ -494,58 +524,94 @@ const PostTripForm = () => {
               </div>
             </div>
           </div>
-          <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4">
-            <div className="flex items-center space-x-2 mb-6">
-              <MapPin className="w-5 h-5 text-gray-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Locations</h2>
-            </div>
-            <div className="space-y-3">
-              <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Pickup Addresses <span className="text-red-500">*</span>
-                </label>
-                {formData.pickupAddresses.map((address, index) => (
-                  <div key={index} className="mb-2">
-                    <input
-                      type="text"
-                      name={`pickupAddress-${index}`}
-                      value={address}
-                      onChange={(e) => handlePickupAddressChange(index, e.target.value)}
-                      className={`w-full px-3 py-2 border ${errors.pickupAddresses && !address.trim() ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
-                      placeholder="Enter pickup address"
-                    />
-                  </div>
-                ))}
-                {errors.pickupAddresses && (
-                  <p className="text-red-500 text-xs mt-1">{errors.pickupAddresses}</p>
-                )}
-                <button
-                  type="button"
-                  onClick={addPickupAddress}
-                  className="mt-0 text-blue-500 text-sm font-medium hover:text-red-600 flex items-center"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Another Pickup Point
-                </button>
-              </div>
-              <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Destination <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="destination"
-                  value={formData.destination}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${errors.destination ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
-                  placeholder="School Campus or Event Venue"
-                />
-                {errors.destination && (
-                  <p className="absolute text-red-500 text-xs mt-1">{errors.destination}</p>
-                )}
-              </div>
-            </div>
-          </div>
+
+
+<div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4">
+  <div className="flex items-center space-x-2 mb-6">
+    <MapPin className="w-5 h-5 text-gray-600" />
+    <h2 className="text-lg font-semibold text-gray-900">Locations</h2>
+  </div>
+
+  <div className="space-y-3">
+    <div className="relative">
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Pickup Addresses <span className="text-red-500">*</span>
+      </label>
+
+      {formData.pickupAddresses.map((address, index) => (
+        <div key={index} className="relative mb-2">
+          <input
+            type="text"
+            name={`pickupAddress-${index}`}
+            value={address}
+            onChange={(e) => handlePickupAddressChange(index, e.target.value)}
+            className={`w-full pr-8 px-3 py-2 border ${
+              errors.pickupAddresses && !address.trim()
+                ? "border-red-500"
+                : "border-gray-300"
+            } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
+            placeholder="Enter pickup address"
+          />
+
+          {/* Show ❌ only for sub pickup addresses (index > 0) */}
+          {index > 0 && (
+            <button
+              type="button"
+              onClick={() => removePickupAddress(index)}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 hover:text-red-700"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      ))}
+
+      {errors.pickupAddresses && (
+        <p className="text-red-500 text-xs mt-1">{errors.pickupAddresses}</p>
+      )}
+
+      <button
+        type="button"
+        onClick={addPickupAddress}
+        className="mt-0 text-blue-500 text-sm font-medium hover:text-red-600 flex items-center"
+      >
+        <Plus className="w-4 h-4 mr-1" />
+        Add Another Pickup Point
+      </button>
+    </div>
+
+    <div className="relative">
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Destination <span className="text-red-500">*</span>
+      </label>
+      <input
+        type="text"
+        name="destination"
+        value={formData.destination}
+        onChange={handleInputChange}
+        className={`w-full px-3 py-2 border ${
+          errors.destination ? "border-red-500" : "border-gray-300"
+        } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
+        placeholder="School Campus or Event Venue"
+      />
+      {errors.destination && (
+        <p className="absolute text-red-500 text-xs mt-1">
+          {errors.destination}
+        </p>
+      )}
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
           <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4 lg:sticky lg:top-4 lg:self-start">
             <div className="flex items-center space-x-2 mb-6">
               <Users className="w-5 h-5 text-gray-600" />

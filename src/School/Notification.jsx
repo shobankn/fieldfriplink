@@ -165,7 +165,7 @@ const Notification = () => {
           {notifications.length === 0 && !error && (
             <p className="text-gray-600 text-[14px] inter-medium">No notifications available</p>
           )}
-          {notifications.map((item, index) => {
+          {notifications.slice(0, 4).map((item, index) => {
             const Icon = typeMapping[item.type]?.icon || FileText;
             const colorClass = bgColors[item.type];
 
@@ -175,9 +175,9 @@ const Notification = () => {
                   <Icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1 ml-3">
-                  <p className="text-[16px] inter-medium text-gray-900">{item.title}</p>
-                  <p className="text-[14px] inter-medium text-gray-600 mt-1">{item.description}</p>
-                  <p className="text-[12px] inter-medium text-gray-400 mt-1">{item.time}</p>
+                  <p className="text-[16px] inter-medium text-gray-900 line-clamp-1">{item.title}</p>
+                  <p className="text-[14px] inter-medium text-gray-600 mt-1  line-clamp-1">{item.description}</p>
+                  <p className="text-[12px] inter-medium text-gray-400 mt-1 line-clamp-1 ">{item.time}</p>
                 </div>
               </div>
             );

@@ -286,10 +286,18 @@ const handleDeleteTrip = async (id) => {
                       onClick={() => navigate(`/post-trip-update/${trip._id}`)}
                       className="w-5 h-5 text-[#27AE60] cursor-pointer transition duration-200 ease-in-out transform hover:scale-125 hover:text-green-700 active:scale-95 hover:drop-shadow-md"
                     />
-                <Trash2
-                  onClick={() => handleDeleteTrip(trip._id)}
-                  className="w-5 h-5 text-[#E74C3C] cursor-pointer transition duration-200 ease-in-out transform hover:scale-125 hover:text-red-700 active:scale-95 hover:drop-shadow-md"
-                />
+               
+                    <Trash2
+                      onClick={() => {
+                        if (trip.tripStatus === 'completed' || trip.tripStatus === 'active') return;
+                        handleDeleteTrip(trip._id);
+                      }}
+                      className={`w-5 h-5 transition duration-200 ease-in-out transform ${
+                        trip.tripStatus === 'completed' || trip.tripStatus === 'active'
+                          ? 'text-gray-400 cursor-not-allowed opacity-50'
+                          : 'text-[#E74C3C] cursor-pointer hover:scale-125 hover:text-red-700 active:scale-95 hover:drop-shadow-md'
+                      }`}
+                    />
                   </div>
                   </div>
                 </div>

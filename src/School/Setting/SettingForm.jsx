@@ -299,6 +299,8 @@ const SchoolSettingsForm = () => {
       phoneNumber: '',
       emailAddress: '',
     });
+
+     navigate('/setting');
   };
 
   const toggleDropdown = () => {

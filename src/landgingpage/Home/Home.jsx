@@ -195,7 +195,7 @@ const Home = () => {
               <span className="inline-block bg-[#FFD700] h-10 w-10 sm:h-[48px] sm:w-[48px] text-center leading-10 sm:leading-[48px] rounded-full text-sm sm:text-base">
                 RJ
               </span>
-              <p className="text-sm sm:text-base">
+              <p className="text-sm sm:text-base text-white">
                 Robert Johnson
                 <br />
                 Certified Bus Driver

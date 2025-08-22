@@ -6,6 +6,8 @@ import { FaSchool } from 'react-icons/fa';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { AnimatePresence, motion } from "framer-motion";
+import { requestFcmToken } from "../../../src/Fcm"; // adjust path if needed
+
 
 const SchoolSettingsForm = () => {
   const [formData, setFormData] = useState({
@@ -26,11 +28,8 @@ const SchoolSettingsForm = () => {
 
   const schoolTypes = [
     'Private',
-    'Public',
-    'Charter',
-    'International',
-    'Religious',
-    'Montessori',
+    'Public'
+ 
   ];
 
   // Capitalize first letter for school type
@@ -110,54 +109,117 @@ const SchoolSettingsForm = () => {
     }
   };
 
-  const handleSaveChanges = async () => {
-    try {
-      setSaving(true);
-      const token = localStorage.getItem('token');
-      if (!token) {
-        toast.error('Authentication required. Please log in.');
-        setSaving(false);
-        return;
-      }
+  // const handleSaveChanges = async () => {
+  //   try {
+  //     setSaving(true);
+  //     const token = localStorage.getItem('token');
+  //     if (!token) {
+  //       toast.error('Authentication required. Please log in.');
+  //       setSaving(false);
+  //       return;
+  //     }
 
-      const formDataToSend = new FormData();
-      formDataToSend.append('schoolName', formData.schoolName);
-      formDataToSend.append('type', formData.schoolType.toLowerCase());
-      formDataToSend.append(
-        'address',
-        JSON.stringify({
-          city: formData.city,
-          fullAddress: formData.completeAddress,
-        })
-      );
-      formDataToSend.append('phoneNumber', formData.phoneNumber);
-      formDataToSend.append('email', formData.emailAddress);
-      formDataToSend.append('websiteLink', formData.website);
-      if (formData.schoolLogo instanceof File) {
-        formDataToSend.append('logo', formData.schoolLogo);
-      }
+  //     const formDataToSend = new FormData();
+  //     formDataToSend.append('schoolName', formData.schoolName);
+  //     formDataToSend.append('type', formData.schoolType.toLowerCase());
+  //     formDataToSend.append(
+  //       'address',
+  //       JSON.stringify({
+  //         city: formData.city,
+  //         fullAddress: formData.completeAddress,
+  //       })
+  //     );
+  //     formDataToSend.append('phoneNumber', formData.phoneNumber);
+  //     formDataToSend.append('email', formData.emailAddress);
+  //     formDataToSend.append('websiteLink', formData.website);
+  //     if (formData.schoolLogo instanceof File) {
+  //       formDataToSend.append('logo', formData.schoolLogo);
+  //     }
 
-      const res = await axios.post(
-        'https://fieldtriplinkbackend-production.up.railway.app/api/school/profile',
-        formDataToSend,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
+  //     const res = await axios.post(
+  //       'https://fieldtriplinkbackend-production.up.railway.app/api/school/profile',
+  //       formDataToSend,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           'Content-Type': 'multipart/form-data',
+  //         },
+  //       }
+  //     );
 
-      console.log('Update Response:', res.data);
-      toast.success(res.data?.message || 'Profile updated successfully!');
-      setIsEditing(false);
-    } catch (err) {
-      console.error('Error updating profile:', err.response || err.message);
-      toast.error(err.response?.data?.message || 'Failed to update profile');
-    } finally {
+  //     console.log('Update Response:', res.data);
+  //     toast.success(res.data?.message || 'Profile updated successfully!');
+  //     setIsEditing(false);
+  //   } catch (err) {
+  //     console.error('Error updating profile:', err.response || err.message);
+  //     toast.error(err.response?.data?.message || 'Failed to update profile');
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
+
+
+
+const handleSaveChanges = async () => {
+  try {
+    setSaving(true);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Authentication required. Please log in.");
       setSaving(false);
+      return;
     }
-  };
+
+    // 🔹 First get the FCM token
+    const { token: fcmToken, error } = await requestFcmToken();
+    if (error) {
+      console.warn("FCM token error:", error);
+    }
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("schoolName", formData.schoolName);
+    formDataToSend.append("type", formData.schoolType.toLowerCase());
+    formDataToSend.append(
+      "address",
+      JSON.stringify({
+        city: formData.city,
+        fullAddress: formData.completeAddress,
+      })
+    );
+    formDataToSend.append("phoneNumber", formData.phoneNumber);
+    formDataToSend.append("email", formData.emailAddress);
+    formDataToSend.append("websiteLink", formData.website);
+    if (formData.schoolLogo instanceof File) {
+      formDataToSend.append("logo", formData.schoolLogo);
+    }
+
+    // 🔹 Add FCM token to request body
+    if (fcmToken) {
+      formDataToSend.append("fcmToken", fcmToken);
+    }
+
+    const res = await axios.post(
+      "https://fieldtriplinkbackend-production.up.railway.app/api/school/profile",
+      formDataToSend,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("Update Response:", res.data);
+    toast.success(res.data?.message || "Profile updated successfully!");
+    setIsEditing(false);
+  } catch (err) {
+    console.error("Error updating profile:", err.response || err.message);
+    toast.error(err.response?.data?.message || "Failed to update profile");
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -388,7 +450,7 @@ const SchoolSettingsForm = () => {
                       value={formData.completeAddress}
                       onChange={(e) => handleInputChange('completeAddress', e.target.value)}
                       rows={3}
-                      className={`outline-none w-full px-3 py-2 border border-gray-300 rounded-lg transition-colors resize-none ${
+                      className={`outline-none w-full px-3 py-0.5 border border-gray-300 rounded-lg transition-colors resize-none ${
                         isEditing ? 'focus:ring-2 focus:ring-red-500 focus:border-red-500' : 'bg-gray-100'
                       }`}
                       placeholder="Enter complete address"

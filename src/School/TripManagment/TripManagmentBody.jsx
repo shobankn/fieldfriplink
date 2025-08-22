@@ -81,9 +81,15 @@ const TripManagementBody = () => {
 
 
           type: trip.tripType === 'onetime' ? 'One-time' : 'Recurring',
-          date: trip.tripDate
-            ? new Date(trip.tripDate).toLocaleDateString()
-            : 'N/A',
+
+
+        date: trip.tripType === "recurring"
+  ? (trip.recurringDays?.length ? trip.recurringDays.join(", ") : "N/A")
+  : (trip.tripDate ? new Date(trip.tripDate).toISOString().split("T")[0] : "N/A"),
+
+
+
+
           time: trip.startTime
             ? new Date(trip.startTime).toLocaleTimeString('en-GB', {
                 hour: '2-digit',
@@ -92,10 +98,21 @@ const TripManagementBody = () => {
                 timeZone: 'UTC'
               })
             : 'N/A',
+              returnTime: trip.returnTime
+            ? new Date(trip.returnTime).toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                timeZone: 'UTC',
+              })
+            : 'N/A',
+
+
           students: trip.numberOfStudents || 0,
-          route: trip.pickupPoints && trip.destination
-            ? `${trip.pickupPoints.map(p => p.address || 'Unknown').join(' → ')} → ${trip.destination.address || 'Unknown'}`
-            : 'Unknown Route',
+          route: trip.pickupPoints?.length && trip.destination
+          ? `${trip.pickupPoints[0]?.address || 'Unknown'} → ${trip.destination.address || 'Unknown'}`
+          : 'Unknown Route',
+
 
             assignedDrivers: trip.assignedDrivers || [], 
 
@@ -220,7 +237,15 @@ const TripManagementBody = () => {
         </div>
         <div className="flex items-center space-x-2">
           <Clock className="w-4 h-4 shrink-0" />
-          <span className="text-[14px] inter-regular">{loading ? <Skeleton width={60} /> : trip.time}</span>
+                      <span className="text-[14px] inter-regular">
+              {loading ? (
+                <Skeleton width={60} />
+              ) : (
+                <>
+                  {trip.time} → {trip.returnTime}
+                </>
+              )}
+            </span>
         </div>
         <div className="flex items-center space-x-2">
           <Users className="w-4 h-4 shrink-0" />
@@ -228,7 +253,7 @@ const TripManagementBody = () => {
         </div>
         <div className="flex items-center space-x-2 min-w-0">
           <MapPin className="w-4 h-4 shrink-0" />
-          <span className="text-[14px] truncate inter-regular">{loading ? <Skeleton width={150} /> : trip.route}</span>
+          <span className="text-[14px] whitespace-normal break-words inter-regular">{loading ? <Skeleton width={150} /> : trip.route}</span>
         </div>
       </div>
 
@@ -305,7 +330,24 @@ const TripManagementBody = () => {
           </span>
         </div>
         <div className="flex-shrink-0">
-          {loading ? <Skeleton width={20} height={20} /> : <MessageCircle />}
+        <button
+              onClick={() => {
+                const driver = trip.assignedDrivers[0]; // ✅ pick first driver
+                console.log("creatorId =", driver?.driverId);
+                console.log("creatorPic =", driver?.profileImage);
+                console.log("full driver data =", driver);
+
+                navigate("/messages", {
+                  state: {
+                   creatorId: driver?._id,            // ✅ use _id instead of driverId
+            creatorPic: driver?.profileImage, 
+                  },
+                });
+              }}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <MessageCircle className="w-5 h-5 text-red-500" />
+            </button>
         </div>
       </div>
 
@@ -315,15 +357,22 @@ const TripManagementBody = () => {
           <Calendar className="w-4 h-4" />
           <span className="text-[14px] inter-regular">{loading ? <Skeleton width={80} /> : trip.date}</span>
           <Clock className="ml-2 mr-2 w-4 h-4" />
-          <span className="text-[14px] inter-regular">{loading ? <Skeleton width={60} /> : trip.time}</span>
-        </div>
+    <span className="text-[14px] inter-regular">
+              {loading ? (
+                <Skeleton width={60} />
+              ) : (
+                <>
+                  {trip.time} → {trip.returnTime}
+                </>
+              )}
+            </span>        </div>
         <div className="flex items-center space-x-2 min-w-[120px]">
           <Users className="w-4 h-4" />
           <span className="text-[14px] inter-regular">{loading ? <Skeleton width={80} /> : `${trip.students} students`}</span>
         </div>
         <div className="flex items-center space-x-2 min-w-0 flex-1">
           <MapPin className="w-4 h-4" />
-          <span className="inter-regular">{loading ? <Skeleton width={150} /> : trip.route}</span>
+          <span className="inter-regular whitespace-normal break-words">{loading ? <Skeleton width={150} /> : trip.route}</span>
         </div>
       </div>
 
@@ -393,7 +442,24 @@ const TripManagementBody = () => {
           </div>
         </div>
         <div className="flex-shrink-0">
-          {loading ? <Skeleton width={20} height={20} /> : <MessageCircle />}
+            <button
+              onClick={() => {
+                const driver = trip.assignedDrivers[0]; // ✅ pick first driver
+                console.log("creatorId =", driver?._id);
+                console.log("creatorPic =", driver?.profileImage);
+                console.log("full driver data =", driver);
+
+                navigate("/messages", {
+                  state: {
+                    creatorId: driver?._id,            // ✅ driverId is _id
+                    creatorPic: driver?.profileImage,  // ✅ profile image
+                  },
+                });
+              }}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <MessageCircle className="w-5 h-5 text-red-500" />
+            </button>
         </div>
       </div>
 
@@ -406,8 +472,15 @@ const TripManagementBody = () => {
           </div>
           <div className="flex items-center space-x-1">
             <Clock className="w-4 h-4" />
-            <span>{loading ? <Skeleton width={60} /> : trip.time}</span>
-          </div>
+    <span className="text-[14px] inter-regular">
+              {loading ? (
+                <Skeleton width={60} />
+              ) : (
+                <>
+                  {trip.time} → {trip.returnTime}
+                </>
+              )}
+            </span>          </div>
           <div className="flex items-center space-x-1">
             <Users className="w-4 h-4" />
             <span className="text-[14px] inter-regular">{loading ? <Skeleton width={80} /> : `${trip.students} students`}</span>
@@ -419,7 +492,7 @@ const TripManagementBody = () => {
       <div className="flex flex-col sm:flex-row sm:items-center text-[#6C727F] mb-3 space-y-1 sm:space-y-0 sm:space-x-4">
         <div className="flex items-center space-x-1 flex-1 min-w-0">
           <MapPin className="w-4 h-4" />
-          <span className="truncate inter-regular">{loading ? <Skeleton width={150} /> : trip.route}</span>
+          <span className="whitespace-normal break-words inter-regular">{loading ? <Skeleton width={150} /> : trip.route}</span>
         </div>
         <div className="flex items-center space-x-1 flex-shrink-0">
           <Bus className="w-4 h-4" />
@@ -495,7 +568,15 @@ const TripManagementBody = () => {
         </div>
         <div className="flex items-center space-x-2">
           <Clock className="w-4 h-4 shrink-0" />
-          <span className="text-[14px] inter-regular">{loading ? <Skeleton width={60} /> : trip.time}</span>
+              <span className="text-[14px] inter-regular">
+              {loading ? (
+                <Skeleton width={60} />
+              ) : (
+                <>
+                  {trip.time} → {trip.returnTime}
+                </>
+              )}
+            </span>
         </div>
         <div className="flex items-center space-x-2">
           <Users className="w-4 h-4" />
@@ -503,7 +584,7 @@ const TripManagementBody = () => {
         </div>
         <div className="flex items-center space-x-2 min-w-0">
           <MapPin className="w-4 h-4 shrink-0" />
-          <span className="text-[14px] truncate inter-regular">{loading ? <Skeleton width={150} /> : trip.route}</span>
+          <span className="text-[14px] whitespace-normal break-words inter-regular">{loading ? <Skeleton width={150} /> : trip.route}</span>
         </div>
       </div>
     </div>
@@ -554,7 +635,15 @@ const CompletedTripCard = ({ trip }) => {
           </div>
           <div className="flex items-center space-x-2 min-w-[120px]">
             <Clock className="w-4 h-4" />
-            <span>{loading ? <Skeleton width={60} /> : trip.time}</span>
+                <span className="text-[14px] inter-regular">
+              {loading ? (
+                <Skeleton width={60} />
+              ) : (
+                <>
+                  {trip.time} → {trip.returnTime}
+                </>
+              )}
+            </span>
           </div>
           <div className="flex items-center space-x-2 min-w-[120px]">
             <Users className="w-4 h-4" />
@@ -563,7 +652,7 @@ const CompletedTripCard = ({ trip }) => {
         </div>
         <div className="flex items-center space-x-2 mt-2 min-w-0 flex-1">
           <MapPin className="w-4 h-4" />
-          <span className="truncate">{loading ? <Skeleton width={150} /> : trip.route}</span>
+          <span className="whitespace-normal break-words">{loading ? <Skeleton width={150} /> : trip.route}</span>
         </div>
       </div>
 
@@ -636,69 +725,75 @@ const CompletedTripCard = ({ trip }) => {
   };
 
   return (
-    <div className="min-h-screen p-4 lg:px-6 py-0">
-      <div className="">
-        <div className="max-w-full mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-0">
-            <div>
-              <h1 className="text-2xl md:text-3xl inter-bold text-gray-900">Trip Management</h1>
-              <p className="text-gray-600 mt-2 text-sm md:text-base mb-2">Manage and monitor all your transportation requests.</p>
-            </div>
-            <button onClick={() => navigate('/post-trip')} className="cursor-pointer mt-4 md:mt-0 bg-red-500 text-white px-4 py-2 rounded-md text-sm md:text-base hover:bg-red-600 transition duration-200">
-              Post New Trip
-            </button>
-          </div>
+   <div className="min-h-screen p-4 lg:px-6 py-0 overflow-x-hidden">
+  <div className="">
+    <div className="max-w-full mx-auto">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-0">
+        <div>
+          <h1 className="text-2xl md:text-3xl inter-bold text-gray-900">Trip Management</h1>
+          <p className="text-gray-600 mt-2 text-sm md:text-base mb-2">
+            Manage and monitor all your transportation requests.
+          </p>
         </div>
-      </div>
-
-      <div className="max-w-full mx-auto">
-        {/* Filter Buttons */}
-        <div className="mb-6">
-          <div className="flex overflow-x-hidden bg-white shadow-sm p-4 flex-wrap justify-around gap-2">
-            {filterButtons.map((filter) => {
-              const Icon = filterIcons[filter];
-              return (
-                <button
-                  key={filter}
-                  onClick={() => setActiveFilter(filter)}
-                  className={`flex items-center gap-2 px-4 py-2 cursor-pointer inter-medium text-sm transition-colors ${
-                    activeFilter === filter
-                      ? 'border-b-3 border-red-600 text-red-600'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {filter}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Trips List */}
-        <div className="space-y-4">
-          {loading ? (
-            <div className="space-y-4">
-              {Array(3).fill().map((_, index) => (
-                <Skeleton key={index} height={150} />
-              ))}
-            </div>
-          ) : filteredTrips.length > 0 ? (
-            filteredTrips.map((trip) => (
-              <TripCard key={trip.id} trip={trip} />
-            ))
-          ) : (
-            <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                <MapPin className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No trips found</h3>
-              <p className="text-gray-500">No trips match the selected filter.</p>
-            </div>
-          )}
-        </div>
+        <button
+          onClick={() => navigate('/post-trip')}
+          className="cursor-pointer mt-4 md:mt-0 bg-red-500 text-white px-4 py-2 rounded-md text-sm md:text-base hover:bg-red-600 transition duration-200"
+        >
+          Post New Trip
+        </button>
       </div>
     </div>
+  </div>
+
+  <div className="max-w-full mx-auto">
+    {/* Filter Buttons */}
+    <div className="mb-6">
+      <div className="flex overflow-x-auto bg-white shadow-sm p-4 gap-2 scrollbar-thin">
+        {filterButtons.map((filter) => {
+          const Icon = filterIcons[filter];
+          return (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`flex items-center gap-2 px-4 py-2 cursor-pointer inter-medium text-sm transition-colors ${
+                activeFilter === filter
+                  ? 'border-b-2 border-red-600 text-red-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {filter}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+
+    {/* Trips List */}
+    <div className="space-y-4">
+      {loading ? (
+        <div className="space-y-4">
+          {Array(3)
+            .fill()
+            .map((_, index) => (
+              <Skeleton key={index} height={150} />
+            ))}
+        </div>
+      ) : filteredTrips.length > 0 ? (
+        filteredTrips.map((trip) => <TripCard key={trip.id} trip={trip} />)
+      ) : (
+        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+            <MapPin className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No trips found</h3>
+          <p className="text-gray-500">No trips match the selected filter.</p>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
   );
 };
 

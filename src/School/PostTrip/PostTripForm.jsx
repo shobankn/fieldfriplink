@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -8,10 +8,13 @@ import {
   MapPin, 
   Users, 
   Plus,
-  ChevronDown
+  ChevronDown,
+  Calendar
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import TimePicker from 'react-time-picker';
+
 
 const PostTripForm = () => {
   const [formData, setFormData] = useState({
@@ -35,57 +38,54 @@ const PostTripForm = () => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState({});
+  const dateInputRef = useRef(null);
+  const pickupTimeRef = useRef(null);
+  const returnTimeRef = useRef(null);
+  
 
   const BaseUrl = 'https://fieldtriplinkbackend-production.up.railway.app/api';
 
+  const validateForm = () => {
+    const newErrors = {};
 
- const validateForm = () => {
-  const newErrors = {};
+    if (!formData.tripName.trim()) {
+      newErrors.tripName = 'Trip Name is required';
+    }
+    if (!formData.pickupTime) {
+      newErrors.pickupTime = 'Pickup Time is required';
+    }
+    if (!formData.returnTime) {
+      newErrors.returnTime = 'Return Time is required';
+    }
+    if (activeTab === 'one-time' && !formData.tripDate) {
+      newErrors.tripDate = 'Trip Date is required for one-time trips';
+    }
+    if (activeTab === 'recurring' && formData.recurringDays.length === 0) {
+      newErrors.recurringDays = 'At least one recurring day must be selected';
+    }
+    if (formData.pickupAddresses.some(addr => !addr.trim())) {
+      newErrors.pickupAddresses = 'All pickup addresses must be filled';
+    }
+    if (!formData.destination.trim()) {
+      newErrors.destination = 'Destination is required';
+    }
+    if (!formData.numberOfStudents || formData.numberOfStudents <= 0) {
+      newErrors.numberOfStudents = ' students must be greater than 0';
+    }
+    if (!formData.busCapacity || formData.busCapacity <= 0) {
+      newErrors.busCapacity = 'Bus capacity must be greater than 0';
+    }
 
-  if (!formData.tripName.trim()) {
-    newErrors.tripName = 'Trip Name is required';
-  }
-  if (!formData.pickupTime) {
-    newErrors.pickupTime = 'Pickup Time is required';
-  }
-  if (!formData.returnTime) {
-    newErrors.returnTime = 'Return Time is required';
-  }
+    setErrors(newErrors);
 
-  if (activeTab === 'one-time' && !formData.tripDate) {
-    newErrors.tripDate = 'Trip Date is required for one-time trips';
-  }
-  if (activeTab === 'recurring' && formData.recurringDays.length === 0) {
-    newErrors.recurringDays = 'At least one recurring day must be selected';
-  }
-  if (formData.pickupAddresses.some(addr => !addr.trim())) {
-    newErrors.pickupAddresses = 'All pickup addresses must be filled';
-  }
-  if (!formData.destination.trim()) {
-    newErrors.destination = 'Destination is required';
-  }
-  if (!formData.numberOfStudents || formData.numberOfStudents <= 0) {
-    newErrors.numberOfStudents = 'Number of students must be greater than 0';
-  }
-  if (!formData.busCapacity || formData.busCapacity <= 0) {
-    newErrors.busCapacity = 'Bus capacity must be greater than 0';
-  }
+    const errorKeys = Object.keys(newErrors);
+    if (errorKeys.length > 0) {
+      toast.error(newErrors[errorKeys[0]]);
+      return false;
+    }
 
-  setErrors(newErrors);
-
-  // Show only one toast if there are errors
-  const errorKeys = Object.keys(newErrors);
-  if (errorKeys.length > 0) {
-    toast.error(newErrors[errorKeys[0]]);
-    return false;
-  }
-
-  return true;
-};
-
-
-
-
+    return true;
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -198,12 +198,12 @@ const PostTripForm = () => {
         }
       });
 
-     toast.success(`Trip ${id ? 'updated' : 'posted'} successfully!`, {
-  onClose: () => {
-    navigate('/job-post'); // Navigate after toast closes
-  },
-  autoClose: 2000, // toast duration
-});
+      toast.success(`Trip ${id ? 'updated' : 'posted'} successfully!`, {
+        onClose: () => {
+          navigate('/job-post');
+        },
+        autoClose: 2000,
+      });
       console.log('API Response:', response.data);
 
       setFormData({
@@ -288,16 +288,44 @@ const PostTripForm = () => {
     }
   }, [id]);
 
+  const handleDateContainerClick = () => {
+    if (dateInputRef.current) {
+      dateInputRef.current.showPicker();
+    }
+  };
+
+  const handlePickupTimeClick = () => {
+    if (pickupTimeRef.current) {
+      pickupTimeRef.current.showPicker();
+    }
+  };
+
+  const handleReturnTimeClick = () => {
+    if (returnTimeRef.current) {
+      returnTimeRef.current.showPicker();
+    }
+  };
+
+
+  
 
   return (
     <div className="min-h-screen">
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
-      <div className='px-5 py-2'>
+      <div className='px-5 py-1'>
         <h1 className="text-2xl md:text-3xl inter-bold text-gray-900">Post New Trip</h1>
         <p className="text-gray-600 mt-2 text-sm md:text-base">Create a new transportation request and find the best drivers.</p>
       </div>
       <div className="max-w-full mx-auto">
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-3 bg-white rounded-lg border border-gray-200 m-0 sm:m-4">
+        <form 
+          onSubmit={handleSubmit}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+            }
+          }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-3 bg-white rounded-lg border border-gray-200 m-0 sm:m-4"
+        >
           <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4">
             <div className="flex items-center space-x-2 mb-6">
               <FileText className="w-5 h-5 text-gray-600" />
@@ -313,8 +341,22 @@ const PostTripForm = () => {
                   name="tripName"
                   value={formData.tripName}
                   onChange={handleInputChange}
-                  placeholder='Daily Pickup Route A'
-                  className={`w-full px-3 py-2 border ${errors.tripName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
+                  onKeyDown={(e) => {
+                    const regex = /^[A-Za-z\s]$/;
+                    if (!regex.test(e.key) && e.key !== "Backspace" && e.key !== "Tab") {
+                      e.preventDefault();
+                    }
+                  }}
+                  onPaste={(e) => {
+                    const paste = e.clipboardData.getData("text");
+                    if (!/^[A-Za-z\s]+$/.test(paste)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  placeholder="Daily Pickup Route A"
+                  className={`w-full px-3 py-2 border ${
+                    errors.tripName ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
                 />
                 {errors.tripName && (
                   <p className="absolute text-red-500 text-xs mt-1">{errors.tripName}</p>
@@ -351,54 +393,92 @@ const PostTripForm = () => {
               <h2 className="text-lg font-semibold text-gray-900">Schedule</h2>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
               <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Pickup Time <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="time"
-                  name="pickupTime"
-                  value={formData.pickupTime}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${errors.pickupTime ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
-                />
+                <div 
+                  className={`relative flex items-center border rounded-lg transition-colors ${
+                    errors.pickupTime ? "border-red-500 ring-2 ring-red-500" : "border-gray-300"
+                  }`}
+                  onClick={handlePickupTimeClick}
+                >
+                  <input
+                    type="time"
+                    name="pickupTime"
+                    value={formData.pickupTime}
+                    onChange={handleInputChange}
+                    ref={pickupTimeRef}
+                    className="w-full px-3 py-2 bg-transparent outline-none text-gray-900 rounded-lg "
+                  />
+                  
+                </div>
                 {errors.pickupTime && (
                   <p className="absolute text-red-500 text-xs mt-1">{errors.pickupTime}</p>
                 )}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Return Time</label>
-                <input
-                  type="time"
-                  name="returnTime"
-                  value={formData.returnTime}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${errors.returnTime ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
-                />
-                 {errors.returnTime && (
+
+
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Return Time <span className="text-red-500">*</span>
+                </label>
+                <div 
+                  className={`relative flex items-center border rounded-lg transition-colors ${
+                    errors.returnTime ? "border-red-500 ring-2 ring-red-500" : "border-gray-300"
+                  }`}
+                  onClick={handleReturnTimeClick}
+                >
+                  <input
+                    type="time"
+                    name="returnTime"
+                    value={formData.returnTime}
+                    onChange={handleInputChange}
+                    ref={returnTimeRef}
+                    className="w-full px-3 py-2 bg-transparent outline-none text-gray-900 rounded-lg "
+                  />
+                </div>
+                {errors.returnTime && (
                   <p className="absolute text-red-500 text-xs mt-1">{errors.returnTime}</p>
                 )}
               </div>
               <div className="col-span-full lg:col-span-2 relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {activeTab === 'one-time' ? 'Trip Date' : 'Recurring Days'} <span className="text-red-500">*</span>
+                  {activeTab === 'one-time' ? 'Trip Date' : 'Recurring Days'} 
+                  <span className="text-red-500">*</span>
                 </label>
                 {activeTab === 'one-time' ? (
-                  <input
-                    type="date"
-                    name="tripDate"
-                    value={formData.tripDate}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border ${errors.tripDate ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
-                  />
+                  <div 
+                    className={`relative flex items-center border rounded-lg transition-colors ${
+                      errors.tripDate ? "border-red-500 ring-2 ring-red-500" : "border-gray-300"
+                    }`}
+                    onClick={handleDateContainerClick}
+                  >
+                    <input
+                      type="date"
+                      name="tripDate"
+                      value={formData.tripDate}
+                      onChange={handleInputChange}
+                      min={new Date().toISOString().split("T")[0]}
+                      ref={dateInputRef}
+                      className="w-full px-3 py-2 bg-transparent outline-none text-gray-900 rounded-lg "
+                    />
+                  </div>
                 ) : (
                   <div className="flex space-x-2">
-                    {['M', 'T', 'W', 'Th', 'F', 'S'].map(day => (
+                    {['M', 'T', 'W', 'Th', 'F', 'S'].map((day) => (
                       <button
                         key={day}
                         type="button"
                         onClick={() => toggleRecurringDay(day)}
-                        className={`w-12 h-12 rounded-lg border ${formData.recurringDays.includes({ 'M': 'mon', 'T': 'tue', 'W': 'wed', 'Th': 'thu', 'F': 'fri', 'S': 'sat' }[day]) ? 'bg-red-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} border-gray-300 flex items-center justify-center text-sm font-medium transition-colors`}
+                        className={`w-12 h-12 rounded-lg border 
+                          ${formData.recurringDays.includes(
+                            { M: 'mon', T: 'tue', W: 'wed', Th: 'thu', F: 'fri', S: 'sat' }[day]
+                          )
+                            ? 'bg-red-600 text-white'
+                            : 'bg-white text-gray-700 hover:bg-gray-100'} 
+                          border-gray-300 flex items-center justify-center text-sm font-medium transition-colors`}
                       >
                         {day}
                       </button>
@@ -466,40 +546,38 @@ const PostTripForm = () => {
               </div>
             </div>
           </div>
-          <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4">
+          <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4 lg:sticky lg:top-4 lg:self-start">
             <div className="flex items-center space-x-2 mb-6">
               <Users className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">Requirements</h2>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                No. of Students <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                name="numberOfStudents"
-                value={formData.numberOfStudents}
-                onChange={handleInputChange}
-                onKeyDown={(e) => {
-                  // Prevent entering 'e', '+', '-', or '.'
-                  if (['e', 'E', '+', '-', '.'].includes(e.key)) {
-                    e.preventDefault();
-                  }
-                }}
-                className={`w-full px-3 py-2 border ${
-                  errors.numberOfStudents ? 'border-red-500' : 'border-gray-300'
-                } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
-                placeholder="25"
-              />
-              {errors.numberOfStudents && (
-                <p className="absolute text-red-500 text-xs mt-1">{errors.numberOfStudents}</p>
-              )}
-            </div>
-
               <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bus Capacity Required <span className="text-red-500">*</span>
+                  No. of Students <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="numberOfStudents"
+                  value={formData.numberOfStudents}
+                  onChange={handleInputChange}
+                  onKeyDown={(e) => {
+                    if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  className={`w-full px-3 py-2 border ${
+                    errors.numberOfStudents ? 'border-red-500' : 'border-gray-300'
+                  } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
+                  placeholder="25"
+                />
+                {errors.numberOfStudents && (
+                  <p className="absolute text-red-500 text-xs mt-1">{errors.numberOfStudents}</p>
+                )}
+              </div>
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  No of Busses <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -509,11 +587,10 @@ const PostTripForm = () => {
                   className={`w-full px-3 py-2 border ${errors.busCapacity ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
                   placeholder="30"
                   onKeyDown={(e) => {
-                  // Prevent entering 'e', '+', '-', or '.'
-                  if (['e', 'E', '+', '-', '.'].includes(e.key)) {
-                    e.preventDefault();
-                  }
-                }}
+                    if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                 />
                 {errors.busCapacity && (
                   <p className="absolute text-red-500 text-xs mt-1">{errors.busCapacity}</p>
@@ -526,7 +603,7 @@ const PostTripForm = () => {
                     name="preferredGender"
                     value={formData.preferredGender}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors appearance-none bg-white"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors appearance-none bg-white text-gray-900"
                   >
                     <option value="No preference">No preference</option>
                     <option value="Male">Male</option>
@@ -535,10 +612,6 @@ const PostTripForm = () => {
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 </div>
               </div>
-            </div>
-          </div>
-          <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4 lg:col-start-2">
-            <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
               <div className="lg:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Extra Instructions (Optional)</label>
                 <textarea
@@ -550,8 +623,7 @@ const PostTripForm = () => {
                   placeholder="e.g. Need female attendant, AC required, etc."
                 />
               </div>
-              <div className="flex mb-3 flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
-                
+              <div className="flex mb-3 flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 lg:col-span-2">
                 <button
                   type="button"
                   onClick={() => navigate(-1)}

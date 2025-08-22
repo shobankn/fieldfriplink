@@ -18,7 +18,6 @@ import HireDriver from './School/HireDriver/HireDriver';
 import HireDriverDetails from './School/HireDriver/HireDriverDetails';
 import Setting from './School/Setting/Setting';
 import DriverProposal from './School/DriverProposal/DriverProposal';
-import InviteDriverPopUp from './School/Proposals/InviteDriver/InviteDriverPopup';
 import About from './landgingpage/About/About';
 import Driverdashboard from './drivers/dashboard/Driverdashboard';
 import Login from './auth/Login';
@@ -42,6 +41,7 @@ import ScrollToTop from './School/ScrollToTop';
 import TripFeedback from './School/TripManagment/TripFeedBack';
 import ProtectedRoute from './School/ProtectRoute'
 import Messages from './School/messages/Messages';
+import DriverChat from './drivers/DChat/DriverChat';
 
 function App() {
 
@@ -106,6 +106,7 @@ function App() {
       <Route path='/driverreviews' element={<DriverReviews/>}/>
       <Route path='/schoolresponse' element={<SchoolResponse/>}/>
       <Route path='/driver-live-tracking' element={<LiveGPSTracking/>}/>
+      <Route path='/chat' element={<DriverChat/>}/>
 
 
     </Routes>

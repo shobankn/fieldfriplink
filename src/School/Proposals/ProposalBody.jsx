@@ -262,7 +262,23 @@ const handleDeleteTrip = async (id) => {
                             <br />
                           </>
                         )}
-                        <span className="text-[#4B5563] inter-semibold">{new Date(trip.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span> <span className='text-[#4B5563] inter-semibold'>-</span> <span className="text-[#4B5563] inter-semibold">{new Date(trip.returnTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="text-[#4B5563] inter-semibold">
+                        {new Date(trip.startTime).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: true,
+                          timeZone: 'UTC',
+                        })}
+                      </span>
+                      <span className="text-[#4B5563] inter-semibold">-</span>
+                      <span className="text-[#4B5563] inter-semibold">
+                        {new Date(trip.returnTime).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: true,
+                          timeZone: 'UTC',
+                        })}
+                      </span>
                       </div>
 
                     <div>

@@ -419,29 +419,29 @@ const AvailableRides = () => {
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-y-2">
                       <div>
                         <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
-                          <CiLocationOn className='text-[#EE5B5B] text-[16px]'/>
+                          <CiLocationOn className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
                           <span className="text-[#606060] text-[16px] archivomedium">Pickup:</span> {ride.pickup}
                         </p>
                         <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
-                          <CiLocationOn className='text-[#EE5B5B] text-[16px]'/>
+                          <CiLocationOn className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
                           <span className="font-medium">Drop:</span> {ride.drop}
                         </p>
                         <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
-                          <LuUser className='text-[#EE5B5B] text-[16px]' />
+                          <LuUser className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
                           {ride.students} students
                         </p>
                       </div>
                       <div>
                         <p className="flex items-center gap-2 text-sm text-[#606060] text-[16px] mb-[8px]">
-                          <SlCalender className='text-[#EE5B5B] text-[16px]'/>
+                          <SlCalender className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
                           <span className="font-medium">{ride.isRecurring ? 'Days' : 'Date'}:</span> {ride.date}
                         </p>
                         <p className="flex items-center gap-2 text-sm text-[#606060] text-[16px] mb-[8px]">
-                          <CiClock2 className='text-[#EE5B5B] text-[16px]'/>
+                          <CiClock2 className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
                           <span className="font-medium">Start Time:</span> {ride.startTime} -<span className="font-medium ">End Time:</span> {ride.endTime}
                         </p>
                         <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
-                          <LuBus className='text-[#EE5B5B] text-[16px]'/>
+                          <LuBus className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
                           <span className="font-medium">Number of Buses:</span> {ride.buses}
                         </p>
                       </div>

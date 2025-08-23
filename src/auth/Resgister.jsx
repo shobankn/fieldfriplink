@@ -123,8 +123,12 @@ const Register = () => {
   };
 
   const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
+    // Stricter email validation: no consecutive dots, no repeated TLDs, valid characters
+    const re = /^[a-zA-Z0-9](?:[a-zA-Z0-9_-]*[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$/;
+    if (!re.test(email)) return false;
+    // Additional check to prevent repeated TLDs like .com.com
+    if (email.match(/(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})$/)) return false;
+    return true;
   };
 
   const validatePhone = (phone) => {
@@ -135,6 +139,13 @@ const Register = () => {
   const validateCNIC = (cnic) => {
     const re = /^\d{5}-\d{7}-\d{1}$/;
     return re.test(cnic);
+  };
+
+  const validatePassword = (password) => {
+    if (password.length < 8) {
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
@@ -164,8 +175,8 @@ const Register = () => {
       }
 
       if (!validateEmail(formData.email)) {
-        setError('Please enter a valid email address');
-        toast.error('Please enter a valid email address', { toastId: 'email-error' });
+        setError('Please enter a valid email address (e.g., example@domain.com, no consecutive dots or repeated TLDs)');
+        toast.error('Please enter a valid email address (e.g., example@domain.com)', { toastId: 'email-error' });
         setLoading(false);
         return;
       }
@@ -180,6 +191,13 @@ const Register = () => {
       if (!validateCNIC(formData.cnicNumber)) {
         setError('Please enter a valid CNIC number (xxxxx-xxxxxxx-x)');
         toast.error('Please enter a valid CNIC number (xxxxx-xxxxxxx-x)', { toastId: 'cnic-error' });
+        setLoading(false);
+        return;
+      }
+
+      if (!validatePassword(formData.password)) {
+        setError('Password must be at least 8 characters long');
+        toast.error('Password must be at least 8 characters long', { toastId: 'password-error' });
         setLoading(false);
         return;
       }
@@ -227,7 +245,7 @@ const Register = () => {
           toast.success('Driver registered successfully!', { toastId: 'driver-success' });
           setFormData(initialFormData);
           setTimeout(() => {
-            navigate('/login');
+            navigate('/login', { state: { userType: 'Driver' } });
           }, 2000);
         } else {
           setError(data.message || 'Failed to register driver. Please check your inputs and try again.');
@@ -252,8 +270,15 @@ const Register = () => {
       }
 
       if (!validateEmail(formData.email)) {
-        setError('Please enter a valid email address');
-        toast.error('Please enter a valid email address', { toastId: 'email-error' });
+        setError('Please enter a valid email address (e.g., example@domain.com, no consecutive dots or repeated TLDs)');
+        toast.error('Please enter a valid email address (e.g., example@domain.com, no consecutive dots or repeated TLDs)', { toastId: 'email-error' });
+        setLoading(false);
+        return;
+      }
+
+      if (!validatePassword(formData.password)) {
+        setError('Password must be at least 8 characters long');
+        toast.error('Password must be at least 8 characters long', { toastId: 'password-error' });
         setLoading(false);
         return;
       }
@@ -289,7 +314,7 @@ const Register = () => {
           toast.success('School admin registered successfully!', { toastId: 'school-success' });
           setFormData(initialFormData);
           setTimeout(() => {
-            navigate('/login');
+            navigate('/login', { state: { userType: 'School' } });
           }, 2000);
         } else {
           setError(data.message || 'Failed to register school admin. Please try again.');
@@ -453,7 +478,9 @@ const Register = () => {
                     <label className="block text-sm lg:text-[14px] inter-semibold mb-1">School</label>
                     <div className="relative" ref={dropdownRef}>
                       <div
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer"
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-md outline-none text-sm lg:text-base flex items-center cursor-pointer ${
+                          formData.schoolName ? 'bg-blue-50' : 'bg-transparent'
+                        }`}
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                       >
                         <span className={`flex-1 truncate ${formData.schoolName ? 'text-black' : 'text-gray-400'}`}>
@@ -471,7 +498,7 @@ const Register = () => {
                             schools.map((school) => (
                               <div
                                 key={school._id}
-                                className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm lg:text-base text-gray-400"
+                                className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm lg:text-base text-gray-700"
                                 onClick={() => handleSchoolSelect(school)}
                               >
                                 {school.schoolName} ({school.address.city})

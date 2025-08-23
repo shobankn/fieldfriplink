@@ -24,14 +24,30 @@ const rideData = {
 const MyRides = () => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState(location.state?.activeTab || "Invitations");
+  const initialTab = location.state?.activeTab || localStorage.getItem('myRidesActiveTab') || "Invitations";
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [rideDataState, setRideDataState] = useState(rideData);
   const [loading, setLoading] = useState(true);
   const [buttonLoading, setButtonLoading] = useState({});
   const navigate = useNavigate();
 
+  useEffect(() => {
+    localStorage.setItem('myRidesActiveTab', activeTab);
+  }, [activeTab]);
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  // Map for recurring days
+  const dayMap = {
+    mon: 'Monday',
+    tue: 'Tuesday',
+    wed: 'Wednesday',
+    thu: 'Thursday',
+    fri: 'Friday',
+    sat: 'Saturday',
+    sun: 'Sunday'
   };
 
   // Function to handle invitation response
@@ -162,7 +178,6 @@ const MyRides = () => {
       });
 
       setActiveTab('Completed');
-      // Show toast notification
       alert('Ride has been successfully ended!');
     } catch (error) {
       console.error('Error ending ride:', error);
@@ -175,7 +190,7 @@ const MyRides = () => {
   // Function to handle view live navigation
   const handleViewLive = (tripId) => {
     setButtonLoading((prev) => ({ ...prev, [tripId + 'view']: true }));
-    navigate('/driver-live-tracking', { state: { activeTab } });
+    navigate('/driver-live-tracking', { state: { activeTab: activeTab } });
     setTimeout(() => {
       setButtonLoading((prev) => ({ ...prev, [tripId + 'view']: false }));
     }, 1000);
@@ -209,7 +224,9 @@ const MyRides = () => {
           const trip = inv.tripId;
           const startDate = new Date(trip.startTime);
           const endDate = new Date(trip.returnTime);
-          const dateStr = startDate.toISOString().split('T')[0];
+          const dateStr = trip.tripType === 'recurring' && trip.recurringDays
+            ? trip.recurringDays.map(day => dayMap[day.toLowerCase()] || day).join(', ')
+            : startDate.toISOString().split('T')[0];
           const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
           const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
 
@@ -225,6 +242,7 @@ const MyRides = () => {
             students: trip.numberOfStudents,
             phone: trip.schoolId?.phoneNumber || 'N/A',
             schoolId: trip.schoolId?._id || 'N/A',
+            isRecurring: trip.tripType === 'recurring',
           };
         });
 
@@ -266,7 +284,9 @@ const MyRides = () => {
         const mappedScheduledRides = data.trips.map((trip) => {
           const startDate = new Date(trip.startTime);
           const endDate = new Date(trip.returnTime);
-          const dateStr = startDate.toISOString().split('T')[0];
+          const dateStr = trip.tripType === 'recurring' && trip.recurringDays
+            ? trip.recurringDays.map(day => dayMap[day.toLowerCase()] || day).join(', ')
+            : startDate.toISOString().split('T')[0];
           const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
           const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
 
@@ -282,6 +302,7 @@ const MyRides = () => {
             students: trip.numberOfStudents,
             phone: trip.schoolId?.phoneNumber || 'N/A',
             schoolId: trip.schoolId?._id || 'N/A',
+            isRecurring: trip.tripType === 'recurring',
           };
         });
 
@@ -323,7 +344,9 @@ const MyRides = () => {
         const mappedActiveRides = data.trips.map((trip) => {
           const startDate = new Date(trip.startTime);
           const endDate = new Date(trip.returnTime);
-          const dateStr = startDate.toISOString().split('T')[0];
+          const dateStr = trip.tripType === 'recurring' && trip.recurringDays
+            ? trip.recurringDays.map(day => dayMap[day.toLowerCase()] || day).join(', ')
+            : startDate.toISOString().split('T')[0];
           const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
           const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
 
@@ -339,6 +362,7 @@ const MyRides = () => {
             students: trip.numberOfStudents,
             phone: trip.schoolId?.phoneNumber || 'N/A',
             schoolId: trip.schoolId?._id || 'N/A',
+            isRecurring: trip.tripType === 'recurring',
           };
         });
 
@@ -380,7 +404,9 @@ const MyRides = () => {
         const mappedCompletedRides = data.trips.map((trip) => {
           const startDate = new Date(trip.startTime);
           const endDate = new Date(trip.returnTime);
-          const dateStr = startDate.toISOString().split('T')[0];
+          const dateStr = trip.tripType === 'recurring' && trip.recurringDays
+            ? trip.recurringDays.map(day => dayMap[day.toLowerCase()] || day).join(', ')
+            : startDate.toISOString().split('T')[0];
           const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
           const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
 
@@ -398,6 +424,7 @@ const MyRides = () => {
             schoolId: trip.schoolId?._id || 'N/A',
             rating: trip.driverRating,
             schoolName: trip.schoolId?.schoolName || 'Unknown',
+            isRecurring: trip.tripType === 'recurring',
           };
         });
 
@@ -552,7 +579,7 @@ const MyRides = () => {
 
                   <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-y-2">
                     <div>
-                      <p className="flex items-center gap-2 text-sm text-[#6B7280] text-[14px] interregular mb-[12px] ">
+                      <p className="flex items-center gap-2 text-sm text-[#6B7280] text-[14px] interregular mb-[12px]">
                         <IoLocationOutline className="text-gray-600" />
                         <span className="archivomedium">Pickup:</span> {ride.pickup}
                       </p>
@@ -564,12 +591,12 @@ const MyRides = () => {
                     <div>
                       <p className="flex items-center gap-2 text-sm text-[#6B7280] text-[14px] interregular mb-[12px]">
                         <MdOutlineDateRange className="text-gray-600" />
-                        <span className="font-medium">Date:</span> {ride.date}
+                        <span className="font-medium">{ride.isRecurring ? 'Days' : 'Date'}:</span> {ride.date}
                       </p>
                       <p className="flex items-center gap-2 text-sm text-[#6B7280] text-[14px] interregular mb-[12px]">
                         <CiClock2 className="text-gray-600" />
                         <span className="font-medium">Start Time:</span> {ride.startTime} -
-                        <span className="font-medium">End Time:</span>{ride.endTime}
+                        <span className="font-medium">End Time:</span> {ride.endTime}
                       </p>
                     </div>
                   </div>

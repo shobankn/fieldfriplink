@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import logo from '../images/logo.png';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,6 +11,15 @@ const EmailVerification = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Set userType based on state from navigation
+  useEffect(() => {
+    const userTypeFromState = location.state?.userType;
+    if (userTypeFromState === 'School' || userTypeFromState === 'Driver') {
+      setUserType(userTypeFromState);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,22 +73,22 @@ const EmailVerification = () => {
                 userType === 'School' ? 'translate-x-0' : 'translate-x-full'
               }`}
             />
-           <button
-  onClick={() => setUserType('School')}
-  className={`relative w-1/2 py-2 text-sm sm:text-[14px] font-semibold z-10 transition-colors duration-300 cursor-pointer ${
-    userType === 'School' ? 'text-white' : 'text-[#DE3B40]'
-  }`}
->
-  School
-</button>
-<button
-  onClick={() => setUserType('Driver')}
-  className={`relative w-1/2 py-2 text-sm sm:text-[14px] font-semibold z-10 transition-colors duration-300 cursor-pointer ${
-    userType === 'Driver' ? 'text-white' : 'text-[#DE3B40]'
-  }`}
->
-  Driver
-</button>
+            <button
+              onClick={() => setUserType('School')}
+              className={`relative w-1/2 py-2 text-sm sm:text-[14px] font-semibold z-10 transition-colors duration-300 cursor-pointer ${
+                userType === 'School' ? 'text-white' : 'text-[#DE3B40]'
+              }`}
+            >
+              School
+            </button>
+            <button
+              onClick={() => setUserType('Driver')}
+              className={`relative w-1/2 py-2 text-sm sm:text-[14px] font-semibold z-10 transition-colors duration-300 cursor-pointer ${
+                userType === 'Driver' ? 'text-white' : 'text-[#DE3B40]'
+              }`}
+            >
+              Driver
+            </button>
           </div>
         </div>
 
@@ -95,8 +104,6 @@ const EmailVerification = () => {
               required
             />
           </div>
-
-         
 
           <button
             type="submit"

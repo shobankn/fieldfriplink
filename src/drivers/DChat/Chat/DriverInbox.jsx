@@ -10,7 +10,7 @@ import ChatSidebar from "./ChatSidebar";
 import ChatTopBar from "./ChatTopbar";
 import formatLastSeen from './FormatedLastSeen'
 
-const Inbox = () => {
+const DriverInbox = () => {
   return (
     <SocketProvider>
       <InboxContent />
@@ -504,4 +504,4 @@ useEffect(() => {
   );
 };
 
-export default Inbox;
+export default DriverInbox;

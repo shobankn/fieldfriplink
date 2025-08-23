@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import noMessage from '../../images/no-message.png';
+import noMessage from '../../../images/no-message.png';
 import { useSocketContext } from './SocketContext';
-import customer from '../../images/customer.png';
+import customer from '../../../images/customer.png';
 import { Trash } from 'lucide-react';
 
 const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessage }) => {

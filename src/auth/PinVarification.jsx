@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
@@ -12,6 +12,14 @@ const PinVerification = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { email = 'harisaziz840@gmail.com' } = location.state || {};
+
+  // Set userType based on state from navigation
+  useEffect(() => {
+    const userTypeFromState = location.state?.userType;
+    if (userTypeFromState === 'School' || userTypeFromState === 'Driver') {
+      setUserType(userTypeFromState);
+    }
+  }, [location.state]);
 
   const handleChange = (e, index) => {
     const newOtp = [...otp];

@@ -3,19 +3,77 @@ import { MdOutlineEmail } from "react-icons/md";
 import { IoLocationOutline } from "react-icons/io5";
 import { LuPhone } from "react-icons/lu";
 import { SlClock } from "react-icons/sl";
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Navbar from '../../Navbar/Navbar';
 import Footer from '../footer/Footer';
 
 const Contactus = () => {
-  // State for custom dropdowns
+  // State for form inputs
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    role: 'Your Role *',
+    schoolName: '',
+    interest: 'What are you interested in?',
+    message: '',
+  });
   const [interestOpen, setInterestOpen] = useState(false);
   const [roleOpen, setRoleOpen] = useState(false);
-  const [selectedInterest, setSelectedInterest] = useState('What are you interested in?');
-  const [selectedRole, setSelectedRole] = useState('Your Role *');
+  const [loading, setLoading] = useState(false); // Loading state for spinner
 
   // Dropdown options
   const interestOptions = ['Request a Demo', 'General Inquiry'];
-  const roleOptions = ['Teacher', 'Administrator', 'Parent', 'Other'];
+  const roleOptions = ['School Owner', 'Bus Driver'];
+
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true); // Start loading
+    try {
+      const response = await axios.post(
+        'https://fieldtriplinkbackend-production.up.railway.app/api/common/contact',
+        {
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          role: formData.role === 'Your Role *' ? '' : formData.role,
+          schoolName: formData.schoolName,
+          interest: formData.interest === 'What are you interested in?' ? '' : formData.interest,
+          message: formData.message,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      toast.success('Message sent successfully!');
+      // Reset form
+      setFormData({
+        fullName: '',
+        email: '',
+        phone: '',
+        role: 'Your Role *',
+        schoolName: '',
+        interest: 'What are you interested in?',
+        message: '',
+      });
+    } catch (error) {
+      toast.error('Failed to send message. Please try again.');
+      console.error('Error submitting form:', error);
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
 
   return (
     <div className="w-full bg-[#F8F9FB] text-gray-800">
@@ -36,15 +94,16 @@ const Contactus = () => {
           <p className="interregular text-sm sm:text-base text-[#666666] mb-6">
             Fill out the form below and we'll get back to you within 24 hours to schedule your demo or discuss pilot program opportunities.
           </p>
-          <div className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Custom Dropdown for Interest */}
             <p className="interregular text-sm sm:text-base mb-0">What are you interested in? *</p>
             <div className="relative">
               <button
+                type="button"
                 onClick={() => setInterestOpen(!interestOpen)}
                 className="w-full border rounded px-3 py-2 text-left bg-white text-gray-700 text-sm sm:text-base"
               >
-                {selectedInterest}
+                {formData.interest}
                 <span className="absolute inset-y-0 right-0 flex items-center pr-2">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -57,7 +116,7 @@ const Contactus = () => {
                     <div
                       key={option}
                       onClick={() => {
-                        setSelectedInterest(option);
+                        setFormData({ ...formData, interest: option });
                         setInterestOpen(false);
                       }}
                       className="px-3 py-2 hover:bg-red-100 cursor-pointer text-gray-700 text-sm sm:text-base"
@@ -73,22 +132,33 @@ const Contactus = () => {
                 <span className="interregular text-sm sm:text-base mb-0">Full Name *</span>
                 <input
                   type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
                   placeholder="Full Name *"
                   className="border rounded px-3 py-2 w-full text-sm sm:text-base"
+                  required
                 />
               </div>
               <div>
                 <span className="interregular text-sm sm:text-base mb-0">Email Address *</span>
                 <input
                   type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
                   placeholder="Email Address *"
                   className="border rounded px-3 py-2 w-full text-sm sm:text-base"
+                  required
                 />
               </div>
               <div>
                 <span className="interregular text-sm sm:text-base mb-0">Phone No</span>
                 <input
                   type="text"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
                   placeholder="Phone Number"
                   className="border rounded px-3 py-2 w-full text-sm sm:text-base"
                 />
@@ -98,10 +168,11 @@ const Contactus = () => {
                 <span className="interregular text-sm sm:text-base mb-0">Your Role *</span>
                 <div className="relative">
                   <button
+                    type="button"
                     onClick={() => setRoleOpen(!roleOpen)}
                     className="w-full border rounded px-3 py-2 text-left bg-white flex items-center text-gray-700 text-sm sm:text-base"
                   >
-                    {selectedRole}
+                    {formData.role}
                     <span className="absolute inset-y-0 right-0 flex items-center pr-2">
                       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -114,7 +185,7 @@ const Contactus = () => {
                         <div
                           key={option}
                           onClick={() => {
-                            setSelectedRole(option);
+                            setFormData({ ...formData, role: option });
                             setRoleOpen(false);
                           }}
                           className="px-3 py-2 hover:bg-red-100 cursor-pointer text-gray-700 text-sm sm:text-base"
@@ -131,22 +202,62 @@ const Contactus = () => {
               <span className="interregular text-sm sm:text-base mb-0">School/Organization *</span>
               <input
                 type="text"
+                name="schoolName"
+                value={formData.schoolName}
+                onChange={handleInputChange}
                 placeholder="School/Organization *"
                 className="border rounded px-3 py-2 w-full text-sm sm:text-base"
+                required
               />
             </div>
             <div>
               <span className="interregular text-sm sm:text-base mb-0">Message *</span>
               <textarea
+                name="message"
+                value={formData.message}
+                onChange={handleInputChange}
                 placeholder="Message *"
                 className="border rounded px-3 py-2 w-full text-sm sm:text-base"
                 rows="4"
+                required
               ></textarea>
             </div>
-            <button className="bg-[#ef4444] text-white py-2 px-6 rounded w-full text-sm sm:text-base">
-              Send Message
+            <button
+              type="submit"
+              disabled={loading}
+              className={`bg-[#ef4444] text-white py-2 px-6 rounded w-full text-sm sm:text-base flex items-center justify-center ${
+                loading ? 'opacity-75 cursor-not-allowed' : 'hover:bg-red-600'
+              }`}
+            >
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white mr-2"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Processing...
+                </>
+              ) : (
+                'Send Message'
+              )}
             </button>
-          </div>
+          </form>
         </div>
 
         {/* Contact Info */}
@@ -252,6 +363,7 @@ const Contactus = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
       <Footer />
     </div>
   );

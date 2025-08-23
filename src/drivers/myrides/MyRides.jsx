@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
 import { IoLocationOutline } from "react-icons/io5";
@@ -83,11 +85,13 @@ const MyRides = () => {
         Invitations: prev.Invitations.filter((inv) => inv.id !== invitationId),
       }));
 
+      toast.success(`Invitation ${action} successfully!`);
       if (action === 'accepted') {
         setActiveTab('Scheduled');
       }
     } catch (error) {
       console.error(`Error ${action} invitation:`, error);
+      toast.error(`Failed to ${action} invitation. Please try again.`);
     } finally {
       setButtonLoading((prev) => ({ ...prev, [invitationId + action]: false }));
     }
@@ -131,9 +135,11 @@ const MyRides = () => {
         };
       });
 
+      toast.success('Ride started successfully!');
       setActiveTab('Active');
     } catch (error) {
       console.error('Error starting ride:', error);
+      toast.error('Failed to start ride. Please try again.');
     } finally {
       setButtonLoading((prev) => ({ ...prev, [tripId + 'start']: false }));
     }
@@ -177,11 +183,11 @@ const MyRides = () => {
         };
       });
 
+      toast.success('Ride ended successfully!');
       setActiveTab('Completed');
-      alert('Ride has been successfully ended!');
     } catch (error) {
       console.error('Error ending ride:', error);
-      alert('Failed to end ride. Please try again.');
+      toast.error('Failed to end ride. Please try again.');
     } finally {
       setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: false }));
     }
@@ -250,6 +256,7 @@ const MyRides = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching invitations:', error);
+        toast.error('Failed to fetch invitations. Please try again.');
         setLoading(false);
       }
     };
@@ -310,6 +317,7 @@ const MyRides = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching scheduled rides:', error);
+        toast.error('Failed to fetch scheduled rides. Please try again.');
         setLoading(false);
       }
     };
@@ -370,6 +378,7 @@ const MyRides = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching active rides:', error);
+        toast.error('Failed to fetch active rides. Please try again.');
         setLoading(false);
       }
     };
@@ -432,6 +441,7 @@ const MyRides = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching completed rides:', error);
+        toast.error('Failed to fetch completed rides. Please try again.');
         setLoading(false);
       }
     };
@@ -708,6 +718,7 @@ const MyRides = () => {
               <p className="text-gray-500 text-center py-10">No {activeTab.toLowerCase()} rides found.</p>
             )}
           </div>
+          <ToastContainer />
         </main>
       </div>
     </div>

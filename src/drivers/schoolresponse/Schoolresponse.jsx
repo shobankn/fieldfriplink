@@ -6,6 +6,7 @@ import { IoChatbubbleOutline, IoLocationOutline, IoCallOutline } from "react-ico
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { RxCrossCircled } from "react-icons/rx";
 import { SlCalender } from "react-icons/sl";
+import { useNavigate } from 'react-router-dom';
 
 const SchoolResponse = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -18,6 +19,7 @@ const SchoolResponse = () => {
     proposals: []
   });
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -70,17 +72,23 @@ const SchoolResponse = () => {
         const acceptedData = await acceptedResponse.json();
         const rejectedData = await rejectedResponse.json();
 
+         console.log("✅ Accepted API Response:", acceptedData);
+
         // Combine proposals from both responses
         const allProposals = [...acceptedData.proposals, ...rejectedData.proposals];
 
         const mappedProposals = allProposals.map((proposal) => {
           const trip = proposal.tripId || {};
+          const school = trip.schoolId || {};
           const responseDate = new Date(proposal.acceptedAt || proposal.rejectedAt || proposal.updatedAt);
           const dateStr = responseDate.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
           });
+
+
+
 
           return {
             id: proposal._id,
@@ -98,8 +106,12 @@ const SchoolResponse = () => {
               phone: trip.schoolId?.phoneNumber || 'N/A', // Dynamic phone number from API
               email: 'transport@school.edu.pk' // Hardcoded as API doesn't provide email
             },
-            congratulations: proposal.status === 'accepted'
-          };
+              congratulations: proposal.status === 'accepted',
+              creatorId: school._id,             // ✅ now this works
+              creatorName: school.schoolName,    // ✅ school name
+              creatorPic: school.avatar || null, // if avatar exists in API
+              createdAt: proposal.createdAt,
+                      };
         });
 
         const stats = {
@@ -309,10 +321,31 @@ const SchoolResponse = () => {
                             <IoCallOutline className='me-1' />
                             Call
                           </button>
-                          <button className="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-md text-sm flex items-center justify-center">
-                            <IoChatbubbleOutline className='me-1' />
-                            Chat
-                          </button>
+
+                          <button
+                          onClick={() => {
+                            console.log("creatorId =", response.creatorId);
+                            console.log("creatorPic =", response.creatorPic);
+                            console.log("createdAt =", response.createdAt);
+
+                            navigate("/chat", {
+                              state: {
+                                creatorId: response.creatorId,   // ✅ schoolId as creatorId
+                                creatorPic: response.creatorPic, // ✅ school profile/avatar if available
+                                creatorName: response.creatorName // optional, display in chat header
+                              },
+                            });
+                          }}
+                          className="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-md text-sm flex items-center justify-center"
+                        >
+                          <IoChatbubbleOutline className="me-1" />
+                          Chat
+                          
+                        </button>
+
+
+
+
                         </div>
                       </div>
                     )}

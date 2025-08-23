@@ -133,7 +133,13 @@ const DriverProfile = () => {
     }
   };
 
-  const handleSave = async () => { 
+  const handleSave = async () => {
+    // Validate fullName
+    if (!editData.fullName.trim()) {
+      toast.error('Full Name is required.');
+      return;
+    }
+
     try {
       setIsSaving(true);
       const token = localStorage.getItem('token');
@@ -148,7 +154,7 @@ const DriverProfile = () => {
       formData.append('phone', editData.phone);
       formData.append('address', editData.city);
       formData.append('cnicNumber', editData.cnic);
-      
+
       if (selectedImage) {
         formData.append('profileImage', selectedImage);
       }
@@ -453,13 +459,14 @@ const DriverProfile = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Full Name <span className="text-red-500">*</span></label>
                         <input
                           type="text"
                           value={editData.fullName}
                           onChange={(e) => handleInputChange('fullName', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           placeholder="Enter full name"
+                          required
                         />
                       </div>
                       <div>

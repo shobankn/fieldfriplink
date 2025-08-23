@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Topbar from '../component/topbar/topbar'
 import Sidebar from '../component/sidebar/Sidebar'
-import Inbox from '../../School/Chat/Inbox';
+import DriverInbox from './Chat/DriverInbox';
 
 function DriverChat() {
       const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -31,8 +31,7 @@ function DriverChat() {
         <Topbar toggleSidebar={toggleSidebar} />
         </div>
         <main className='mt-[100px]'>
-
-            <Inbox/>
+        <DriverInbox/>
 
 
         </main>

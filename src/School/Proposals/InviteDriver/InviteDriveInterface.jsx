@@ -85,22 +85,22 @@ useEffect(() => {
 
 const handleSendJobPost = async (trip, note = "Please accept the invitation") => {
   if (!selectedDriver?._id) {
-    toast.error("No driver selected.");
+    toast.error("Please select a driver first.", { autoClose: 3000 });
     return;
   }
 
-  const toastId = `invite-${trip._id}-${selectedDriver._id}`;
   if (inviting) return;
 
   const token = localStorage.getItem("token");
   if (!token) {
-    toast.error("Please log in.");
+    toast.error("Authentication required. Please log in.", { autoClose: 3000 });
     return;
   }
 
   try {
     setInviting(true);
-    const res = await axios.post(
+
+    await axios.post(
       `${baseURL}/school/trip/${trip._id}/invite-driver`,
       {
         driverId: selectedDriver._id,
@@ -114,32 +114,34 @@ const handleSendJobPost = async (trip, note = "Please accept the invitation") =>
       }
     );
 
-    // ✅ Special case: backend says driver already invited
-    if (res.data?.message === "Driver already invited to this trip") {
-      toast.warning(res.data.message, { toastId: `already-${toastId}` });
-      return; // stop here
-    }
-
-    // ✅ Normal success
-    toast.success(
-      res.data?.message || `Invitation sent to ${selectedDriver.name}!`,
-      { toastId }
-    );
-
-    setIsPopupOpen(false);
-    setSelectedDriver(null);
+    // ✅ Show toast, and close popup only after toast disappears
+    toast.success("Invitation sent successfully.", { 
+      autoClose: 3000,
+      onClose: () => {
+        setIsPopupOpen(false);
+        setSelectedDriver(null);
+      }
+    });
 
   } catch (err) {
-    const msg =
-      err.response?.data?.error ||
-      err.response?.data?.message ||
-      err.message ||
-      "Failed to send invitation.";
-    toast.error(msg, { toastId });
+    toast.warning("Driver already invited to this trip.", { 
+      autoClose: 3000,
+      onClose: () => {
+        setIsPopupOpen(false);
+        setSelectedDriver(null);
+      }
+    });
+
   } finally {
     setInviting(false);
   }
 };
+
+
+
+
+
+
 
 
   const filteredDrivers = drivers.filter(
@@ -155,7 +157,6 @@ const handleSendJobPost = async (trip, note = "Please accept the invitation") =>
 
       </h1>
       <Navbar />
-      <ToastContainer/>
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Header */}

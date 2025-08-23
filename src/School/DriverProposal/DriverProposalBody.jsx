@@ -135,7 +135,6 @@ useEffect(() => {
           ? 'Unauthorized: Invalid or expired token'
           : 'Failed to fetch proposals';
       setError(errorMessage);
-      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -161,10 +160,9 @@ useEffect(() => {
             },
           });
           setDriverDetails(response.data);
-          console.loog("driver request", response.data);
+console.log("driver request", response.data);
         } catch (err) {
           const errorMessage = err.response?.status === 401 ? 'Unauthorized: Invalid or expired token' : 'Failed to fetch driver details';
-          toast.error(errorMessage);
         } finally {
           setDriverDetailsLoading(false);
         }
@@ -284,18 +282,18 @@ useEffect(() => {
                       {driver.status}
                     </span>
                     <div className="flex items-center space-x-1">
-                      <button 
-                        onClick={() => handleAction(driver.id, 'View')}
-                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      >
-                        <Eye className="w-4 h-4 text-[#84B1F9]" />
-                      </button>
-                    <ProposalIconActions
-      proposalId={driver.id}
-      onActionComplete={(id, status) => {
-        console.log(`Proposal ${id} was ${status}`);
-        // You could refresh data here if needed
-      }}/>
+                   <button
+                onClick={() => handleAction(driver.id, 'View')}
+                className="group p-2 cursor-pointer text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-sm hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50"
+              >
+                <Eye className="w-4 h-4 text-[#84B1F9] group-hover:text-blue-600 transition-colors duration-200" />
+                        </button>
+                              <ProposalIconActions
+                proposalId={driver.id}
+                onActionComplete={(id, status) => {
+                  console.log(`Proposal ${id} was ${status}`);
+                  // You could refresh data here if needed
+                }}/>
                      
                     </div>
                   </div>

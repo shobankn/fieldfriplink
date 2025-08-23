@@ -65,7 +65,6 @@ const DriverVerificationInterface = () => {
         setDrivers(transformedData);
       } catch (error) {
         console.error('Error fetching drivers:', error);
-        toast.error('Failed to fetch driver data. Please try again.');
         setDrivers([]); // Set empty array to trigger empty state
       } finally {
         setLoading(false);
@@ -187,6 +186,7 @@ const DriverVerificationInterface = () => {
             >
               <Eye className="text-[#6B7280] w-4 h-4" />
             </button>
+
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -197,13 +197,14 @@ const DriverVerificationInterface = () => {
             >
               <CircleCheck className="text-[#10B981] w-4 h-4" />
             </button>
+
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                showConfirmDialog("suspended", "Suspend");
+                showConfirmDialog("rejected", "Reject");
               }}
               className={`p-2 cursor-pointer rounded-lg transition-colors `}
-              title="Mark as Suspended"
+              title="Mark as rejected"
             >
               <XCircle className="text-[#EF4444] w-4 h-4" />
             </button>

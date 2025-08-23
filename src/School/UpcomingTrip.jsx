@@ -169,9 +169,14 @@ useEffect(() => {
     <div className="pt-4 sm:p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[20px] archivo-semibold text-gray-900">Upcoming Trips</h3>
-        <button onClick={()=> navigate('/job-post')} className=" cursor-pointer text-red-500 archivo-semibold text-sm font-medium hover:text-red-600">
-          View All
-        </button>
+         {trips.length > 0 && (
+            <button
+              onClick={() => navigate('/job-post')}
+              className="cursor-pointer text-red-500 archivo-semibold text-sm font-medium hover:text-red-600"
+            >
+              View All
+            </button>
+          )}
       </div>
 
       {loading ? (

@@ -210,7 +210,14 @@ const TripManagementBody = () => {
     : trips.filter(trip => trip.status === activeFilter);
 
   // 1. Default Card - for 'All'
-  const DefaultTripCard = ({ trip }) => (
+  const DefaultTripCard = ({ trip }) => 
+  {
+
+    const uniqueDrivers = trip.driver
+    ? [...new Map(trip.driver.map(drv => [drv._id || drv.driverId || drv.id, drv])).values()]
+    : [];
+    
+    return(
     <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm transition-shadow">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
@@ -262,10 +269,10 @@ const TripManagementBody = () => {
   <div className="pt-4 border-t border-gray-100">
     <Skeleton height={40} width={200} />
   </div>
-) : trip.driver && trip.driver.length > 0 ? (
+) : uniqueDrivers.length > 0 ? (
   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 gap-4">
     <div className="flex items-center flex-wrap gap-3">
-      {trip.driver.map((drv) => (
+     {uniqueDrivers.map((drv) => (
         <div key={drv.id} className="flex items-center gap-3">
           {drv.profileImage ? (
             <img
@@ -312,9 +319,19 @@ const TripManagementBody = () => {
 
     </div>
   );
+}
 
   // 2. Active Tab Card - slight changes: added 'PlayCircle' icon, shows time prominently
-  const ActiveTripCard = ({ trip }) => (
+  const ActiveTripCard = ({ trip }) => {
+    
+      // ✅ Deduplicate drivers by _id (or driverId fallback)
+  const uniqueDrivers = trip.assignedDrivers
+    ? [...new Map(trip.assignedDrivers.map(d => [d._id || d.driverId, d])).values()]
+    : [];
+
+    
+    return(
+    
     <div className="bg-white rounded-lg border border-green-200 p-6 shadow-md transition-shadow hover:shadow-lg">
       {/* Top section: Title, status, type, message icon */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-3">
@@ -332,7 +349,7 @@ const TripManagementBody = () => {
         <div className="flex-shrink-0">
         <button
               onClick={() => {
-                const driver = trip.assignedDrivers[0]; // ✅ pick first driver
+                  const driver = uniqueDrivers[0]; // ✅ pick first unique driver
                 console.log("creatorId =", driver?.driverId);
                 console.log("creatorPic =", driver?.profileImage);
                 console.log("full driver data =", driver);
@@ -381,10 +398,10 @@ const TripManagementBody = () => {
   <div className="pt-4 border-t border-green-200">
     <Skeleton height={40} width={200} />
   </div>
-) : trip.assignedDrivers && trip.assignedDrivers.length > 0 ? (
+) : uniqueDrivers.length > 0 ?  (
   <div className="flex flex-col md:flex-row md:items-center md:justify-between pt-4 border-t border-green-200 gap-3">
     <div className="flex flex-wrap items-center gap-3">
-      {trip.assignedDrivers.map((driver, index) => (
+      {uniqueDrivers.map((driver, index) => (
         <div key={index} className="flex items-center gap-3">
           {driver.profileImage ? (
             <img
@@ -410,7 +427,7 @@ const TripManagementBody = () => {
       <span className="text-sm text-[#808080] inter-regular">Current Rating</span>
       <Star className="w-4 h-4 ml-1 text-yellow-400 fill-current" />
       <span className="text-sm font-medium text-gray-900">
-        {trip.assignedDrivers.map(d => d.rating || 0).join(", ")}
+        {uniqueDrivers.map(d => d.rating || 0).join(", ")}
       </span>
     </div>
   </div>
@@ -422,9 +439,18 @@ const TripManagementBody = () => {
 
     </div>
   );
+}
 
   // 3. Scheduled Tab Card - vertical stack of date/time, smaller font, blue tone
-  const ScheduledTripCard = ({ trip }) => (
+  const ScheduledTripCard = ({ trip }) =>  {
+      // ✅ remove duplicate drivers by _id
+  const uniqueDrivers = trip?.assignedDrivers
+    ? [...new Map(trip.assignedDrivers.map(d => [d._id, d])).values()]
+    : [];
+    
+    return (
+
+    
     <div className="bg-white rounded-lg border border-white p-5 shadow-sm transition-shadow hover:shadow-md">
       {/* Header: title, status, type, message icon */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-3 gap-2">
@@ -444,9 +470,11 @@ const TripManagementBody = () => {
         <div className="flex-shrink-0">
             <button
               onClick={() => {
-                const driver = trip.assignedDrivers[0]; // ✅ pick first driver
+                 const driver = uniqueDrivers[0]; 
                 console.log("creatorId =", driver?._id);
+
                 console.log("creatorPic =", driver?.profileImage);
+
                 console.log("full driver data =", driver);
 
                 navigate("/messages", {
@@ -505,9 +533,9 @@ const TripManagementBody = () => {
   <div className="pt-3 border-t border-blue-100">
     <Skeleton height={30} width={150} />
   </div>
-) : trip.assignedDrivers && trip.assignedDrivers.length > 0 ? (
+) : uniqueDrivers.length  > 0 ? (
   <div className="flex flex-wrap sm:flex-row sm:items-center gap-3 border-t border-blue-100 pt-3">
-    {trip.assignedDrivers.map((driver, index) => (
+    {uniqueDrivers.map((driver, index) => (
       <div key={index} className="flex items-center gap-2">
         {driver.profileImage ? (
           <img
@@ -517,9 +545,7 @@ const TripManagementBody = () => {
           />
         ) : (
           <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-            <span className="text-xs font-medium text-[#6C727F]">
-              {driver.name.split(" ").map((n) => n[0]).join("")}
-            </span>
+        
           </div>
         )}
         <div>
@@ -536,7 +562,7 @@ const TripManagementBody = () => {
 )}
 
     </div>
-  );
+  );}
 
   // 4. Pending Tab Card - alert icon + less details, yellow tone
   const PendingTripCard = ({ trip,handleDeleteTrip }) => (
@@ -594,21 +620,27 @@ const TripManagementBody = () => {
 
 
 const CompletedTripCard = ({ trip }) => {
-
-  // Normalize driver data
+  // Normalize + deduplicate drivers by _id
   const drivers = trip.assignedDrivers?.length > 0
-    ? trip.assignedDrivers.map(driver => ({
-        id: driver._id , // Fallback unique ID
-        name: driver.name || 'Unknown',
-        profileImage: driver.profileImage || null,
-        rating: driver.averageRating ?? null, // Use nullish coalescing for cleaner default
-        address: driver.address || 'N/A',
-      }))
+    ? Array.from(
+        new Map(
+          trip.assignedDrivers.map(driver => [
+            driver._id, // key
+            {
+              id: driver._id,
+              name: driver.name || "Unknown",
+              profileImage: driver.profileImage || null,
+              rating: driver.averageRating ?? null,
+              address: driver.address || "N/A",
+            },
+          ])
+        ).values()
+      )
     : [];
 
   return (
     <div className="bg-white rounded-lg border border-gray-300 p-5 shadow transition-shadow hover:shadow-md">
-      {/* Header: Icon, Title, Status, Type */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:gap-2 mb-3">
         <div className="flex items-center gap-2">
           <CheckCircle className="w-5 h-5 text-gray-600" />
@@ -617,16 +649,24 @@ const CompletedTripCard = ({ trip }) => {
           </h3>
         </div>
         <div className="flex flex-wrap gap-2 mt-2 md:mt-0 md:ml-auto">
-          <span className={`px-2 py-1 inter-medium rounded-full text-[12px] font-medium ${getStatusColor(trip.status)}`}>
+          <span
+            className={`px-2 py-1 inter-medium rounded-full text-[12px] font-medium ${getStatusColor(
+              trip.status
+            )}`}
+          >
             {loading ? <Skeleton width={60} /> : trip.status}
           </span>
-          <span className={`px-2 py-1 inter-medium rounded-full text-xs ${getTypeColor(trip.type)}`}>
+          <span
+            className={`px-2 py-1 inter-medium rounded-full text-xs ${getTypeColor(
+              trip.type
+            )}`}
+          >
             {loading ? <Skeleton width={60} /> : trip.type}
           </span>
         </div>
       </div>
 
-      {/* Trip info: date, time, students, route */}
+      {/* Trip info */}
       <div className="text-gray-700 mb-3 text-sm inter-regular">
         <div className="flex flex-wrap justify-between gap-4">
           <div className="flex items-center space-x-2 min-w-[120px]">
@@ -635,7 +675,7 @@ const CompletedTripCard = ({ trip }) => {
           </div>
           <div className="flex items-center space-x-2 min-w-[120px]">
             <Clock className="w-4 h-4" />
-                <span className="text-[14px] inter-regular">
+            <span className="text-[14px] inter-regular">
               {loading ? (
                 <Skeleton width={60} />
               ) : (
@@ -647,12 +687,16 @@ const CompletedTripCard = ({ trip }) => {
           </div>
           <div className="flex items-center space-x-2 min-w-[120px]">
             <Users className="w-4 h-4" />
-            <span>{loading ? <Skeleton width={80} /> : `${trip.students} students`}</span>
+            <span>
+              {loading ? <Skeleton width={80} /> : `${trip.students} students`}
+            </span>
           </div>
         </div>
         <div className="flex items-center space-x-2 mt-2 min-w-0 flex-1">
           <MapPin className="w-4 h-4" />
-          <span className="whitespace-normal break-words">{loading ? <Skeleton width={150} /> : trip.route}</span>
+          <span className="whitespace-normal break-words">
+            {loading ? <Skeleton width={150} /> : trip.route}
+          </span>
         </div>
       </div>
 
@@ -663,7 +707,10 @@ const CompletedTripCard = ({ trip }) => {
         </div>
       ) : drivers.length > 0 ? (
         drivers.map((driver) => (
-          <div key={driver.id} className="flex flex-col md:flex-row md:items-center gap-3 border-t border-gray-200 pt-3">
+          <div
+            key={driver.id}
+            className="flex flex-col md:flex-row md:items-center gap-3 border-t border-gray-200 pt-3"
+          >
             <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
               {driver.profileImage ? (
                 <img
@@ -673,23 +720,29 @@ const CompletedTripCard = ({ trip }) => {
                 />
               ) : (
                 <span className="text-sm font-medium text-gray-600">
-                  {driver.name.split(' ').map((n) => n[0]).join('')}
+                  {driver.name
+                    ? driver.name.split(" ").map((n) => n[0]).join("")
+                    : "?"}
                 </span>
               )}
             </div>
             <div>
               <p className="text-sm inter-medium text-gray-900">{driver.name}</p>
-              <p className="text-xs text-gray-700 inter-regular">{driver.address}</p>
+              <p className="text-xs text-gray-700 inter-regular">
+                {driver.address}
+              </p>
             </div>
             <div className="md:ml-auto">
-              {driver.rating != null && driver.rating !== '' ? (
+              {driver.rating != null && driver.rating !== "" ? (
                 <div className="flex items-center space-x-1 text-gray-700 text-sm font-semibold">
                   <Star className="w-5 h-5 text-yellow-400 fill-current" />
                   <span>{driver.rating}</span>
                 </div>
               ) : (
                 <button
-                  onClick={() => navigate(`/trip-management/feedback/${trip.id}/${driver.id}`)}
+                  onClick={() =>
+                    navigate(`/trip-management/feedback/${trip.id}/${driver.id}`)
+                  }
                   className="px-3 py-2 bg-red-600 text-white text-sm inter-medium rounded-md hover:bg-red-700 cursor-pointer transition-colors"
                 >
                   Give Feedback
@@ -706,6 +759,7 @@ const CompletedTripCard = ({ trip }) => {
     </div>
   );
 };
+
 
   // Main dynamic card renderer
   const TripCard = ({ trip }) => {

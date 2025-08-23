@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import logo from '../images/logo.png';
 
 const ForgetPassword = () => {
@@ -14,6 +16,14 @@ const ForgetPassword = () => {
   const location = useLocation();
   const { email } = location.state || {};
 
+  // Set userType based on state from navigation
+  useEffect(() => {
+    const userTypeFromState = location.state?.userType;
+    if (userTypeFromState === 'School' || userTypeFromState === 'Driver') {
+      setUserType(userTypeFromState);
+    }
+  }, [location.state]);
+
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
   const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
 
@@ -22,11 +32,13 @@ const ForgetPassword = () => {
     setLoading(true);
 
     if (!email) {
+      toast.error('Email is required to reset password.');
       setLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
+      toast.error('Passwords do not match.');
       setLoading(false);
       return;
     }
@@ -38,11 +50,16 @@ const ForgetPassword = () => {
         confirmPassword: confirmPassword,
       });
 
-      if (response.data.message === 'Password reset successfully') {
-        setTimeout(() => navigate('/login'), 2000); // Redirect after 2 seconds
+      if (response.data.message === 'Password reset successful') {
+        toast.success('Password reset successful! Redirecting to login...');
+        setTimeout(() => navigate('/login', { replace: true }), 2000); // Redirect after 2 seconds
+      } else {
+        toast.error('Unexpected response from server. Please try again.');
       }
     } catch (error) {
-      // Handle error silently
+      const msg =
+        error.response?.data?.message || 'Password reset failed. Please try again.';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -75,22 +92,22 @@ const ForgetPassword = () => {
                 userType === 'School' ? 'translate-x-0' : 'translate-x-full'
               }`}
             />
-           <button
-  onClick={() => setUserType('School')}
-  className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 cursor-pointer ${
-    userType === 'School' ? 'text-white' : 'text-[#de3b40]'
-  } z-10`}
->
-  School
-</button>
-<button
-  onClick={() => setUserType('Driver')}
-  className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 cursor-pointer ${
-    userType === 'Driver' ? 'text-white' : 'text-[#de3b40]'
-  } z-10`}
->
-  Driver
-</button>
+            <button
+              onClick={() => setUserType('School')}
+              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 cursor-pointer ${
+                userType === 'School' ? 'text-white' : 'text-[#de3b40]'
+              } z-10`}
+            >
+              School
+            </button>
+            <button
+              onClick={() => setUserType('Driver')}
+              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 cursor-pointer ${
+                userType === 'Driver' ? 'text-white' : 'text-[#de3b40]'
+              } z-10`}
+            >
+              Driver
+            </button>
           </div>
         </div>
 
@@ -312,6 +329,7 @@ const ForgetPassword = () => {
           </button>
         </p>
       </div>
+      <ToastContainer />
     </div>
   );
 };

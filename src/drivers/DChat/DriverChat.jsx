@@ -30,7 +30,8 @@ function DriverChat() {
       <div className="flex flex-col flex-1 w-full lg:w-[83%]">
         <Topbar toggleSidebar={toggleSidebar} />
         </div>
-        <main>
+        <main className='mt-[100px]'>
+
             <Inbox/>
 
 

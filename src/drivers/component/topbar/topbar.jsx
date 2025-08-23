@@ -6,15 +6,17 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const Topbar = ({ toggleSidebar }) => {
   const [userData, setUserData] = useState({
-    name: 'John Doe',
-    accountStatus: 'pending_approval',
+    name: '',
+    accountStatus: '',
     profileImage: '',
   });
+  const [loading, setLoading] = useState(true); // Loading state for shimmer effect
 
   // Fetch user data from API
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        setLoading(true); // Set loading to true before fetching
         const token = localStorage.getItem('token');
         const response = await axios.get('https://fieldtriplinkbackend-production.up.railway.app/api/driver/my-profile', {
           headers: {
@@ -24,18 +26,31 @@ const Topbar = ({ toggleSidebar }) => {
 
         const { user } = response.data;
         setUserData({
-          name: user.name || 'John Doe',
+          name: user.name || 'Unknown User',
           accountStatus: user.accountStatus || 'pending_approval',
           profileImage: user.profileImage || '',
         });
       } catch (error) {
         console.error('Error fetching user data:', error);
         toast.error('Failed to load user data. Please try again.');
+      } finally {
+        setLoading(false); // Set loading to false after fetching
       }
     };
 
     fetchUserData();
   }, []);
+
+  // Shimmer effect component for profile card
+  const ShimmerProfileCard = () => (
+    <div className="flex mr-4 sm:mr-8 py-2 pl-1 pr-16 items-center space-x-3 bg-yellow-50 rounded-lg border border-yellow-200 animate-pulse">
+      <div className="w-10 h-10 rounded-full bg-gray-300"></div>
+      <div className="flex flex-col items-start">
+        <div className="w-24 h-4 bg-gray-300 rounded mb-2"></div>
+        <div className="w-16 h-3 bg-gray-300 rounded"></div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="fixed top-0 left-0 w-full bg-white border border-gray-200 p-2 flex items-center justify-between z-10">
@@ -57,39 +72,43 @@ const Topbar = ({ toggleSidebar }) => {
       </div>
 
       {/* Profile Section (Always on the right) */}
-      <div className="flex mr-4 sm:mr-8 py-2 pl-1 pr-16 items-center space-x-3 bg-yellow-50 rounded-lg border border-yellow-200 hover:bg-yellow-100 transition-colors duration-200">
-        {userData.profileImage ? (
-          <img
-            src={userData.profileImage}
-            alt={userData.name}
-            className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center border-2 border-white shadow-sm">
-            <User className="w-6 h-6 text-white" />
+      {loading ? (
+        <ShimmerProfileCard />
+      ) : (
+        <div className="flex mr-4 sm:mr-8 py-2 pl-1 pr-16 items-center space-x-3 bg-yellow-50 rounded-lg border border-yellow-200 hover:bg-yellow-100 transition-colors duration-200">
+          {userData.profileImage ? (
+            <img
+              src={userData.profileImage}
+              alt={userData.name}
+              className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center border-2 border-white shadow-sm">
+              <User className="w-6 h-6 text-white" />
+            </div>
+          )}
+          <div className="flex flex-col items-start">
+            <span className="text-sm mb-1 font-semibold text-gray-900 leading-none">{userData.name}</span>
+            <span className={`flex items-center ${userData.accountStatus === 'verified' ? 'text-green-600' : 'text-[#DE3B40]'} text-xs font-medium leading-none`}>
+              {userData.accountStatus === 'verified' ? 'Verified' : 'Unverified'}
+              {userData.accountStatus === 'verified' && (
+                <svg
+                  className="w-4 h-4 ml-1.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+            </span>
           </div>
-        )}
-        <div className="flex flex-col items-start">
-          <span className="text-sm mb-1 font-semibold text-gray-900 leading-none">{userData.name}</span>
-          <span className={`flex items-center ${userData.accountStatus === 'verified' ? 'text-green-600' : 'text-[#DE3B40]'} text-xs font-medium leading-none`}>
-            {userData.accountStatus === 'verified' ? 'Verified' : 'Unverified'}
-            {userData.accountStatus === 'verified' && (
-              <svg
-                className="w-4 h-4 ml-1.5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            )}
-          </span>
         </div>
-      </div>
+      )}
       <ToastContainer />
     </div>
   );

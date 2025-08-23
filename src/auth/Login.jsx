@@ -78,7 +78,7 @@ const Login = () => {
   // Handler for Forgot Password link
   const handleForgotPassword = (e) => {
     e.preventDefault();
-    navigate('/emailvarification');
+    navigate('/emailvarification', { state: { userType } });
   };
 
   // Handler for Sign Up link
@@ -170,6 +170,7 @@ const Login = () => {
 
           <div className="text-right mb-6 lg:mb-[60px]">
             <button
+              type="button"
               onClick={handleForgotPassword}
               className="text-[#de3b40] text-sm lg:text-[14px] inter-medium hover:underline cursor-pointer"
             >

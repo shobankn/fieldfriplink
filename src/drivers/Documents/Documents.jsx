@@ -8,6 +8,15 @@ import { FaCheck } from "react-icons/fa6";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+// Debounce function to limit rapid toast triggers
+const debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
+
 const uploadFields = [
   { id: 'cnicFront', label: 'CNIC Front', required: true, apiKey: 'cnicFrontImage' },
   { id: 'cnicBack', label: 'CNIC Back', required: true, apiKey: 'cnicBackImage' },
@@ -34,6 +43,18 @@ const Documents = () => {
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
+  // Toast function with unique ID and debouncing
+  const showToast = debounce((message, type = 'error', toastId) => {
+    toast.dismiss(); // Clear all existing toasts
+    toast(message, {
+      toastId, // Unique ID to prevent duplicates
+      type,
+      autoClose: 2000, // Close after 2 seconds
+      closeOnClick: true,
+      pauseOnHover: false,
+    });
+  }, 300); // 300ms debounce to prevent rapid triggers
+
   // Fetch profile data from API
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -41,11 +62,7 @@ const Documents = () => {
         setLoading(true);
         const token = localStorage.getItem('token');
         if (!token) {
-          toast.error('No authentication token found. Please log in again.', {
-            toastId: 'no-token',
-            autoClose: 5000,
-          });
-          console.error('No token found in localStorage');
+          showToast('No authentication token found. Please log in again.', 'error', 'no-token');
           setLoading(false);
           return;
         }
@@ -92,10 +109,7 @@ const Documents = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching profile data:', error.response?.data || error.message);
-        toast.error(`Failed to load document data: ${error.response?.data?.message || error.message}`, {
-          toastId: 'fetch-error',
-          autoClose: 5000,
-        });
+        showToast(`Failed to load document data: ${error.response?.data?.message || error.message}`, 'error', 'fetch-error');
         setLoading(false);
       }
     };
@@ -127,10 +141,7 @@ const Documents = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        toast.error('No authentication token found. Please log in again.', {
-          toastId: 'no-token-delete',
-          autoClose: 5000,
-        });
+        showToast('No authentication token found. Please log in again.', 'error', 'no-token-delete');
         return;
       }
 
@@ -158,25 +169,16 @@ const Documents = () => {
         [fieldId]: '',
       }));
 
-      toast.success(`${uploadFields.find((f) => f.id === fieldId).label} deleted successfully!`, {
-        toastId: `delete-${fieldId}`,
-        autoClose: 5000,
-      });
+      showToast(`${uploadFields.find((f) => f.id === fieldId).label} deleted successfully!`, 'success', `delete-${fieldId}`);
     } catch (error) {
       console.error('Error deleting document:', error.response?.data || error.message);
-      toast.error(`Failed to delete document: ${error.response?.data?.message || error.message}`, {
-        toastId: `delete-error-${fieldId}`,
-        autoClose: 5000,
-      });
+      showToast(`Failed to delete document: ${error.response?.data?.message || error.message}`, 'error', `delete-error-${fieldId}`);
     }
   };
 
   const handleConfirmDelete = async () => {
     if (deleteConfirmation.toLowerCase() !== 'delete') {
-      toast.error('Please type "delete" to confirm.', {
-        toastId: 'confirm-delete-error',
-        autoClose: 5000,
-      });
+      showToast('Please type "delete" to confirm.', 'error', 'confirm-delete-error');
       return;
     }
 
@@ -196,10 +198,7 @@ const Documents = () => {
 
   const handleDownload = (url, label) => {
     if (!url) {
-      toast.error(`No ${label} available for download.`, {
-        toastId: `download-error-${label}`,
-        autoClose: 5000,
-      });
+      showToast(`No ${label} available for download.`, 'error', `download-error-${label}`);
       return;
     }
     const link = document.createElement('a');
@@ -225,10 +224,7 @@ const Documents = () => {
       setIsSubmitting(true);
       const token = localStorage.getItem('token');
       if (!token) {
-        toast.error('No authentication token found. Please log in again.', {
-          toastId: 'no-token-submit',
-          autoClose: 5000,
-        });
+        showToast('No authentication token found. Please log in again.', 'error', 'no-token-submit');
         return;
       }
 
@@ -278,18 +274,10 @@ const Documents = () => {
         vehicleReg: profile.vehicleRegistrationImage || previews.vehicleReg || '',
       });
 
-      // Ensure only one toast is shown for success
-      toast.success('Documents submitted successfully for verification!', {
-        toastId: 'submit-success',
-        autoClose: 5000,
-      });
+      showToast('Documents submitted successfully for verification!', 'success', 'submit-success');
     } catch (error) {
       console.error('Error uploading documents:', error.response?.data || error.message);
-      // Ensure only one toast is shown for error
-      toast.error(`Failed to submit documents: ${error.response?.data?.message || error.message}`, {
-        toastId: 'submit-error',
-        autoClose: 5000,
-      });
+      showToast(`Failed to submit documents: ${error.response?.data?.message || error.message}`, 'error', 'submit-error');
     } finally {
       setIsSubmitting(false);
     }
@@ -435,10 +423,7 @@ const Documents = () => {
                               alt={field.label}
                               className="w-full h-full object-contain"
                               onError={() => {
-                                toast.error(`Failed to load ${field.label} image.`, {
-                                  toastId: `image-error-${field.id}`,
-                                  autoClose: 5000,
-                                });
+                                showToast(`Failed to load ${field.label} image.`, 'error', `image-error-${field.id}`);
                               }}
                             />
                           </div>
@@ -605,14 +590,14 @@ const Documents = () => {
       </div>
       <ToastContainer
         position="top-right"
-        autoClose={5000}
+        autoClose={2000}
         hideProgressBar={false}
-        newestOnTop={true}
+        newestOnTop={false}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
         draggable
-        pauseOnHover
+        pauseOnHover={false}
         limit={1}
       />
     </div>

@@ -1,20 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
-import { FaBell, FaCheckCircle, FaCheck } from 'react-icons/fa';
+import { FaBell, FaCheckCircle } from 'react-icons/fa';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
-import { MdOutlineDeleteForever } from "react-icons/md";
-import { FiBell } from "react-icons/fi";
+import { MdOutlineDeleteForever } from 'react-icons/md';
+import { FiBell } from 'react-icons/fi';
 import { RiErrorWarningFill } from 'react-icons/ri';
+
+// Debounce function to limit rapid toast triggers
+const debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
 
 const Notifications = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [clearing, setClearing] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+  // Toast function with unique ID and debouncing
+  const showToast = debounce((message, type = 'error', toastId) => {
+    toast.dismiss(); // Clear all existing toasts
+    toast(message, {
+      toastId, // Unique ID to prevent duplicates
+      type,
+      autoClose: 2000, // Close after 2 seconds
+      closeOnClick: true,
+      pauseOnHover: false,
+    });
+  }, 300); // 300ms debounce to prevent rapid triggers
 
   // Fetch notifications from API
   useEffect(() => {
@@ -23,7 +46,7 @@ const Notifications = () => {
         setLoading(true);
         const token = localStorage.getItem('token');
         if (!token) {
-          toast.error('Authentication required. Please log in.');
+          showToast('Authentication required. Please log in.', 'error', 'auth-error');
           setLoading(false);
           return;
         }
@@ -60,7 +83,11 @@ const Notifications = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching notifications:', error.response || error.message);
-        toast.error(error.response?.data?.message || 'Failed to fetch notifications');
+        showToast(
+          error.response?.data?.message || 'Failed to fetch notifications',
+          'error',
+          'fetch-error'
+        );
         setLoading(false);
       }
     };
@@ -68,46 +95,32 @@ const Notifications = () => {
     fetchNotifications();
   }, []);
 
-  const markAllRead = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        toast.error('Authentication required. Please log in.');
-        return;
-      }
-
-      await axios.put(
-        'https://fieldtriplinkbackend-production.up.railway.app/api/common/notifications/mark-all-read',
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-      toast.success('All notifications marked as read');
-    } catch (error) {
-      console.error('Error marking all read:', error.response || error.message);
-      toast.error(error.response?.data?.message || 'Failed to mark all notifications as read');
-    }
-  };
-
   const clearAll = async () => {
     try {
+      setClearing(true);
       const token = localStorage.getItem('token');
       if (!token) {
-        toast.error('Authentication required. Please log in.');
+        showToast('Authentication required. Please log in.', 'error', 'auth-clear-error');
+        setClearing(false);
         return;
       }
 
       await axios.delete(
-        'https://fieldtriplinkbackend-production.up.railway.app/api/common/notifications',
+        'https://fieldtriplinkbackend-production.up.railway.app/api/common/notifications/clearall',
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setNotifications([]);
-      toast.success('All notifications cleared');
+      showToast('All notifications cleared', 'success', 'clear-success');
+      setClearing(false);
     } catch (error) {
       console.error('Error clearing notifications:', error.response || error.message);
-      toast.error(error.response?.data?.message || 'Failed to clear notifications');
+      showToast(
+        error.response?.data?.message || 'Failed to clear notifications',
+        'error',
+        'clear-error'
+      );
+      setClearing(false);
     }
   };
 
@@ -115,7 +128,7 @@ const Notifications = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        toast.error('Authentication required. Please log in.');
+        showToast('Authentication required. Please log in.', 'error', `auth-delete-${id}`);
         return;
       }
 
@@ -125,17 +138,21 @@ const Notifications = () => {
       );
 
       setNotifications((prev) => prev.filter((n) => n.id !== id));
-      toast.success('Notification deleted');
+      showToast('Notification deleted', 'success', `delete-success-${id}`);
     } catch (error) {
       console.error('Error deleting notification:', error.response || error.message);
-      toast.error(error.response?.data?.message || 'Failed to delete notification');
+      showToast(
+        error.response?.data?.message || 'Failed to delete notification',
+        'error',
+        `delete-error-${id}`
+      );
     }
   };
 
   const getIcon = (type) => {
     switch (type) {
       case 'success':
-      case 'invitation': // Map 'invitation' to success icon for consistency
+      case 'invitation':
         return <FaCheckCircle className="text-green-600 text-xl sm:text-2xl" />;
       case 'info':
         return <AiOutlineInfoCircle className="text-blue-500 text-xl sm:text-2xl" />;
@@ -148,7 +165,14 @@ const Notifications = () => {
 
   return (
     <div className="flex h-screen overflow-hidden relative">
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnHover={false}
+        limit={1}
+      />
       {/* Sidebar for large screens */}
       <div className="hidden lg:block lg:w-[17%]">
         <Sidebar isOpen={true} toggleSidebar={toggleSidebar} />
@@ -170,26 +194,40 @@ const Notifications = () => {
       <div className="flex flex-col flex-1 w-full lg:w-[83%]">
         <Topbar toggleSidebar={toggleSidebar} />
 
-        <main className="flex-1 overflow-y-auto pt-16 px-[33px] bg-gray-50">
+        <main className="flex-1 overflow-y-auto pt-16 px-[33px] bg-gray-50 ">
           <div className="max-w-full mx-auto py-6">
             <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center mb-6">
               <div>
                 <h1 className="archivobold text-[24px] mt-[18px]">Notifications</h1>
-                <p className="text-xs sm:text-sm lg:text-[16px] interregular text-[#64748B]">Stay updated with your ride activities</p>
+                <p className="text-xs sm:text-sm lg:text-[16px] interregular text-[#64748B]">
+                  Stay updated with your ride activities
+                </p>
               </div>
               <div className="flex gap-2 items-center mt-4 sm:mt-0">
                 <button
-                  onClick={markAllRead}
-                  className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm"
-                >
-                  <FaCheck className="text-xs sm:text-base" />
-                  Mark all read
-                </button>
-                <button
                   onClick={clearAll}
-                  className="bg-red-500 flex items-center gap-2 hover:bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm"
+                  disabled={clearing}
+                  className={`bg-red-500 flex items-center gap-2 hover:bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm ${
+                    clearing ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
-                  <MdOutlineDeleteForever className="text-sm sm:text-lg" />
+                  {clearing ? (
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7老.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  ) : (
+                    <MdOutlineDeleteForever className="text-sm sm:text-lg" />
+                  )}
                   Clear all
                 </button>
               </div>
@@ -207,7 +245,7 @@ const Notifications = () => {
               </div>
               <div className="bg-white shadow-sm rounded-lg p-4 flex-1 flex items-center gap-3">
                 <div className="bg-[#E0E0E0] h-10 w-10 sm:h-[48px] sm:w-[48px] flex items-center justify-center rounded-full">
-                  <FaCheck className="text-lg sm:text-[24px] interregular" />
+                  <FaCheckCircle className="text-lg sm:text-[24px] interregular" />
                 </div>
                 <div>
                   <p className="text-xs sm:text-sm text-gray-500">Read</p>
@@ -247,9 +285,13 @@ const Notifications = () => {
                   <div
                     key={n.id}
                     className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-0 m-0 pl-[10px] sm:pl-[10px] sm:p-0 sm:m-0 lg:p-4 lg:pl-4 rounded-lg shadow-sm ${
-                      n.type === 'success' || n.type === 'invitation' ? 'bg-[#F7FFF7] border border-[#E6F7E6]' :
-                      n.type === 'info' ? 'bg-[#F7F9FF] border border-[#E0E6F7]' :
-                      n.type === 'warning' ? 'bg-white' : 'bg-white'
+                      n.type === 'success' || n.type === 'invitation'
+                        ? 'bg-[#F7FFF7] border border-[#E6F7E6]'
+                        : n.type === 'info'
+                        ? 'bg-[#F7F9FF] border border-[#E0E6F7]'
+                        : n.type === 'warning'
+                        ? 'bg-white'
+                        : 'bg-white'
                     }`}
                   >
                     <div className="flex items-start gap-3">
@@ -261,24 +303,9 @@ const Notifications = () => {
                       </div>
                     </div>
                     <div className="flex gap-2 mt-2 sm:mt-0">
-                      {!n.read && (
-                        <button
-                          onClick={() =>
-                            setNotifications((prev) =>
-                              prev.map((item) =>
-                                item.id === n.id ? { ...item, read: true } : item
-                              )
-                            )
-                          }
-                          title="Mark as read"
-                          className="p-1 sm:p-2"
-                        >
-                          <FaCheck className="text-[#94a3b8] text-base sm:text-lg" />
-                        </button>
-                      )}
                       <button
                         onClick={() => deleteNotification(n.id)}
-                        title="Delete"
+                        title="Delete notification"
                         className="p-1 sm:p-2"
                       >
                         <MdOutlineDeleteForever className="text-[#94a3b8] text-base sm:text-lg" />

@@ -194,7 +194,7 @@ const Notifications = () => {
       <div className="flex flex-col flex-1 w-full lg:w-[83%]">
         <Topbar toggleSidebar={toggleSidebar} />
 
-        <main className="flex-1 overflow-y-auto pt-16 px-[33px] bg-gray-50 ">
+        <main className="flex-1 overflow-y-auto pt-16 px-[33px] bg-gray-50">
           <div className="max-w-full mx-auto py-6">
             <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center mb-6">
               <div>
@@ -207,7 +207,7 @@ const Notifications = () => {
                 <button
                   onClick={clearAll}
                   disabled={clearing}
-                  className={`bg-red-500 flex items-center gap-2 hover:bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm ${
+                  className={`bg-red-500 flex items-center gap-2 hover:bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm cursor-pointer ${
                     clearing ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
@@ -222,7 +222,7 @@ const Notifications = () => {
                       <path
                         className="opacity-75"
                         fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7老.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
                   ) : (
@@ -306,7 +306,7 @@ const Notifications = () => {
                       <button
                         onClick={() => deleteNotification(n.id)}
                         title="Delete notification"
-                        className="p-1 sm:p-2"
+                        className="p-1 sm:p-2 cursor-pointer"
                       >
                         <MdOutlineDeleteForever className="text-[#94a3b8] text-base sm:text-lg" />
                       </button>

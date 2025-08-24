@@ -21,6 +21,11 @@ const EmailVerification = () => {
     }
   }, [location.state]);
 
+  // Handle logo click to navigate to home page
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -49,7 +54,7 @@ const EmailVerification = () => {
     <div className="min-h-screen flex flex-col lg:flex-row font-sans">
       {/* Left Section */}
       <div className="w-full lg:w-[45%] bg-white flex items-center justify-center px-[35px] py-8">
-        <div className="text-center">
+        <div onClick={handleLogoClick} className="cursor-pointer">
           <img
             src={logo}
             alt="Logo"
@@ -108,7 +113,7 @@ const EmailVerification = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full bg-[#DE3B40] hover:bg-[#B83238] text-white h-[48px] rounded-[8px] font-medium mb-4 mt-6 sm:mt-[55px] text-sm sm:text-[14px] transition-colors duration-300 ease-in-out flex items-center justify-center ${
+            className={`w-full bg-[#DE3B40] hover:bg-[#B83238] text-white h-[48px] rounded-[8px] font-medium mb-4 mt-6 sm:mt-[55px] text-sm sm:text-[14px] transition-colors duration-300 ease-in-out flex items-center justify-center cursor-pointer ${
               isLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >

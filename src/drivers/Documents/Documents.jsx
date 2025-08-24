@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
 import { FaInfoCircle, FaDownload, FaTrash } from 'react-icons/fa';
 import { LuDownload, LuUpload } from "react-icons/lu";
 import axios from 'axios';
-import { FaCheck } from "react-icons/fa6";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -40,6 +40,11 @@ const Documents = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [fieldToDelete, setFieldToDelete] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const [nextLocation, setNextLocation] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const blockerRef = useRef(null);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -53,7 +58,7 @@ const Documents = () => {
       closeOnClick: true,
       pauseOnHover: false,
     });
-  }, 300); // 300ms debounce to prevent rapid triggers
+  }, 300);
 
   // Fetch profile data from API
   useEffect(() => {
@@ -75,7 +80,6 @@ const Documents = () => {
 
         console.log('API Response:', response.data);
 
-        // Handle different possible response structures
         const data = response.data.data || response.data;
         const user = data.user || data;
         const profile = data.profile || user;
@@ -117,6 +121,38 @@ const Documents = () => {
     fetchProfileData();
   }, []);
 
+  // Detect unsaved changes and handle navigation
+  useEffect(() => {
+    const hasUnsavedChanges = Object.keys(files).length > 0;
+
+    const handleBeforeUnload = (e) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+      }
+    };
+
+    // Custom navigation blocker
+    const handleNavigationAttempt = (e) => {
+      if (hasUnsavedChanges && e.target.tagName !== 'BUTTON' && !e.target.closest('button')) {
+        e.preventDefault();
+        e.stopPropagation();
+        setNextLocation(e.target.getAttribute('href') || '/');
+        setShowUnsavedModal(true);
+        blockerRef.current = () => navigate(e.target.getAttribute('href') || '/');
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    const links = document.querySelectorAll('a[href]');
+    links.forEach((link) => link.addEventListener('click', handleNavigationAttempt));
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      links.forEach((link) => link.removeEventListener('click', handleNavigationAttempt));
+    };
+  }, [files, navigate]);
+
   const handleFileChange = (e, id) => {
     const file = e.target.files[0];
     if (file) {
@@ -126,7 +162,6 @@ const Documents = () => {
     }
   };
 
-  // Handle document deletion
   const handleDelete = async (fieldId, apiKey) => {
     if (profileData.accountStatus === 'verified') {
       setFieldToDelete({ fieldId, apiKey });
@@ -246,9 +281,8 @@ const Documents = () => {
         }
       );
 
-      console.log('Submit API Response:', response.data); // Log the response for debugging
+      console.log('Submit API Response:', response.data);
 
-      // Handle different possible response structures
       const data = response.data.data || response.data;
       const profile = data.profile || data;
 
@@ -256,7 +290,6 @@ const Documents = () => {
         throw new Error('Invalid API response structure: Missing profile data');
       }
 
-      // Update profile data with the new values from the API response
       setProfileData((prev) => ({
         ...prev,
         cnicFrontImage: profile.cnicFrontImage || prev.cnicFrontImage,
@@ -266,13 +299,15 @@ const Documents = () => {
         accountStatus: profile.accountStatus || prev.accountStatus || 'pending_approval',
       }));
 
-      // Update previews with the new URLs
       setPreviews({
         cnicFront: profile.cnicFrontImage || previews.cnicFront || '',
         cnicBack: profile.cnicBackImage || previews.cnicBack || '',
         license: profile.drivingLicenseImage || previews.license || '',
         vehicleReg: profile.vehicleRegistrationImage || previews.vehicleReg || '',
       });
+
+      setFiles({}); // Clear local files after successful submit
+      setShowUnsavedModal(false); // Close modal if open
 
       showToast('Documents submitted successfully for verification!', 'success', 'submit-success');
     } catch (error) {
@@ -283,7 +318,35 @@ const Documents = () => {
     }
   };
 
-  const allFieldsUploaded = uploadFields.every((field) => files[field.id] || profileData[field.apiKey]);
+  const handleSaveChanges = async () => {
+    await handleSubmit();
+    if (blockerRef.current && !Object.keys(files).length) {
+      blockerRef.current();
+    }
+  };
+
+  const handleDiscardChanges = () => {
+    setFiles({});
+    setPreviews({
+      cnicFront: profileData.cnicFrontImage || '',
+      cnicBack: profileData.cnicBackImage || '',
+      license: profileData.drivingLicenseImage || '',
+      vehicleReg: profileData.vehicleRegistrationImage || '',
+    });
+    setShowUnsavedModal(false);
+    if (blockerRef.current) {
+      blockerRef.current();
+    }
+  };
+
+  const handleCancelUnsaved = () => {
+    setShowUnsavedModal(false);
+    setNextLocation(null);
+    blockerRef.current = null;
+  };
+
+  // Modified logic to enable submit button if at least one field is uploaded
+  const allFieldsUploaded = uploadFields.some((field) => files[field.id] || profileData[field.apiKey]);
   const uploadedCount = uploadFields.filter((field) => files[field.id] || profileData[field.apiKey]).length;
   const progressPercentage = Math.round((uploadedCount / uploadFields.length) * 100);
 
@@ -404,7 +467,6 @@ const Documents = () => {
                       ? '#000000'
                       : '#FFFFFF';
 
-                    // Determine document status
                     const documentStatus = profileData[field.apiKey] || previews[field.id]
                       ? profileData.accountStatus === 'verified'
                         ? 'Verified'
@@ -452,7 +514,6 @@ const Documents = () => {
                         )}
                         {(profileData[field.apiKey] || previews[field.id]) && (
                           <>
-                            {/* Status Indicator on the Left */}
                             <div className="absolute top-2 left-2">
                               <span
                                 className={`text-[12px] interregular ${
@@ -462,7 +523,6 @@ const Documents = () => {
                                 {documentStatus}
                               </span>
                             </div>
-                            {/* Upload, Download, and Delete Icons on the Right */}
                             <div className="absolute top-2 right-2 flex gap-2">
                               <LuUpload
                                 className="text-blue-500 cursor-pointer"
@@ -492,7 +552,6 @@ const Documents = () => {
 
                 <div className='mb-[12px]'></div>
 
-                {/* Notes */}
                 <div className="bg-blue-50 border-l-4 border-blue-400 p-3 sm:p-4 rounded mb-4 sm:mb-6 text-xs sm:text-sm text-blue-700">
                   <div className="flex items-start gap-2">
                     <FaInfoCircle className="mt-0.5 sm:mt-1" />
@@ -505,7 +564,6 @@ const Documents = () => {
                   </div>
                 </div>
 
-                {/* Submit Button */}
                 <button
                   onClick={handleSubmit}
                   className={`px-4 sm:px-6 py-1.5 sm:py-2 rounded font-semibold text-sm sm:text-base flex items-center justify-center gap-2 ${
@@ -581,6 +639,67 @@ const Documents = () => {
                     className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 font-medium rounded-md transition-colors duration-200"
                   >
                     Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Unsaved Changes Modal */}
+          {showUnsavedModal && (
+            <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+                <div className="p-6 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900">Unsaved Changes</h3>
+                  <p className="text-sm text-gray-600 mt-2">
+                    You have unsaved changes in your uploaded documents. Would you like to save them before leaving?
+                  </p>
+                </div>
+                <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
+                  <button
+                    onClick={handleCancelUnsaved}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium rounded-md transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDiscardChanges}
+                    className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 font-medium rounded-md transition-colors duration-200"
+                  >
+                    Discard Changes
+                  </button>
+                  <button
+                    onClick={handleSaveChanges}
+                    className="px-4 py-2 bg-[#0E9039] text-white hover:bg-green-600 font-medium rounded-md transition-colors duration-200"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <svg
+                          className="animate-spin h-5 w-5 mr-2 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Saving...
+                      </>
+                    ) : (
+                      'Save Changes'
+                    )}
                   </button>
                 </div>
               </div>

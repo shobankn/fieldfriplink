@@ -101,7 +101,7 @@ const Contactus = () => {
               <button
                 type="button"
                 onClick={() => setInterestOpen(!interestOpen)}
-                className="w-full border rounded px-3 py-2 text-left bg-white text-gray-700 text-sm sm:text-base"
+                className="w-full border rounded px-3 py-2 text-left bg-white text-gray-700 text-sm sm:text-base cursor-pointer"
               >
                 {formData.interest}
                 <span className="absolute inset-y-0 right-0 flex items-center pr-2">
@@ -170,7 +170,7 @@ const Contactus = () => {
                   <button
                     type="button"
                     onClick={() => setRoleOpen(!roleOpen)}
-                    className="w-full border rounded px-3 py-2 text-left bg-white flex items-center text-gray-700 text-sm sm:text-base"
+                    className="w-full border rounded px-3 py-2 text-left bg-white flex items-center text-gray-700 text-sm sm:text-base cursor-pointer"
                   >
                     {formData.role}
                     <span className="absolute inset-y-0 right-0 flex items-center pr-2">
@@ -225,7 +225,7 @@ const Contactus = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`bg-[#ef4444] text-white py-2 px-6 rounded w-full text-sm sm:text-base flex items-center justify-center ${
+              className={`bg-[#ef4444] text-white py-2 px-6 rounded w-full text-sm sm:text-base flex items-center justify-center cursor-pointer ${
                 loading ? 'opacity-75 cursor-not-allowed' : 'hover:bg-red-600'
               }`}
             >

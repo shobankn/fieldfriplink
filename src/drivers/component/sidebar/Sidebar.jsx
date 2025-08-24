@@ -8,7 +8,6 @@ import { CgFileDocument } from 'react-icons/cg';
 import { GrCar } from 'react-icons/gr';
 import { IoLocationOutline } from 'react-icons/io5';
 import { GoPencil } from 'react-icons/go';
-import { FaRegMessage } from 'react-icons/fa6';
 import { FiMessageCircle } from 'react-icons/fi';
 import { FaRegStar } from "react-icons/fa";
 import { FaRegBell } from 'react-icons/fa';
@@ -28,7 +27,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { name: 'Available Rides', icon: IoLocationOutline, href: '/availablerides' },
     { name: 'My Rides', icon: GrCar, href: '/myrides' },
     { name: 'My Proposals', icon: GoPencil, href: '/proposals' },
-    { name: 'School Responses', icon: FaRegMessage, href: '/schoolresponse' },
     { name: 'Chat', icon: FiMessageCircle, href: '/chat' },
     { name: 'Reviews', icon: FaRegStar, href: '/driverreviews' },
     { name: 'Notifications', icon: FaRegBell, href: '/notifications' },
@@ -163,7 +161,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
                 <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white drop-shadow-sm" />
               </div>
-              <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3 h-3 sm:w- Preformatted text4 sm:h-4 md:w-5 md:h-5 bg-orange-400 rounded-full animate-pulse"></div>
+              <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 bg-orange-400 rounded-full animate-pulse"></div>
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-0.5 sm:mb-1 truncate">
@@ -305,7 +303,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           {/* Logo/Title */}
           <div className="mb-0 mt-0 pl-[20px]">
             <h2 className="text-[18px] max-[1320px]:text-[15px] interbold text-gray-800 flex items-center gap-[10px]">
-              <img src={logo} alt="FieldTripLink Logo" className="h-18.5 w-18.5 max-[1320px]:h-[15] max-[1320px]:w-[15]" /> FieldTripLink
+              <img src={logo} alt="FieldTripLink Logo" className="h-18.5 w-18.5 max-[1320px]:h-[15] max-[1320px]:w-[15]" /> <div>FieldTripLink<p className='text-[grey] text-[12px] archivoregular'>Driver Dashboard</p></div>
             </h2>
           </div>
 

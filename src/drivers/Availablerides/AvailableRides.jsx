@@ -5,12 +5,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaUsers, FaExclamationTriangle, FaTimes, FaCommentDots, FaCheckCircle } from 'react-icons/fa';
-import { CiFilter } from "react-icons/ci";
-import { CiLocationOn } from "react-icons/ci";
-import { LuUser } from "react-icons/lu";
-import { LuBus } from "react-icons/lu";
-import { CiClock2 } from "react-icons/ci";
-import { SlCalender } from "react-icons/sl";
+import { CiFilter, CiLocationOn, CiClock2 } from "react-icons/ci";
+import { LuUser, LuBus, LuCalendar } from "react-icons/lu";
 
 const AvailableRides = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -176,6 +172,7 @@ const AvailableRides = () => {
 
         const mappedData = trips.map(trip => ({
           id: trip._id || Math.random().toString(36).substr(2, 9),
+          schoolName: trip.schoolId?.schoolName || 'Unknown School',
           school: trip.tripName || 'Unknown Trip',
           pickup: trip.pickupPoints?.map(point => point.address).join(', ') || 'Not specified',
           drop: trip.destination?.address || 'Not specified',
@@ -188,6 +185,13 @@ const AvailableRides = () => {
           students: trip.numberOfStudents || 0,
           note: trip.instructions || '',
           buses: trip.numberOfBuses || 'TBD',
+          postedDate: trip.createdAt
+            ? new Date(trip.createdAt).toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+              })
+            : 'Not specified'
         }));
 
         setAvailableRides(mappedData);
@@ -366,8 +370,8 @@ const AvailableRides = () => {
                     <div className="flex justify-between items-center mb-[18px]">
                       <div>
                         <h2 className="text-[18px] archivosemibold">{truncateTripName(ride.school)}</h2>
-                        <p className="text-sm text-gray-600">
-                          {ride.isRecurring ? 'Days: ' : 'Date: '} {ride.date}
+                        <p className="text-[16px] interregular text-gray-500">
+                         {ride.schoolName} ({ride.postedDate}) 
                         </p>
                       </div>
                       <button 
@@ -420,29 +424,29 @@ const AvailableRides = () => {
                       <div>
                         <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
                           <CiLocationOn className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="text-[#606060] text-[16px] archivomedium">Pickup:</span> {ride.pickup}
+                          <span className="font-medium">Pickup:</span> <span className="interregular">{ride.pickup}</span>
                         </p>
-                        <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
+                        <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
                           <CiLocationOn className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">Drop:</span> {ride.drop}
+                          <span className="font-medium">Drop:</span> <span className="interregular">{ride.drop}</span>
                         </p>
-                        <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
+                        <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
                           <LuUser className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          {ride.students} students
+                          <span className="font-medium">{ride.students} students</span> <span className="interregular"></span>
                         </p>
                       </div>
                       <div>
-                        <p className="flex items-center gap-2 text-sm text-[#606060] text-[16px] mb-[8px]">
-                          <SlCalender className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">{ride.isRecurring ? 'Days' : 'Date'}:</span> {ride.date}
+                        <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
+                          <LuCalendar className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
+                          <span className="font-medium">{ride.isRecurring ? 'Days' : 'Date'}:</span> <span className="interregular">{ride.date}</span>
                         </p>
-                        <p className="flex items-center gap-2 text-sm text-[#606060] text-[16px] mb-[8px]">
+                        <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
                           <CiClock2 className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">Start Time:</span> {ride.startTime} -<span className="font-medium ">End Time:</span> {ride.endTime}
+                          <span className="font-medium">Start Time:</span> <span className="interregular">{ride.startTime}</span> - <span className="font-medium">End Time:</span> <span className="interregular">{ride.endTime}</span>
                         </p>
-                        <p className="flex items-center gap-2 text-sm mt-1 text-[#606060] text-[16px] mb-[8px]">
+                        <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
                           <LuBus className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">Number of Buses:</span> {ride.buses}
+                          <span className="font-medium">Number of Buses:</span> <span className="interregular">{ride.buses}</span>
                         </p>
                       </div>
                     </div>

@@ -87,6 +87,11 @@ const Login = () => {
     navigate('/register');
   };
 
+  // Handle logo click to navigate to home page
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   // Toggle password visibility
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -101,7 +106,9 @@ const Login = () => {
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Section */}
       <div className="w-full lg:w-[45%] bg-white flex items-center justify-center px-6 lg:px-[35px] py-6 lg:py-0">
-        <img src={logo} alt="Logo" className="w-full max-w-[400px] lg:max-w-none" />
+        <div onClick={handleLogoClick} className="cursor-pointer">
+          <img src={logo} alt="Logo" className="w-full max-w-[400px] lg:max-w-none" />
+        </div>
       </div>
 
       {/* Right Section */}
@@ -119,17 +126,17 @@ const Login = () => {
             />
             <button
               onClick={() => setUserType('School')}
-              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
+              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 cursor-pointer ${
                 userType === 'School' ? 'text-white' : 'text-[#de3b40]'
-              } z-10 cursor-pointer`}
+              } z-10`}
             >
               School
             </button>
             <button
               onClick={() => setUserType('Driver')}
-              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 ${
+              className={`relative w-1/2 py-2 text-sm lg:text-[14px] font-semibold transition-colors duration-300 cursor-pointer ${
                 userType === 'Driver' ? 'text-white' : 'text-[#de3b40]'
-              } z-10 cursor-pointer`}
+              } z-10`}
             >
               Driver
             </button>
@@ -161,7 +168,7 @@ const Login = () => {
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 cursor-pointer"
               >
                 <i className={showPassword ? 'far fa-eye-slash' : 'far fa-eye'}></i>
               </button>
@@ -181,8 +188,8 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full bg-[#de3b40] hover:bg-red-600 text-white rounded-[8px] font-medium h-[48px] text-sm lg:text-base transition-colors duration-300 flex items-center justify-center ${
-              loading ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer'
+            className={`w-full bg-[#de3b40] hover:bg-red-600 text-white rounded-[8px] font-medium h-[48px] text-sm lg:text-base transition-colors duration-300 flex items-center justify-center cursor-pointer ${
+              loading ? 'opacity-75 cursor-not-allowed' : ''
             }`}
           >
             {loading ? (

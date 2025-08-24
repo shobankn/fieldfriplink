@@ -10,12 +10,17 @@ const Navbar = () => {
     navigate('/register');
   };
 
+  // Handle logo click to navigate to home page
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   return (
     <header className="shadow-md bg-white px-4 sm:px-10 py-4">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo + Text */}
-        <div className="flex items-center space-x-3">
-          <img src={logo} alt="FieldTripLink Logo" className="h-[70px] w-[79px]" />
+        <div className="flex items-center space-x-3" onClick={handleLogoClick}>
+          <img src={logo} alt="FieldTripLink Logo" className="h-[70px] w-[79px] cursor-pointer" />
           <div>
             <h1 className="text-lg sm:text-xl interbold">FieldTripLink</h1>
             <p className="text-xs sm:text-sm text-[#555555] leading-4">
@@ -29,7 +34,7 @@ const Navbar = () => {
           <NavLink
             to="/"
             className={({ isActive }) =>
-              `inter-medium pb-0.5 ${isActive ? 'text-[#de3b40] border-b-2 border-[#de3b40]' : 'text-gray-800 hover:text-[#de3b40]'}`
+              `inter-medium pb-0.5 cursor-pointer ${isActive ? 'text-[#de3b40] border-b-2 border-[#de3b40]' : 'text-gray-800 hover:text-[#de3b40]'}`
             }
           >
             Home
@@ -37,7 +42,7 @@ const Navbar = () => {
           <NavLink
             to="/about"
             className={({ isActive }) =>
-              `inter-medium pb-0.5 ${isActive ? 'text-[#de3b40] border-b-2 border-[#de3b40]' : 'text-gray-800 hover:text-[#de3b40]'}`
+              `inter-medium pb-0.5 cursor-pointer ${isActive ? 'text-[#de3b40] border-b-2 border-[#de3b40]' : 'text-gray-800 hover:text-[#de3b40]'}`
             }
           >
             About Us
@@ -45,13 +50,13 @@ const Navbar = () => {
           <NavLink
             to="/contactus"
             className={({ isActive }) =>
-              `inter-medium pb-0.5 ${isActive ? 'text-[#de3b40] border-b-2 border-[#de3b40]' : 'text-gray-800 hover:text-[#de3b40]'}`
+              `inter-medium pb-0.5 cursor-pointer ${isActive ? 'text-[#de3b40] border-b-2 border-[#de3b40]' : 'text-gray-800 hover:text-[#de3b40]'}`
             }
           >
             Contact
           </NavLink>
           <button
-            className="bg-[#de3b40] inter-medium hover:bg-[#c53035] text-white px-4 py-2 rounded-md"
+            className="bg-[#de3b40] inter-medium hover:bg-[#c53035] text-white px-4 py-2 rounded-md cursor-pointer"
             onClick={handleCreateAccountClick}
           >
             Create Account
@@ -60,7 +65,7 @@ const Navbar = () => {
 
         {/* Mobile Toggle Button */}
         <div className="md:hidden">
-          <button onClick={() => setIsOpen(!isOpen)}>
+          <button onClick={() => setIsOpen(!isOpen)} className="cursor-pointer">
             <span className="text-2xl">{isOpen ? '✖' : '☰'}</span>
           </button>
         </div>
@@ -73,7 +78,7 @@ const Navbar = () => {
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `inter-medium w-fit ${isActive ? 'text-[#de3b40] border-b-2 border-[#de3b40]' : 'text-gray-800 hover:text-[#de3b40]'}`
+                `inter-medium w-fit cursor-pointer ${isActive ? 'text-[#de3b40] border-b-2 border-[#de3b40]' : 'text-gray-800 hover:text-[#de3b40]'}`
               }
             >
               Home
@@ -81,7 +86,7 @@ const Navbar = () => {
             <NavLink
               to="/about"
               className={({ isActive }) =>
-                `inter-medium w-fit ${isActive ? 'text-[#de3b40] border-b-2 border-[#de3b40]' : 'text-gray-800 hover:text-[#de3b40]'}`
+                `inter-medium w-fit cursor-pointer ${isActive ? 'text-[#de3b40] border-b-2 border-[#de3b40]' : 'text-gray-800 hover:text-[#de3b40]'}`
               }
             >
               About Us
@@ -89,13 +94,13 @@ const Navbar = () => {
             <NavLink
               to="/contactus"
               className={({ isActive }) =>
-                `inter-medium w-fit ${isActive ? 'text-[#de3b40] border-b-2 border-[#de3b40]' : 'text-gray-800 hover:text-[#de3b40]'}`
+                `inter-medium w-fit cursor-pointer ${isActive ? 'text-[#de3b40] border-b-2 border-[#de3b40]' : 'text-gray-800 hover:text-[#de3b40]'}`
               }
             >
               Contact
             </NavLink>
             <button
-              className="bg-[#de3b40] inter-medium hover:bg-[#c53035] text-white px-4 py-2 rounded-md w-fit"
+              className="bg-[#de3b40] inter-medium hover:bg-[#c53035] text-white px-4 py-2 rounded-md w-fit cursor-pointer"
               onClick={handleCreateAccountClick}
             >
               Create Account

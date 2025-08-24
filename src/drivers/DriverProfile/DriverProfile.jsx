@@ -7,6 +7,15 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { requestFcmToken } from "../../Fcm"; // adjust path if needed
 
+// Debounce function to limit rapid toast triggers
+const debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
+
 const DriverProfile = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -27,6 +36,18 @@ const DriverProfile = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const dropdownRef = useRef(null);
 
+  // Toast function with unique ID and debouncing
+  const showToast = debounce((message, type = 'error', toastId) => {
+    toast.dismiss(); // Clear all existing toasts
+    toast(message, {
+      toastId, // Unique ID to prevent duplicates
+      type,
+      autoClose: 2000, // Close after 2 seconds
+      closeOnClick: true,
+      pauseOnHover: false,
+    });
+  }, 300); // 300ms debounce to prevent rapid triggers
+
   // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -43,6 +64,12 @@ const DriverProfile = () => {
     const fetchProfileData = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          showToast('No authentication token found. Please log in again.', 'error', 'no-token-profile');
+          setIsLoading(false);
+          return;
+        }
+
         const response = await axios.get('https://fieldtriplinkbackend-production.up.railway.app/api/driver/my-profile', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -63,7 +90,7 @@ const DriverProfile = () => {
         setEditData(updatedProfileData);
       } catch (error) {
         console.error('Error fetching profile data:', error);
-        toast.error('Failed to load profile data. Please try again.');
+        showToast(error.response?.data?.message || 'Failed to load profile data. Please try again.', 'error', 'fetch-profile-error');
       } finally {
         setIsLoading(false);
       }
@@ -80,7 +107,7 @@ const DriverProfile = () => {
         setSchools(response.data.data || []);
       } catch (error) {
         console.error('Error fetching school list:', error);
-        toast.error('Failed to load school list. Please try again.');
+        showToast(error.response?.data?.message || 'Failed to load school list. Please try again.', 'error', 'fetch-schools-error');
       }
     };
 
@@ -100,6 +127,12 @@ const DriverProfile = () => {
       try {
         setIsSaving(true);
         const token = localStorage.getItem('token');
+        if (!token) {
+          showToast('No authentication token found. Please log in again.', 'error', 'no-token-image');
+          setIsSaving(false);
+          return;
+        }
+
         const formData = new FormData();
         formData.append('profileImage', file);
 
@@ -122,10 +155,10 @@ const DriverProfile = () => {
           ...prev,
           profileImage: response.data.user.profileImage || prev.profileImage,
         }));
-        toast.success('Profile image updated successfully!');
+        showToast('Profile image updated successfully!', 'success', 'image-update-success');
       } catch (error) {
         console.error('Error updating profile image:', error);
-        toast.error(error.response?.data?.message || 'Failed to update profile image. Please try again.');
+        showToast(error.response?.data?.message || 'Failed to update profile image. Please try again.', 'error', 'image-update-error');
       } finally {
         setIsSaving(false);
         setSelectedImage(null);
@@ -136,13 +169,17 @@ const DriverProfile = () => {
   const handleSave = async () => {
     // Validate fullName
     if (!editData.fullName.trim()) {
-      toast.error('Full Name is required.');
+      showToast('Full Name is required.', 'error', 'full-name-required');
       return;
     }
 
     try {
       setIsSaving(true);
       const token = localStorage.getItem('token');
+      if (!token) {
+        showToast('No authentication token found. Please log in again.', 'error', 'no-token-save');
+        return;
+      }
 
       // Get FCM token object
       const fcmTokenObj = await requestFcmToken();
@@ -182,10 +219,10 @@ const DriverProfile = () => {
       localStorage.setItem('partnerSchool', editData.partnerSchool);
       setIsEditModalOpen(false);
       setSelectedImage(null);
-      toast.success('Profile updated successfully!');
+      showToast('Profile updated successfully!', 'success', 'profile-update-success');
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error(error.response?.data?.message || 'Failed to update profile. Please try again.');
+      showToast(error.response?.data?.message || 'Failed to update profile. Please try again.', 'error', 'profile-update-error');
     } finally {
       setIsSaving(false);
     }
@@ -248,7 +285,28 @@ const DriverProfile = () => {
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                     <div className="relative">
                       <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center overflow-hidden ${isLoading ? 'bg-gray-200 animate-pulse' : 'bg-yellow-400'}`}>
-                        {!isLoading && (profileData.profileImage ? (
+                        {isLoading ? null : isSaving ? (
+                          <svg
+                            className="animate-spin h-8 w-8 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                        ) : profileData.profileImage ? (
                           <img
                             src={profileData.profileImage}
                             alt="Profile"
@@ -256,7 +314,7 @@ const DriverProfile = () => {
                           />
                         ) : (
                           <User className="w-8 h-8 md:w-10 md:h-10 text-white" />
-                        ))}
+                        )}
                       </div>
                       <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
                         <div className="w-2 h-2 bg-white rounded-full"></div>
@@ -554,7 +612,18 @@ const DriverProfile = () => {
           </div>
         </main>
       </div>
-      <ToastContainer limit={1} autoClose={3000} />
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover={false}
+        limit={1}
+      />
     </div>
   );
 };

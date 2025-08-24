@@ -4,11 +4,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
-import { IoLocationOutline } from "react-icons/io5";
-import { FiUsers } from "react-icons/fi";
-import { LuPhone } from "react-icons/lu";
-import { MdOutlineDateRange } from "react-icons/md";
-import { CiClock2 } from "react-icons/ci";
+import { LuMapPin, LuUsers, LuCalendar, LuClock } from "react-icons/lu";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { FaCheck } from "react-icons/fa6";
 import { RxCrossCircled } from "react-icons/rx";
@@ -239,16 +235,23 @@ const MyRides = () => {
           return {
             id: inv._id,
             school: trip.tripName,
-            area: trip.destination.address,
+            schoolName: trip.schoolId?.schoolName || 'Unknown School',
             pickup: trip.pickupPoints[0]?.address || 'N/A',
-            drop: trip.destination.address,
+            drop: trip.destination.address || 'N/A',
             date: dateStr,
             startTime: startTimeStr,
             endTime: endTimeStr,
-            students: trip.numberOfStudents,
+            students: trip.numberOfStudents || 0,
             phone: trip.schoolId?.phoneNumber || 'N/A',
             schoolId: trip.schoolId?._id || 'N/A',
             isRecurring: trip.tripType === 'recurring',
+            postedDate: trip.createdAt
+              ? new Date(trip.createdAt).toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric'
+                })
+              : 'N/A'
           };
         });
 
@@ -300,16 +303,23 @@ const MyRides = () => {
           return {
             id: trip._id,
             school: trip.tripName,
-            area: trip.destination.address,
+            schoolName: trip.schoolId?.schoolName || 'Unknown School',
             pickup: trip.pickupPoints[0]?.address || 'N/A',
-            drop: trip.destination.address,
+            drop: trip.destination.address || 'N/A',
             date: dateStr,
             startTime: startTimeStr,
             endTime: endTimeStr,
-            students: trip.numberOfStudents,
+            students: trip.numberOfStudents || 0,
             phone: trip.schoolId?.phoneNumber || 'N/A',
             schoolId: trip.schoolId?._id || 'N/A',
             isRecurring: trip.tripType === 'recurring',
+            postedDate: trip.createdAt
+              ? new Date(trip.createdAt).toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric'
+                })
+              : 'N/A'
           };
         });
 
@@ -361,16 +371,23 @@ const MyRides = () => {
           return {
             id: trip._id,
             school: trip.tripName,
-            area: trip.destination.address,
+            schoolName: trip.schoolId?.schoolName || 'Unknown School',
             pickup: trip.pickupPoints[0]?.address || 'N/A',
-            drop: trip.destination.address,
+            drop: trip.destination.address || 'N/A',
             date: dateStr,
             startTime: startTimeStr,
             endTime: endTimeStr,
-            students: trip.numberOfStudents,
+            students: trip.numberOfStudents || 0,
             phone: trip.schoolId?.phoneNumber || 'N/A',
             schoolId: trip.schoolId?._id || 'N/A',
             isRecurring: trip.tripType === 'recurring',
+            postedDate: trip.createdAt
+              ? new Date(trip.createdAt).toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric'
+                })
+              : 'N/A'
           };
         });
 
@@ -422,18 +439,24 @@ const MyRides = () => {
           return {
             id: trip._id,
             school: trip.tripName,
-            area: trip.destination.address,
+            schoolName: trip.schoolId?.schoolName || 'Unknown School',
             pickup: trip.pickupPoints[0]?.address || 'N/A',
-            drop: trip.destination.address,
+            drop: trip.destination.address || 'N/A',
             date: dateStr,
             startTime: startTimeStr,
             endTime: endTimeStr,
-            students: trip.numberOfStudents,
+            students: trip.numberOfStudents || 0,
             phone: trip.schoolId?.phoneNumber || 'N/A',
             schoolId: trip.schoolId?._id || 'N/A',
             rating: trip.driverRating,
-            schoolName: trip.schoolId?.schoolName || 'Unknown',
             isRecurring: trip.tripType === 'recurring',
+            postedDate: trip.createdAt
+              ? new Date(trip.createdAt).toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric'
+                })
+              : 'N/A'
           };
         });
 
@@ -564,12 +587,18 @@ const MyRides = () => {
                   )}
 
                   {activeTab === "Scheduled" && (
-                    <h2 className="text-lg font-semibold mb-2">{ride.school}</h2>
+                    <div>
+                      <h2 className="text-lg font-semibold mb-2">{ride.school}</h2>
+                      <p className="text-[16px] interregular text-gray-500">({ride.postedDate}) {ride.schoolName}</p>
+                    </div>
                   )}
 
                   {(activeTab === "Completed" || activeTab === "Active" || activeTab === "Invitations") && (
                     <div className="flex justify-between items-center">
-                      <h2 className="text-lg archivosemibold text-[18px]">{ride.school}</h2>
+                      <div>
+                        <h2 className="text-lg archivosemibold text-[18px]">{ride.school}</h2>
+                        <p className="text-[16px] interregular text-gray-500"> {ride.schoolName} ({ride.postedDate})</p>
+                      </div>
                       {activeTab === "Completed" && (
                         <div className="flex items-center flex-col gap-2">
                           {ride.rating ? (
@@ -585,28 +614,26 @@ const MyRides = () => {
                     </div>
                   )}
 
-                  <p className="text-sm text-[#6B7280] interregular">{ride.area}</p>
-
                   <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-y-2">
                     <div>
-                      <p className="flex items-center gap-2 text-sm text-[#6B7280] text-[14px] interregular mb-[12px]">
-                        <IoLocationOutline className="text-gray-600" />
-                        <span className="archivomedium">Pickup:</span> {ride.pickup}
+                      <p className="flex items-center gap-2 text-[#6B7280] text-[14px] interregular mb-[12px]">
+                        <LuMapPin className="text-[#EF4444]" />
+                        <span className="archivomedium">Pickup:</span> <span className="interregular">{ride.pickup}</span>
                       </p>
-                      <p className="flex items-center gap-2 text-sm mt-1 text-[#6B7280] text-[14px] interregular mb-[12px]">
-                        <IoLocationOutline className="text-gray-600" />
-                        <span className="archivomedium">Drop:</span> {ride.drop}
+                      <p className="flex items-center gap-2 text-[#6B7280] text-[14px] interregular mb-[12px]">
+                        <LuMapPin className="text-[#EF4444]" />
+                        <span className="archivomedium">Drop:</span> <span className="interregular">{ride.drop}</span>
                       </p>
                     </div>
                     <div>
-                      <p className="flex items-center gap-2 text-sm text-[#6B7280] text-[14px] interregular mb-[12px]">
-                        <MdOutlineDateRange className="text-gray-600" />
-                        <span className="font-medium">{ride.isRecurring ? 'Days' : 'Date'}:</span> {ride.date}
+                      <p className="flex items-center gap-2 text-[#6B7280] text-[14px] interregular mb-[12px]">
+                        <LuCalendar className="text-[#EF4444]" />
+                        <span className="archivomedium">{ride.isRecurring ? 'Days' : 'Date'}:</span> <span className="interregular">{ride.date}</span>
                       </p>
-                      <p className="flex items-center gap-2 text-sm text-[#6B7280] text-[14px] interregular mb-[12px]">
-                        <CiClock2 className="text-gray-600" />
-                        <span className="font-medium">Start Time:</span> {ride.startTime} -
-                        <span className="font-medium">End Time:</span> {ride.endTime}
+                      <p className="flex items-center gap-2 text-[#6B7280] text-[14px] interregular mb-[12px]">
+                        <LuClock className="text-[#EF4444]" />
+                        <span className="archivomedium">Start Time:</span> <span className="interregular">{ride.startTime}</span> -
+                        <span className="archivomedium">End Time:</span> <span className="interregular">{ride.endTime}</span>
                       </p>
                     </div>
                   </div>
@@ -614,10 +641,11 @@ const MyRides = () => {
                   <div className="mt-4 flex justify-between items-center text-sm flex-wrap gap-2 text-[#6B7280] text-[14px]">
                     <div className='flex items-center gap-[15px] text-[#6B7280] text-[14px] interregular mb-[12px]'>
                       <p className="flex items-center gap-2">
-                        <FiUsers className="text-gray-600" /> {ride.students} students
+                        <LuUsers className="text-[#EF4444]" />
+                        <span className="archivomedium">{ride.students} students</span>
                       </p>
-                      <p className="flex items-center gap-2">
-                        <LuPhone className="text-gray-600" /> {ride.phone}
+                      <p className="text-[#6B7280] text-[14px] interregular">
+                        <span className="archivomedium">Phone:</span> {ride.phone}
                       </p>
                     </div>
                     {activeTab === "Completed" && (
@@ -685,10 +713,19 @@ const MyRides = () => {
                         disabled={buttonLoading[ride.id + 'accepted']}
                       >
                         {buttonLoading[ride.id + 'accepted'] ? (
-                          <svg className="animate-spin h-5 w-5 mr-2 text-[#0A4D20]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
+                          <svg
+  className="animate-spin h-5 w-5 mr-2 text-[#0A4D20]"
+  xmlns="http://www.w3.org/2000/svg"
+  fill="none"
+  viewBox="0 0 24 24"
+>
+  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+  <path
+    className="opacity-75"
+    fill="currentColor"
+    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+  ></path>
+</svg>
                         ) : (
                           <FaCheck />
                         )}

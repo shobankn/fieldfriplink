@@ -54,13 +54,13 @@ const Home = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start flex-wrap">
             <button
-              className="bg-[#facc15] text-black text-sm sm:text-[14px] rounded-[6px] interbold w-full sm:w-[206px] h-[40px]"
+              className="bg-[#facc15] text-black text-sm sm:text-[14px] rounded-[6px] interbold w-full sm:w-[206px] h-[40px] cursor-pointer"
               onClick={handleGetStarted}
             >
               Get Started<i className="fas fa-arrow-right ms-2"></i>
             </button>
             <button
-              className="border border-white w-full sm:w-[153px] h-[40px] rounded-[6px] interbold text-sm sm:text-[14px]"
+              className="border border-white w-full sm:w-[153px] h-[40px] rounded-[6px] interbold text-sm sm:text-[14px] cursor-pointer"
               onClick={handleHowItWorks}
             >
               How It Works

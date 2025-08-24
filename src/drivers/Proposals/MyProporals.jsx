@@ -2,17 +2,34 @@ import React, { useState, useEffect } from 'react';
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
 import { LuPlane, LuClock4, LuMapPin, LuUsers, LuCalendar, LuClock, LuBus } from 'react-icons/lu';
-import { HiOutlineCalendarDateRange } from "react-icons/hi2";
+import { FaCheckCircle, FaTimesCircle, FaEnvelope } from 'react-icons/fa';
+import { IoCallOutline, IoChatbubbleOutline } from "react-icons/io5";
 
 const MyProposals = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [proposals, setProposals] = useState([]);
+  const [stats, setStats] = useState({
+    totalSent: 0,
+    pending: 0,
+    accepted: 0,
+    rejected: 0
+  });
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(10); // Fixed limit as per API
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+  // Function to handle phone call
+  const handleCall = (phoneNumber) => {
+    if (phoneNumber && phoneNumber !== 'N/A') {
+      console.log(`Initiating call to: ${phoneNumber}`); // Debugging log
+      window.location.href = `tel:${phoneNumber}`;
+    } else {
+      console.warn('No valid phone number provided for call');
+    }
+  };
 
   useEffect(() => {
     const fetchProposals = async () => {
@@ -24,7 +41,8 @@ const MyProposals = () => {
           headers['Authorization'] = `Bearer ${token}`;
         }
 
-        const response = await fetch(
+        // Fetch applied proposals
+        const appliedResponse = await fetch(
           `https://fieldtriplinkbackend-production.up.railway.app/api/driver/proposal?status=applied&page=${currentPage}&limit=${limit}`,
           {
             method: 'GET',
@@ -32,12 +50,46 @@ const MyProposals = () => {
           }
         );
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch proposals');
+        if (!appliedResponse.ok) {
+          throw new Error('Failed to fetch applied proposals');
         }
 
-        const data = await response.json();
-        const { proposals: fetchedProposals, total, limit: responseLimit } = data;
+        // Fetch accepted proposals
+        const acceptedResponse = await fetch(
+          `https://fieldtriplinkbackend-production.up.railway.app/api/driver/proposal?status=accepted&page=${currentPage}&limit=${limit}`,
+          {
+            method: 'GET',
+            headers,
+          }
+        );
+
+        if (!acceptedResponse.ok) {
+          throw new Error('Failed to fetch accepted proposals');
+        }
+
+        // Fetch rejected proposals
+        const rejectedResponse = await fetch(
+          `https://fieldtriplinkbackend-production.up.railway.app/api/driver/proposal?status=rejected&page=${currentPage}&limit=${limit}`,
+          {
+            method: 'GET',
+            headers,
+          }
+        );
+
+        if (!rejectedResponse.ok) {
+          throw new Error('Failed to fetch rejected proposals');
+        }
+
+        const appliedData = await appliedResponse.json();
+        const acceptedData = await acceptedResponse.json();
+        const rejectedData = await rejectedResponse.json();
+
+        // Combine all proposals
+        const allProposals = [
+          ...appliedData.proposals,
+          ...acceptedData.proposals,
+          ...rejectedData.proposals
+        ];
 
         const dayMap = {
           mon: 'Monday',
@@ -49,7 +101,7 @@ const MyProposals = () => {
           sun: 'Sunday'
         };
 
-        const mappedProposals = fetchedProposals.map((proposal) => {
+        const mappedProposals = allProposals.map((proposal) => {
           if (!proposal.tripId) {
             return {
               id: proposal._id,
@@ -66,6 +118,8 @@ const MyProposals = () => {
               status: proposal.status,
               message: proposal.driverNote,
               submitted: calculateSubmittedTime(proposal.submittedAt),
+              phoneNumber: 'N/A',
+              postedDate: 'N/A'
             };
           }
 
@@ -78,6 +132,13 @@ const MyProposals = () => {
           const startTimeStr = startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           const endTimeStr = endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           const submittedStr = calculateSubmittedTime(proposal.submittedAt);
+          const postedDate = trip.createdAt
+            ? new Date(trip.createdAt).toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+              })
+            : 'N/A';
 
           return {
             id: proposal._id,
@@ -94,15 +155,26 @@ const MyProposals = () => {
             status: proposal.status,
             message: proposal.driverNote,
             submitted: submittedStr,
+            phoneNumber: trip.schoolId?.phoneNumber || 'N/A',
+            postedDate
           };
         });
 
+        // Update stats
+        setStats({
+          totalSent: appliedData.total + acceptedData.total + rejectedData.total,
+          pending: appliedData.total,
+          accepted: acceptedData.total,
+          rejected: rejectedData.total
+        });
+
         setProposals(mappedProposals);
-        setTotalPages(Math.ceil(total / responseLimit));
+        setTotalPages(Math.ceil((appliedData.total + acceptedData.total + rejectedData.total) / limit));
         setLoading(false);
       } catch (error) {
         console.error('Error fetching proposals:', error);
         setProposals([]);
+        setStats({ totalSent: 0, pending: 0, accepted: 0, rejected: 0 });
         setTotalPages(1);
         setLoading(false);
       }
@@ -181,13 +253,13 @@ const MyProposals = () => {
               <p className="text-gray-500">Track your sent ride proposals</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <div className="bg-white shadow-sm rounded-lg p-4 flex justify-center items-center">
                 <div className="flex items-center">
                   <LuPlane className="text-yellow-500 text-2xl mr-2" />
                   <div className="">
                     <p className="text-sm text-gray-500">Total Sent</p>
-                    <h2 className="text-xl font-semibold">{proposals.length}</h2>
+                    <h2 className="text-xl font-semibold">{stats.totalSent}</h2>
                   </div>
                 </div>
               </div>
@@ -196,9 +268,25 @@ const MyProposals = () => {
                   <LuClock4 className="text-pink-500 text-2xl mr-4" />
                   <div className="">
                     <p className="text-sm text-gray-500">Pending Response</p>
-                    <h2 className="text-xl font-semibold">
-                      {proposals.filter(p => p.status.toLowerCase() === 'pending' || p.status.toLowerCase() === 'applied').length}
-                    </h2>
+                    <h2 className="text-xl font-semibold">{stats.pending}</h2>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white shadow-sm rounded-lg p-4 flex justify-center items-center">
+                <div className="flex items-center">
+                  <FaCheckCircle className="text-green-500 text-2xl mr-4" />
+                  <div className="">
+                    <p className="text-sm text-gray-500">Accepted</p>
+                    <h2 className="text-xl font-semibold">{stats.accepted}</h2>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white shadow-sm rounded-lg p-4 flex justify-center items-center">
+                <div className="flex items-center">
+                  <FaTimesCircle className="text-red-500 text-2xl mr-4" />
+                  <div className="">
+                    <p className="text-sm text-gray-500">Rejected</p>
+                    <h2 className="text-xl font-semibold">{stats.rejected}</h2>
                   </div>
                 </div>
               </div>
@@ -222,21 +310,43 @@ const MyProposals = () => {
                           </div>
                           <div>
                             <h3 className="text-[16px] archivomedium">{proposal.job}</h3>
-                            <p className="text-[16px] flex gap-[10px] items-center interregular text-gray-500">
-                              <HiOutlineCalendarDateRange className='text-[#EF4444]' />
-                              {proposal.isRecurring ? 'Days: ' : 'Date: '} {proposal.date}
+                            <p className="text-[16px] interregular text-gray-500">
+                              {proposal.school}  ({proposal.postedDate})
                             </p>
                           </div>
                         </div>
-                        <div className="flex space-x-2">
-                          <span className={`text-xs px-4 py-1.5 rounded font-medium text-white ${
-                            proposal.status.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            proposal.status.toLowerCase() === 'applied' ? 'bg-[#F0B100]' :
-                            proposal.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-800' :
-                            proposal.status.toLowerCase() === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
-                          </span>
+                        <div className="flex flex-col items-end gap-2">
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <span className={`text-xs px-4 py-1.5 rounded archivomedium ${
+                              proposal.status.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              proposal.status.toLowerCase() === 'applied' ? 'bg-[#F0B100] text-white' :
+                              proposal.status.toLowerCase() === 'accepted' ? 'text-[#4CAF50]' :
+                              proposal.status.toLowerCase() === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
+                            </span>
+                            {proposal.status.toLowerCase() === 'accepted' && (
+                              <div className="flex gap-2 sm:gap-3">
+                                <button 
+                                  onClick={() => handleCall(proposal.phoneNumber)}
+                                  className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold flex items-center justify-center interregular px-3 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm"
+                                  disabled={proposal.phoneNumber === 'N/A'}
+                                >
+                                  <IoCallOutline className='me-1 text-base sm:text-lg' />
+                                  Call
+                                </button>
+                                <button className="bg-red-500 hover:bg-red-600 text-white font-semibold px-3 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm flex items-center justify-center">
+                                  <IoChatbubbleOutline className='me-1' />
+                                  Chat
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          {proposal.status.toLowerCase() === 'accepted' && (
+                            <div className="flex items-center gap-2 interregular text-xs sm:text-sm text-[#98690C]">
+                              Phone: <span>{proposal.phoneNumber}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
@@ -297,7 +407,7 @@ const MyProposals = () => {
             ) : (
               <div className="bg-white shadow-sm rounded-lg p-10 text-center">
                 <div className="flex justify-center mb-4">
-                  <LuPlane className="text-gray-400 text-4xl" />
+                  <FaEnvelope className="text-gray-400 text-4xl" />
                 </div>
                 <h2 className="text-lg font-medium mb-2">No proposals sent yet</h2>
                 <p className="text-sm text-gray-500 mb-4">Start sending proposals for available rides</p>

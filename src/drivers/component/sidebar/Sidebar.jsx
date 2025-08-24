@@ -8,7 +8,6 @@ import { CgFileDocument } from 'react-icons/cg';
 import { GrCar } from 'react-icons/gr';
 import { IoLocationOutline } from 'react-icons/io5';
 import { GoPencil } from 'react-icons/go';
-import { FaRegMessage } from 'react-icons/fa6';
 import { FiMessageCircle } from 'react-icons/fi';
 import { FaRegStar } from "react-icons/fa";
 import { FaRegBell } from 'react-icons/fa';
@@ -28,7 +27,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { name: 'Available Rides', icon: IoLocationOutline, href: '/availablerides' },
     { name: 'My Rides', icon: GrCar, href: '/myrides' },
     { name: 'My Proposals', icon: GoPencil, href: '/proposals' },
-    { name: 'School Responses', icon: FaRegMessage, href: '/schoolresponse' },
     { name: 'Chat', icon: FiMessageCircle, href: '/chat' },
     { name: 'Reviews', icon: FaRegStar, href: '/driverreviews' },
     { name: 'Notifications', icon: FaRegBell, href: '/notifications' },
@@ -57,11 +55,48 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         });
       } catch (err) {
         console.error('Error fetching driver profile:', err);
+        if (err.response?.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('userType');
+          setProfileData(null);
+          navigate('/login');
+        }
       }
     };
 
     fetchDriverProfile();
-  }, []);
+  }, [navigate]);
+
+  // Token validation to sync logout across tabs
+  useEffect(() => {
+    const validateToken = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
+        await axios.get(`${BaseUrl}/auth/verify-token`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+      } catch (err) {
+        if (err.response?.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('userType');
+          setProfileData(null);
+          navigate('/login');
+        }
+      }
+    };
+
+    validateToken();
+    const intervalId = setInterval(validateToken, 10000);
+    return () => clearInterval(intervalId);
+  }, [navigate]);
 
   // Handle ESC key and prevent background scroll
   useEffect(() => {
@@ -73,7 +108,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
     if (showConfirmModal) {
       document.addEventListener('keydown', handleEsc);
-      document.body.style.overflow = 'hidden'; // Prevent background scroll
+      document.body.style.overflow = 'hidden';
     }
 
     return () => {
@@ -90,6 +125,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   // Actual logout function
   const confirmLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userType');
     setProfileData(null);
     setShowConfirmModal(false);
     toggleSidebar();
@@ -104,16 +140,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   // Portal Modal Component - Fully Responsive
   const ConfirmationModal = () => (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden">
-      {/* Premium Backdrop with Gradient */}
       <div 
         className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-md transition-all duration-500 ease-out"
         onClick={cancelLogout}
-        style={{
-          animation: 'fadeIn 0.4s ease-out forwards'
-        }}
+        style={{ animation: 'fadeIn 0.4s ease-out forwards' }}
       ></div>
       
-      {/* Premium Modal Container - Responsive */}
       <div 
         className="relative bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-3 sm:mx-4 border border-white/20 overflow-hidden"
         style={{
@@ -121,10 +153,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           transformOrigin: 'center center'
         }}
       >
-        {/* Gradient Header Background */}
         <div className="absolute top-0 left-0 right-0 h-24 sm:h-28 md:h-32 bg-gradient-to-br from-red-50 via-orange-50 to-pink-50 opacity-60"></div>
         
-        {/* Header - Responsive */}
         <div className="relative flex items-center justify-between p-4 sm:p-6 md:p-8 pb-3 sm:pb-4 md:pb-6">
           <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 flex-1 min-w-0">
             <div className="relative flex-shrink-0">
@@ -150,7 +180,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           </button>
         </div>
 
-        {/* Content - Responsive */}
         <div className="relative px-4 sm:px-6 md:px-8 pb-4 sm:pb-5 md:pb-6">
           <div className="bg-white/70 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 border border-gray-100/50 shadow-sm">
             <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3 sm:mb-4 font-medium">
@@ -190,17 +219,16 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           </div>
         </div>
 
-        {/* Actions - Responsive */}
         <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center justify-center space-y-3 sm:space-y-0 sm:space-x-3 md:space-x-4 p-4 sm:p-6 md:p-8 pt-2 sm:pt-3 md:pt-4 bg-gradient-to-r from-gray-50/50 to-white/50 backdrop-blur-sm">
           <button
             onClick={cancelLogout}
-            className=" cursor-pointer w-full sm:w-auto px-4 sm:px-5 md:px-6 py-2.5 sm:py-3  text-sm sm:text-base font-semibold text-gray-700 bg-white/90 border-2 border-gray-200 rounded-lg sm:rounded-xl hover:bg-gray-50 hover:border-gray-300  focus:outline-none focus:ring-4 focus:ring-gray-200/50 transition-all duration-300 hover:scale-[1.02] backdrop-blur-sm order-2 sm:order-1"
+            className="cursor-pointer w-full sm:w-auto px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold text-gray-700 bg-white/90 border-2 border-gray-200 rounded-lg sm:rounded-xl hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-200/50 transition-all duration-300 hover:scale-[1.02] backdrop-blur-sm order-2 sm:order-1"
           >
             Stay Logged In
           </button>
           <button
             onClick={confirmLogout}
-            className=" cursor-pointer w-full sm:w-auto px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 mb-2 sm:mb-0 text-sm sm:text-base font-semibold text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 border-2 border-red-500 hover:border-red-600 rounded-lg sm:rounded-xl  focus:outline-none focus:ring-4 focus:ring-red-200/50 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg order-1 sm:order-2"
+            className="cursor-pointer w-full sm:w-auto px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 mb-2 sm:mb-0 text-sm sm:text-base font-semibold text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 border-2 border-red-500 hover:border-red-600 rounded-lg sm:rounded-xl focus:outline-none focus:ring-4 focus:ring-red-200/50 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg order-1 sm:order-2"
           >
             <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Logout Now</span>
@@ -242,83 +270,89 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   );
 
   return (
-    <div
-      className={`fixed lg:fixed top-0 left-0 h-screen w-[80%] lg:w-[17%] bg-white border-r border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out ${
-        isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      } z-20 overflow-y-auto scrollbar-hide`}
-      style={{ scrollbarWidth: 'none' }} // For Firefox
-    >
-      <style jsx>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
-      <div className="py-4 h-full flex flex-col">
-        {/* Close button for mobile */}
-        <button
-          className="lg:hidden absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-xl"
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-[#7676767a] bg-opacity-50 z-40 lg:hidden"
           onClick={toggleSidebar}
-        >
-          ✕
-        </button>
+        />
+      )}
 
-        {/* Logo/Title */}
-        <div className="mb-8 pl-[20px]">
-          <h2 className="text-[18px] max-[1320px]:text-[15px] interbold text-gray-800 flex items-center gap-[10px]">
-            <img src={logo} alt="FieldTripLink Logo" className="h-18.5 w-18.5 max-[1320px]:h-[15] max-[1320px]:w-[15]" /> FieldTripLink
-          </h2>
-        </div>
+      {/* Sidebar */}
+      <div
+        className={`fixed lg:fixed top-0 left-0 h-screen w-[80%] lg:w-[17%] bg-white border-r border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out ${
+          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        } z-50 overflow-y-auto hide-scrollbar`}
+        style={{ scrollbarWidth: 'none' }}
+      >
+        <style jsx>{`
+          .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
+        <div className="py-0 h-full flex flex-col">
+          {/* Close button for mobile */}
+          <button
+            className="lg:hidden absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-xl"
+            onClick={toggleSidebar}
+          >
+            ✕
+          </button>
 
-        {/* Menu Items */}
-        <nav className="flex-1">
-          <ul className="space-y-2">
-            {menuItems.map((item, index) => {
-              const Icon = item.icon;
-              return (
-                <li key={index}>
+          {/* Logo/Title */}
+          <div className="mb-0 mt-0 pl-[20px]">
+            <h2 className="text-[18px] max-[1320px]:text-[15px] interbold text-gray-800 flex items-center gap-[10px]">
+              <img src={logo} alt="FieldTripLink Logo" className="h-18.5 w-18.5 max-[1320px]:h-[15] max-[1320px]:w-[15]" /> <div>FieldTripLink<p className='text-[grey] text-[12px] archivoregular'>Driver Dashboard</p></div>
+            </h2>
+          </div>
+
+          {/* Menu Items */}
+          <nav className=" space-y-1 flex flex-col flex-1 px-4">
+            <div className="flex-1">
+              {menuItems.map((item, index) => {
+                const Icon = item.icon;
+                return (
                   <NavLink
+                    key={index}
                     to={item.href}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 p-3 rounded-0 transition-colors duration-200 relative ${
+                      `flex items-center rounded-[5px] space-x-3 px-3 py-2 mt-4 text-sm font-medium transition-colors ${
                         isActive
                           ? 'bg-[#ea4444] text-white'
-                          : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                       }`
                     }
                     onClick={toggleSidebar}
                   >
-                    <div className="absolute inset-0 bg-inherit z-[-1]" />
-                    <div className="flex items-center gap-3 pl-[25px] max-[1320px]:text-[15px] ">
-                      <Icon className="text-lg" />
-                      <span className="font-medium">{item.name}</span>
-                    </div>
+                    <Icon className="ml-2 w-5 h-5" />
+                    <span>{item.name}</span>
                   </NavLink>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-
-        {/* Footer */}
-        <div className="mt-auto pt-4 border-t border-gray-200">
-          <button
-  onClick={handleLogoutClick}
-  className="flex cursor-pointer items-center content-center mx-auto justify-start space-x-3 px-4 py-4 rounded-lg text-sm font-medium transition-all duration-200 bg-white hover:bg-gray-50 group w-full text-left"
->
-  <div className="flex flex-row ml-3">
-    <LogOut className="w-5 h-5 mr-2 text-red-500 group-hover:text-red-700 transition-colors duration-200" />
-    <span className="text-[14px] inter-semibold text-red-600 flex items-center">
-      Logout
-    </span>
-  </div>
-</button>
-
+                );
+              })}
+            </div>
+            <div className="flex-shrink-0 pb-4 ">
+                <hr className='text-[#E5E7EB]' />
+              <button
+                onClick={handleLogoutClick}
+                className="flex cursor-pointer items-center content-center mx-auto justify-start space-x-3 px-4 py-4 rounded-lg text-sm font-medium transition-all duration-200 bg-white hover:bg-gray-50 group w-full text-left"
+              >
+                <div className="flex flex-row ml-3">
+                
+                  <LogOut className="w-5 h-5 mr-2 text-red-500 group-hover:text-red-700 transition-colors duration-200" />
+                  <span className="text-[14px] inter-semibold text-red-600 flex items-center">
+                    Logout
+                  </span>
+                </div>
+              </button>
+            </div>
+          </nav>
         </div>
-      </div>
 
-      {/* Portal Modal - Renders Outside Sidebar */}
-      {showConfirmModal && createPortal(<ConfirmationModal />, document.body)}
-    </div>
+        {/* Portal Modal - Renders Outside Sidebar */}
+        {showConfirmModal && createPortal(<ConfirmationModal />, document.body)}
+      </div>
+    </>
   );
 };
 

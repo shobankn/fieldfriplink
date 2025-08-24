@@ -122,6 +122,11 @@ const Register = () => {
     navigate('/login');
   };
 
+  // Handle logo click to navigate to home page
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   const validateEmail = (email) => {
     // Stricter email validation: no consecutive dots, no repeated TLDs, valid characters
     const re = /^[a-zA-Z0-9](?:[a-zA-Z0-9_-]*[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$/;
@@ -175,7 +180,7 @@ const Register = () => {
       }
 
       if (!validateEmail(formData.email)) {
-        setError('Please enter a valid email address (e.g., example@domain.com, no consecutive dots or repeated TLDs)');
+        setError('Please enter a valid email address (e.g., example@domain.com)');
         toast.error('Please enter a valid email address (e.g., example@domain.com)', { toastId: 'email-error' });
         setLoading(false);
         return;
@@ -248,12 +253,18 @@ const Register = () => {
             navigate('/login', { state: { userType: 'Driver' } });
           }, 2000);
         } else {
-          setError(data.message || 'Failed to register driver. Please check your inputs and try again.');
-          toast.error(data.message || 'Failed to register driver. Please check your inputs and try again.', { toastId: 'driver-error' });
+          if (data.error) {
+            setError(data.error);
+            toast.error(data.error, { toastId: 'driver-error' });
+          } else {
+            setError('Unknown server error');
+            toast.error('Unknown server error', { toastId: 'driver-error' });
+          }
         }
       } catch (err) {
-        setError('Network error occurred. Please check your connection and try again.');
-        toast.error('Network error occurred. Please check your connection and try again.', { toastId: 'network-error' });
+        const errorMessage = 'Network error: Please check your connection';
+        setError(errorMessage);
+        toast.error(errorMessage, { toastId: 'network-error' });
         console.error('API Error:', err);
       } finally {
         setLoading(false);
@@ -270,8 +281,8 @@ const Register = () => {
       }
 
       if (!validateEmail(formData.email)) {
-        setError('Please enter a valid email address (e.g., example@domain.com, no consecutive dots or repeated TLDs)');
-        toast.error('Please enter a valid email address (e.g., example@domain.com, no consecutive dots or repeated TLDs)', { toastId: 'email-error' });
+        setError('Please enter a valid email address (e.g., example@domain.com)');
+        toast.error('Please enter a valid email address (e.g., example@domain.com)', { toastId: 'email-error' });
         setLoading(false);
         return;
       }
@@ -317,12 +328,18 @@ const Register = () => {
             navigate('/login', { state: { userType: 'School' } });
           }, 2000);
         } else {
-          setError(data.message || 'Failed to register school admin. Please try again.');
-          toast.error(data.message || 'Failed to register school admin. Please try again.', { toastId: 'school-error' });
+          if (data.error) {
+            setError(data.error);
+            toast.error(data.error, { toastId: 'school-error' });
+          } else {
+            setError('Unknown server error');
+            toast.error('Unknown server error', { toastId: 'school-error' });
+          }
         }
       } catch (err) {
-        setError('Network error occurred. Please check your connection and try again.');
-        toast.error('Network error occurred. Please check your connection and try again.', { toastId: 'network-error' });
+        const errorMessage = 'Network error: Please check your connection';
+        setError(errorMessage);
+        toast.error(errorMessage, { toastId: 'network-error' });
         console.error('API Error:', err);
       } finally {
         setLoading(false);
@@ -347,7 +364,9 @@ const Register = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       <div className="w-full lg:w-[45%] bg-white flex items-center justify-center px-6 lg:px-[35px] py-6 lg:py-0">
-        <img src={logo} alt="Logo" className="w-full max-w-[400px] lg:max-w-none" />
+        <div onClick={handleLogoClick} className="cursor-pointer">
+          <img src={logo} alt="Logo" className="w-full max-w-[400px] lg:max-w-none" />
+        </div>
       </div>
       <div className="w-full lg:w-[55%] bg-[#f9fafb] flex flex-col justify-center px-6 sm:px-12 lg:px-24 py-10 lg:py-10">
         <h2 className="text-2xl sm:text-3xl lg:text-[32px] archivosemibold text-center mb-1">Create your Account</h2>

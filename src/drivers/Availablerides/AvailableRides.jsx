@@ -3,8 +3,9 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Topbar from '../component/topbar/topbar';
+import { LuPlane, LuClock4, LuMapPin, LuUsers,  LuClock} from 'react-icons/lu';
 import Sidebar from '../component/sidebar/Sidebar';
-import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaUsers, FaExclamationTriangle, FaTimes, FaCommentDots, FaCheckCircle } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaUsers, FaTimesCircle, FaTimes, FaCommentDots, FaCheckCircle } from 'react-icons/fa';
 import { CiFilter, CiLocationOn, CiClock2 } from "react-icons/ci";
 import { LuUser, LuBus, LuCalendar } from "react-icons/lu";
 
@@ -423,30 +424,30 @@ const AvailableRides = () => {
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-y-2">
                       <div>
                         <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
-                          <CiLocationOn className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">Pickup:</span> <span className="interregular">{ride.pickup}</span>
+                          <LuMapPin className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
+                          <span className="archivomedium">Pickup:</span> <span className="interregular">{ride.pickup}</span>
                         </p>
                         <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
-                          <CiLocationOn className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">Drop:</span> <span className="interregular">{ride.drop}</span>
+                          <LuMapPin className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
+                          <span className="archivomedium">Drop:</span> <span className="interregular">{ride.drop}</span>
                         </p>
                         <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
                           <LuUser className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">{ride.students} students</span> <span className="interregular"></span>
+                          <span className="archivomedium">{ride.students} students</span> <span className="interregular"></span>
                         </p>
                       </div>
                       <div>
                         <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
                           <LuCalendar className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">{ride.isRecurring ? 'Days' : 'Date'}:</span> <span className="interregular">{ride.date}</span>
+                          <span className="archivomedium">{ride.isRecurring ? 'Days' : 'Date'}:</span> <span className="interregular">{ride.date}</span>
                         </p>
                         <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
-                          <CiClock2 className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">Start Time:</span> <span className="interregular">{ride.startTime}</span> - <span className="font-medium">End Time:</span> <span className="interregular">{ride.endTime}</span>
+                          <LuClock4 className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
+                          <span className="archivomedium">Start Time:</span> <span className="interregular">{ride.startTime}</span> - <span className="font-medium">End Time:</span> <span className="interregular">{ride.endTime}</span>
                         </p>
                         <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
                           <LuBus className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">Number of Buses:</span> <span className="interregular">{ride.buses}</span>
+                          <span className="archivomedium">Number of Buses:</span> <span className="interregular">{ride.buses}</span>
                         </p>
                       </div>
                     </div>

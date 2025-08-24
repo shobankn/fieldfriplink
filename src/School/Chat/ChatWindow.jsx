@@ -83,10 +83,11 @@ const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessa
                       isMyMessage ? 'flex-row-reverse ml-auto' : 'flex-row mr-auto'
                     }`}
                   >
-                    {!isMyMessage && showAvatar && (
+                    {/* Always show avatar for receiver messages */}
+                    {!isMyMessage &&  (
                       <div className="w-8 h-8 mb-1 flex-shrink-0">
                         <img
-                          src={receiver?.profilePicture || customer}
+                          src={receiver?.profilePicture || receiver?.profileImage || customer}
                           alt="Avatar"
                           className="w-8 h-8 rounded-full object-cover"
                         />

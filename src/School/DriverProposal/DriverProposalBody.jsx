@@ -36,113 +36,109 @@ const DriverRequestsComponent = () => {
   const [error, setError] = useState(null);
   const [driverDetails, setDriverDetails] = useState(null);
   const [driverDetailsLoading, setDriverDetailsLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('applied'); // default applied
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false); // for filter dropdown
+
   let navigate = useNavigate();
 
   function formatExactDate(dateString) {
-  const date = new Date(dateString);
-  const day = date.getUTCDate();
-  const month = date.getUTCMonth() + 1; // zero-based month
-  const year = date.getUTCFullYear();
+    const date = new Date(dateString);
+    const day = date.getUTCDate();
+    const month = date.getUTCMonth() + 1;
+    const year = date.getUTCFullYear();
 
-  const pad = (n) => (n < 10 ? '0' + n : n);
+    const pad = (n) => (n < 10 ? '0' + n : n);
 
-  return `${pad(day)}/${pad(month)}/${year}`;
-}
+    return `${pad(day)}/${pad(month)}/${year}`;
+  }
 
-function formatExactUTCTime(isoString) {
-  const date = new Date(isoString);
-  let hours = date.getUTCHours();
-  const minutes = date.getUTCMinutes();
-  const seconds = date.getUTCSeconds();
+  function formatExactUTCTime(isoString) {
+    const date = new Date(isoString);
+    let hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    const seconds = date.getUTCSeconds();
 
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12;
-  if (hours === 0) hours = 12;  // midnight or noon fix
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    if (hours === 0) hours = 12;
 
-  const pad = (n) => (n < 10 ? '0' + n : n);
+    const pad = (n) => (n < 10 ? '0' + n : n);
 
-  return `${hours}:${pad(minutes)}:${pad(seconds)} ${ampm}`;
-}
+    return `${hours}:${pad(minutes)}:${pad(seconds)} ${ampm}`;
+  }
 
   const handleProposalUpdate = (proposalId) => {
     setDriverRequests(prev => prev.filter(driver => driver.id !== proposalId));
-    setSelectedDriver(null); // Close modal after rejection
+    setSelectedDriver(null);
     toast.info('Proposal removed from the list');
   };
 
-
-
-
-
-
-useEffect(() => {
-  const fetchProposals = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await axios.get(
-        'https://fieldtriplinkbackend-production.up.railway.app/api/school/my-trips/proposals',
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+  useEffect(() => {
+    const fetchProposals = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No authentication token found');
         }
-      );
 
-      const proposals = response.data.proposals.map(proposal => {
-        const trip = proposal.tripId; // ✅ define trip from proposal
+        const response = await axios.get(
+          'https://fieldtriplinkbackend-production.up.railway.app/api/school/my-trips/proposals',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-        // ✅ Choose recurringDays or tripDate
-        const displayDateOrDays =
-          trip.tripType === 'recurring'
-            ? trip.recurringDays.join(', ')
-            : formatExactDate(trip.tripDate);
+        const proposals = response.data.proposals.map(proposal => {
+          const trip = proposal.tripId;
 
-        return {
-          id: proposal._id,
-          driverId: proposal.driverId._id,
-          name: proposal.driverId.name,
-          rating: proposal.driverId.averageRating || 0,
-          reviews: proposal.driverId.reviewCount || 0,
-          location: proposal.driverId.address || 'unknown',
-          jobTitle: `Job: ${trip.tripName}`,
-          jobDetails: `${trip.pickupPoints[0].address} to ${trip.destination.address} • ${trip.numberOfStudents} students • ${displayDateOrDays}`,
-          route: `${trip.pickupPoints[0].address} to ${trip.destination.address}`,
-          completedJobs: proposal.driverId.completedTrips || 0,
-          submittedTime: formatDistanceToNow(new Date(proposal.submittedAt), { addSuffix: true }),
-          status: proposal.status,
-          proposalMessage: proposal.driverNote,
-          avatar:
-            proposal.driverId.profileImage ||
-            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-          phone: proposal.driverId.phone,
-          tripDate: displayDateOrDays, // ✅ now using our conditional value
-          startTime: formatExactUTCTime(trip.startTime),
-          returnTime: formatExactUTCTime(trip.returnTime),
-          numberOfBuses: trip.numberOfBuses,
-          numberOfStudents: trip.numberOfStudents,
-        };
-      });
+          const displayDateOrDays =
+            trip.tripType === 'recurring'
+              ? trip.recurringDays.join(', ')
+              : formatExactDate(trip.tripDate);
 
-      setDriverRequests(proposals);
-    } catch (err) {
-      const errorMessage =
-        err.response?.status === 401
-          ? 'Unauthorized: Invalid or expired token'
-          : 'Failed to fetch proposals';
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
+          return {
+            id: proposal._id,
+            driverId: proposal.driverId._id,
+            name: proposal.driverId.name,
+            rating: proposal.driverId.averageRating || 0,
+            reviews: proposal.driverId.reviewCount || 0,
+            location: proposal.driverId.address || 'unknown',
+            jobTitle: `Job: ${trip.tripName}`,
+            jobDetails: `${trip.pickupPoints[0].address} to ${trip.destination.address} • ${trip.numberOfStudents} students • ${displayDateOrDays}`,
+            route: `${trip.pickupPoints[0].address} to ${trip.destination.address}`,
+            completedJobs: proposal.driverId.completedTrips || 0,
+            submittedTime: formatDistanceToNow(new Date(proposal.submittedAt), { addSuffix: true }),
+            status: proposal.status,
+            proposalMessage: proposal.driverNote,
+            avatar:
+              proposal.driverId.profileImage ||
+              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+            phone: proposal.driverId.phone,
+            tripDate: displayDateOrDays,
+            startTime: formatExactUTCTime(trip.startTime),
+            returnTime: formatExactUTCTime(trip.returnTime),
+            numberOfBuses: trip.numberOfBuses,
+            numberOfStudents: trip.numberOfStudents,
+          };
+        });
 
-  fetchProposals();
-}, []);
+        setDriverRequests(proposals);
+      } catch (err) {
+        const errorMessage =
+          err.response?.status === 401
+            ? 'Unauthorized: Invalid or expired token'
+            : 'Failed to fetch proposals';
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchProposals();
+  }, []);
 
   useEffect(() => {
     if (activeTab === 'driver-profile' && selectedDriver) {
@@ -160,7 +156,6 @@ useEffect(() => {
             },
           });
           setDriverDetails(response.data);
-console.log("driver request", response.data);
         } catch (err) {
           const errorMessage = err.response?.status === 401 ? 'Unauthorized: Invalid or expired token' : 'Failed to fetch driver details';
         } finally {
@@ -177,7 +172,7 @@ console.log("driver request", response.data);
       const driver = driverRequests.find(d => d.id === id);
       setSelectedDriver(driver);
       setActiveTab('proposal');
-      setDriverDetails(null); // Reset details on new selection
+      setDriverDetails(null);
     } else if (action === 'Accept') {
       toast.success(`Accepted proposal for driver ID: ${id}`);
     } else if (action === 'Reject') {
@@ -192,22 +187,23 @@ console.log("driver request", response.data);
     setDriverDetails(null);
   };
 
-  const filteredRequests = driverRequests.filter(driver =>
-    driver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredRequests = driverRequests.filter(driver => 
+    (statusFilter === 'all' || driver.status === statusFilter) &&
+    (driver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     driver.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    driver.location.toLowerCase().includes(searchTerm.toLowerCase())
+    driver.location.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
     <>
     <ToastContainer/>
-     <div className="bg-gray-50 min-h-screen p-4 sm:px-6 py-2 w-full max-w-full overflow-x-hidden">
+    <div className="bg-gray-50 min-h-screen p-4 sm:px-6 py-2 w-full max-w-full overflow-x-hidden">
       <div className="max-w-full mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 flex-wrap">
           <div>
-            <h1 className="text-2xl md:text-3xl inter-bold text-gray-900  mb-1">Driver Requests</h1>
-            <p className="text-gray-500 inter-regular text-sm">{driverRequests.length} proposals received</p>
+            <h1 className="text-2xl md:text-3xl inter-bold text-gray-900 mb-1">Driver Requests</h1>
+            <p className="text-gray-500 inter-regular text-sm">{filteredRequests.length} proposals received</p>
           </div>
         </div>
 
@@ -223,10 +219,38 @@ console.log("driver request", response.data);
               className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-500 text-sm break-words"
             />
           </div>
-          {/* <button className="justify-center inter-bold flex items-center space-x-2 px-4 py-2 border border-red-600 rounded-lg hover:bg-gray-50 text-sm w-full sm:w-auto">
-            <Filter className="w-4 h-4 text-red-500" />
-            <span className="text-red-500">Filters</span>
-          </button> */}
+          <div className="relative w-full sm:w-auto">
+            <button 
+              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+              className="justify-center cursor-pointer inter-bold flex items-center space-x-2 px-4 py-2 border border-red-600 rounded-lg hover:bg-gray-50 text-sm w-full sm:w-auto"
+            >
+              <Filter className="w-4 h-4 text-red-500" />
+              <span className="text-red-500">Filter</span>
+            </button>
+            {showFilterDropdown && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                <div className="p-2">
+                  {['applied', 'accepted', 'rejected'].map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => {
+                        setStatusFilter(status);
+                        setShowFilterDropdown(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm inter-medium capitalize ${
+                        statusFilter === status 
+                          ? 'bg-red-50 text-red-600' 
+                          : 'text-gray-600 hover:bg-gray-50'
+                      } rounded-md flex items-center justify-between`}
+                    >
+                      <span>{status}</span>
+                      {statusFilter === status && <Check className="w-4 h-4 text-red-600" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Driver Cards */}
@@ -278,23 +302,28 @@ console.log("driver request", response.data);
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-                    <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs inter-medium rounded-full border border-yellow-200">
+                    <span className={`px-3 py-1 text-xs inter-medium rounded-full border ${
+                      driver.status === 'applied' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                      driver.status === 'accepted' ? 'bg-green-100 text-green-700 border-green-200' :
+                      'bg-red-100 text-red-700 border-red-200'
+                    }`}>
                       {driver.status}
                     </span>
                     <div className="flex items-center space-x-1">
-                   <button
-                onClick={() => handleAction(driver.id, 'View')}
-                className="group p-2 cursor-pointer text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-sm hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50"
-              >
-                <Eye className="w-4 h-4 text-[#84B1F9] group-hover:text-blue-600 transition-colors duration-200" />
-                        </button>
-                              <ProposalIconActions
-                proposalId={driver.id}
-                onActionComplete={(id, status) => {
-                  console.log(`Proposal ${id} was ${status}`);
-                  // You could refresh data here if needed
-                }}/>
-                     
+                      <button
+                        onClick={() => handleAction(driver.id, 'View')}
+                        className="group p-2 cursor-pointer text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-sm hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50"
+                      >
+                        <Eye className="w-4 h-4 text-[#84B1F9] group-hover:text-blue-600 transition-colors duration-200" />
+                      </button>
+                      <ProposalIconActions
+                        proposalId={driver.id}
+                     disabled={driver.status === "accepted" || driver.status === "rejected"}
+
+                        onActionComplete={(id, status) => {
+                          console.log(`Proposal ${id} was ${status}`);
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -433,24 +462,7 @@ console.log("driver request", response.data);
                           </div>
                         </div>
                       </div>
-                      {/* <div className="mt-auto flex flex-col space-y-3">
-                        <button 
-                          onClick={() => handleAction(selectedDriver.id, 'Accept')}
-                          className="text-center justify-center flex bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 transition-colors font-medium w-full"
-                        >
-                          <CheckCircle className="mr-2" />
-                          Accept Proposal
-                        </button>
-                        <button 
-                          onClick={() => handleAction(selectedDriver.id, 'Reject')}
-                          className="flex justify-center bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors font-medium w-full"
-                        >
-                          <CircleXIcon className="mr-2" />
-                          Reject Proposal
-                        </button>
-                      </div> */}
-
-                     <ProposalActions proposalId={selectedDriver.id} onProposalUpdate={handleProposalUpdate} />.
+                      <ProposalActions proposalId={selectedDriver.id} onProposalUpdate={handleProposalUpdate}  disabled={selectedDriver.status === "accepted" || selectedDriver.status === "rejected"}  />
                     </div>
                   </div>
                 )}
@@ -521,30 +533,22 @@ console.log("driver request", response.data);
                             </div>
                           </div>
                         </div>
-
-
                         <div className="pt-4">
-                         <button
-                          onClick={() => {
-                            console.log("creatorId =", selectedDriver?.driverId);
-                            console.log("creatorPic =", selectedDriver?.avatar);
-                            console.log("full driver data =", selectedDriver);
-
-                            navigate("/messages", {
-                              state: {
-                                creatorId: selectedDriver?.driverId,   // ✅ driverId as creatorId
-                                creatorPic: selectedDriver?.avatar,    // ✅ driver profile image
-                              },
-                            });
-                          }}
-                          className="w-full sm:w-auto bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2 inter-medium"
-                        >
-                          <MessageCircle className="w-5 h-5" />
-                          <span>Message Driver</span>
-                        </button>
-
+                          <button
+                            onClick={() => {
+                              navigate("/messages", {
+                                state: {
+                                  creatorId: selectedDriver?.driverId,
+                                  creatorPic: selectedDriver?.avatar,
+                                },
+                              });
+                            }}
+                            className="w-full sm:w-auto bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2 inter-medium"
+                          >
+                            <MessageCircle className="w-5 h-5" />
+                            <span>Message Driver</span>
+                          </button>
                         </div>
-                        
                       </>
                     ) : (
                       <div className="text-red-500 inter-regular text-center">Failed to load driver details</div>
@@ -558,7 +562,6 @@ console.log("driver request", response.data);
       </div>
     </div>
     </>
-   
   );
 };
 

@@ -4,12 +4,21 @@ import customer from '../../images/customer.png';
 import DeleteChatModal from './DeleteChatModel'
 import { MoreVertical, Trash2 } from "lucide-react";
 
-const ChatSidebar = ({ onSelectChat, className,isOnline }) => {
+const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
   const socket = useSocketContext();
   const [chats, setChats] = useState([]);
   const chatsRef = useRef(chats); // Keep a ref to current chats
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [chatToDelete, setChatToDelete] = useState(null);
+
+  const [activeChatId, setActiveChatId] = useState(null);
+  const activeChatIdRef = useRef(activeChatId);
+
+// keep ref in sync
+useEffect(() => {
+  activeChatIdRef.current = activeChatId;
+}, [activeChatId]);
+
 
 
   const openDeleteModal = (chat, e) => {
@@ -74,7 +83,11 @@ const closeDeleteModal = () => {
                     sender: actualMessage.sender || actualMessage.senderId || actualMessage.from || data.sender || data.senderId || data.from
                   },
                   updatedAt: actualMessage.timestamp || actualMessage.createdAt || data.timestamp || data.createdAt || new Date().toISOString(),
-                  _updateKey: Date.now()
+                    unreadCount:
+                messageChatId === activeChatIdRef.current
+                  ? 0
+                  : (chat.unreadCount || 0) + 1,
+                _updateKey: Date.now()
                 }
               : chat
           )
@@ -116,6 +129,10 @@ const closeDeleteModal = () => {
                     sender: actualMessage.sender || actualMessage.senderId || actualMessage.from || data.sender || data.senderId || data.from
                   },
                   updatedAt: actualMessage.timestamp || actualMessage.createdAt || data.timestamp || data.createdAt || new Date().toISOString(),
+                     unreadCount:
+                  messageChatId === activeChatIdRef.current
+                    ? 0
+                    : (chat.unreadCount || 0) + 1,
                   _updateKey: Date.now()
                 }
               : chat
@@ -138,6 +155,7 @@ const closeDeleteModal = () => {
   }, [socket]);
 
   const handleChatClick = (chat) => {
+     setActiveChatId(chat.chatId); // <-- mark active chat
     const otherUser = chat.participants.find(p => p._id !== socket.userId);
 
     socket.emit("JOIN_CHAT", {
@@ -148,6 +166,15 @@ const closeDeleteModal = () => {
     socket.once("JOIN_CHAT_SUCCESS", (data) => {
       const { chatId, messages, participants } = data;
       const receiver = participants.find(p => p.userId !== socket.userId);
+
+
+
+   // reset unread count when user opens the chat
+    setChats(prevChats =>
+    prevChats.map(c =>
+      c.chatId === chat.chatId ? { ...c, unreadCount: 0 } : c
+    )
+  );
 
       onSelectChat({
         chatId,
@@ -178,6 +205,12 @@ const closeDeleteModal = () => {
     return bTime - aTime;
   });
 
+
+
+
+
+
+
  
 
   return (
@@ -201,6 +234,7 @@ const closeDeleteModal = () => {
           sortedChats.map((chat) => {
             const participant = chat.participants.find(p => p._id !== socket.userId);
             if (!participant) return null;
+            console.log(participant);
 
             return (
               <div
@@ -210,9 +244,9 @@ const closeDeleteModal = () => {
               >
                 <div className="relative">
                   <img
-                    src={participant.profilePicture || customer}
+                    src={participant.profileImage || customer}
                     className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all duration-200"
-                    alt={`${participant.fullName}'s avatar`}
+                    alt={`${participant.name}'s avatar`}
                   />
                   <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4  rounded-full border-2 border-white
                      ${ isOnline ? "bg-green-500" : "bg-gray-400"}`}>
@@ -225,16 +259,29 @@ const closeDeleteModal = () => {
                 </div>
                 <div className="ml-4 flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-200">
-                    {participant.fullName}
+                    {participant.name}
                   </p>
                   <p className="text-xs text-gray-500 truncate mt-1">
-                    {chat.lastMessage?.content || "No messages yet"}
-                  </p>
+                  {chat.lastMessage ? (
+                    (chat.lastMessage.sender?._id === socket.userId || chat.lastMessage.sender === socket.userId)
+                      ? `You: ${chat.lastMessage.content}`
+                      : chat.lastMessage.content
+                  ) : (
+                    "No messages yet"
+                  )}
+                </p>
+
                 </div>
                <div className="flex flex-col items-end space-y-1">
                 <span className="text-xs text-gray-400">
                   {formatTime(chat.lastMessage?.timestamp || chat.updatedAt)}
                 </span>
+
+                 {chat.unreadCount > 0 && (
+                <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {chat.unreadCount}
+                </span>
+              )}
 
                 <button
                   onClick={(e) => openDeleteModal(chat, e)}

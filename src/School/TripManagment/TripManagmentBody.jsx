@@ -421,6 +421,11 @@ const TripManagementBody = () => {
             <p className="text-xs text-green-700 inter-regular">{driver.address || 'N/A'}</p>
           </div>
         </div>
+
+
+
+
+        
       ))}
     </div>
     <div className="flex items-center space-x-1 justify-start md:justify-end mt-2 md:mt-0">

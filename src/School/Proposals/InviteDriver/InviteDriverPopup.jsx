@@ -125,12 +125,25 @@ const TripCard = ({ trip,loading, onSendJobPost }) => {
   {loading ? (
     <Skeleton width={100} height={36} /> // same size as button
   ) : (
+    // <button
+    //   onClick={() => onSendJobPost(trip)}
+    //   className="bg-red-600  cursor-pointer hover:bg-red-700 text-white px-4 py-2 rounded-lg inter-medium transition-colors text-sm"
+    // >
+    //   Send Job Post
+    // </button>
+
     <button
-      onClick={() => onSendJobPost(trip)}
-      className="bg-red-600  cursor-pointer hover:bg-red-700 text-white px-4 py-2 rounded-lg inter-medium transition-colors text-sm"
-    >
-      Send Job Post
-    </button>
+  onClick={() => onSendJobPost(trip)}
+  disabled={trip.isDisabled}  // <-- new prop
+  className={`px-4 py-2 rounded-lg text-white transition-colors text-sm ${
+    trip.isDisabled
+      ? "bg-gray-400 cursor-not-allowed"
+      : "bg-red-600 hover:bg-red-700"
+  }`}
+>
+  {trip.isDisabled ? "Already Invited" : "Send Job Post"}
+</button>
+
   )}
 </div>
 
@@ -153,6 +166,10 @@ const SelectJobPostPopup = ({ isOpen, onClose, onSendJobPost,driverId  }) => {
   const [loading, setLoading] = useState(true);
    const [sendingTripId, setSendingTripId] = useState(null);
   const [note, setNote] = useState("Please accept the invitation");
+  const [disabledTrips, setDisabledTrips] = useState([]); 
+
+
+  
 
  useEffect(() => {
   if (!isOpen) return;

@@ -8,6 +8,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import 'react-toastify/dist/ReactToastify.css';
 import profilepic from '../../images/profile/profile4.jpeg';
 import DriverStatusButtons from './ApproveRejctButton';
+import DocumentSection from './DocuemntSection';
 
 const DriverVerificationDetails = () => {
   const [status, setStatus] = useState('Verified');
@@ -43,6 +44,48 @@ const DriverVerificationDetails = () => {
         console.log(response.data);
 
         // Transform backend data to match frontend structure
+const submittedDocuments = {};
+
+if (profile.cnicFrontImage) {
+  submittedDocuments.cnicFront = {
+    name: 'CNIC Front',
+    uploaded: true,
+    fileName: profile.cnicFrontImage.split('/').pop().split('?')[0],
+    url: profile.cnicFrontImage
+  };
+}
+
+if (profile.cnicBackImage) {
+  submittedDocuments.cnicBack = {
+    name: 'CNIC Back',
+    uploaded: true,
+    fileName: profile.cnicBackImage.split('/').pop().split('?')[0],
+    url: profile.cnicBackImage
+  };
+}
+
+if (profile.drivingLicenseImage) {
+  submittedDocuments.drivingLicense = {
+    name: 'Driving License',
+    uploaded: true,
+    fileName: profile.drivingLicenseImage.split('/').pop().split('?')[0],
+    url: profile.drivingLicenseImage
+  };
+}
+
+if (profile.vehicleRegistrationImage) {
+  submittedDocuments.vehicleRegistration = {
+    name: 'Vehicle Registration',
+    uploaded: true,
+    fileName: profile.vehicleRegistrationImage.split('/').pop().split('?')[0],
+    url: profile.vehicleRegistrationImage
+  };
+}
+
+
+
+
+        // Transform backend data to match frontend structure
         const transformedData = {
           personalInfo: {
             name: user.name,
@@ -55,32 +98,33 @@ const DriverVerificationDetails = () => {
               : 'N/A',
             address: profile.address || 'N/A'
           },
-          submittedDocuments: {
-            cnicFront: {
-              name: 'CNIC Front',
-              uploaded: !!profile.cnicFrontImage,
-              fileName: profile.cnicFrontImage ? profile.cnicFrontImage.split('/').pop().split('?')[0] : 'N/A',
-              url: profile.cnicFrontImage || ''
-            },
-            cnicBack: {
-              name: 'CNIC Back',
-              uploaded: !!profile.cnicBackImage,
-              fileName: profile.cnicBackImage ? profile.cnicBackImage.split('/').pop().split('?')[0] : 'N/A',
-              url: profile.cnicBackImage || ''
-            },
-            drivingLicense: {
-              name: 'Driving License',
-              uploaded: !!profile.drivingLicenseImage,
-              fileName: profile.drivingLicenseImage ? profile.drivingLicenseImage.split('/').pop().split('?')[0] : 'N/A',
-              url: profile.drivingLicenseImage || ''
-            },
-            vehicleRegistration: {
-              name: 'Vehicle Registration',
-              uploaded: !!profile.vehicleRegistrationImage,
-              fileName: profile.vehicleRegistrationImage ? profile.vehicleRegistrationImage.split('/').pop().split('?')[0] : 'N/A',
-              url: profile.vehicleRegistrationImage || ''
-            }
-          },
+          submittedDocuments,
+          // submittedDocuments: {
+          //   cnicFront: {
+          //     name: 'CNIC Front',
+          //     uploaded: !!profile.cnicFrontImage,
+          //     fileName: profile.cnicFrontImage ? profile.cnicFrontImage.split('/').pop().split('?')[0] : 'N/A',
+          //     url: profile.cnicFrontImage || ''
+          //   },
+          //   cnicBack: {
+          //     name: 'CNIC Back',
+          //     uploaded: !!profile.cnicBackImage,
+          //     fileName: profile.cnicBackImage ? profile.cnicBackImage.split('/').pop().split('?')[0] : 'N/A',
+          //     url: profile.cnicBackImage || ''
+          //   },
+          //   drivingLicense: {
+          //     name: 'Driving License',
+          //     uploaded: !!profile.drivingLicenseImage,
+          //     fileName: profile.drivingLicenseImage ? profile.drivingLicenseImage.split('/').pop().split('?')[0] : 'N/A',
+          //     url: profile.drivingLicenseImage || ''
+          //   },
+          //   vehicleRegistration: {
+          //     name: 'Vehicle Registration',
+          //     uploaded: !!profile.vehicleRegistrationImage,
+          //     fileName: profile.vehicleRegistrationImage ? profile.vehicleRegistrationImage.split('/').pop().split('?')[0] : 'N/A',
+          //     url: profile.vehicleRegistrationImage || ''
+          //   }
+          // },
           verificationNotes: schoolDriver.notes || 'No verification notes provided.',
           submissionDetails: {
             submitted: profile.createdAt
@@ -128,13 +172,13 @@ const DriverVerificationDetails = () => {
     setZoomLevel(1);
   };
 
-  const handleZoomIn = () => {
-    setZoomLevel((prev) => Math.min(prev + 0.2, 3)); // Max zoom: 3x
-  };
+  // const handleZoomIn = () => {
+  //   setZoomLevel((prev) => Math.min(prev + 0.2, 3)); // Max zoom: 3x
+  // };
 
-  const handleZoomOut = () => {
-    setZoomLevel((prev) => Math.max(prev - 0.2, 0.5)); // Min zoom: 0.5x
-  };
+  // const handleZoomOut = () => {
+  //   setZoomLevel((prev) => Math.max(prev - 0.2, 0.5)); // Min zoom: 0.5x
+  // };
 
 const DocumentItem = ({ document, label, onImageClick }) => (
   <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
@@ -162,7 +206,7 @@ const DocumentItem = ({ document, label, onImageClick }) => (
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Image Modal */}
+      {/* Image Modal
       {modalOpen && (
         <div
           className="fixed inset-0 bg-black/20 backdrop-blur-sm transition-opacity flex items-center justify-center z-50 px-4"
@@ -218,7 +262,7 @@ const DocumentItem = ({ document, label, onImageClick }) => (
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Header */}
       <div className="px-4 md:px-6 py-4">
@@ -367,15 +411,16 @@ const DocumentItem = ({ document, label, onImageClick }) => (
                   </div>
                 </div>
 
+
+
                 {/* Submitted Documents */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
   <div className="flex items-center gap-2 mb-6">
     <FileText className="w-5 h-5 text-red-500" />
     <h3 className="text-lg inter-semibold text-gray-900">Submitted Documents</h3>
   </div>
   
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    {/* CNIC Front */}
     <div>
       <span className="text-sm inter-medium text-gray-700 block mb-2">CNIC Front</span>
       <DocumentItem 
@@ -385,7 +430,6 @@ const DocumentItem = ({ document, label, onImageClick }) => (
       />
     </div>
 
-    {/* CNIC Back */}
     <div>
       <span className="text-sm inter-medium text-gray-700 block mb-2">CNIC Back</span>
       <DocumentItem 
@@ -395,7 +439,6 @@ const DocumentItem = ({ document, label, onImageClick }) => (
       />
     </div>
 
-    {/* Driving License */}
     <div>
       <span className="text-sm inter-medium text-gray-700 block mb-2">Driving License</span>
       <DocumentItem 
@@ -405,7 +448,6 @@ const DocumentItem = ({ document, label, onImageClick }) => (
       />
     </div>
 
-    {/* Vehicle Registration */}
     <div>
       <span className="text-sm inter-medium text-gray-700 block mb-2">Vehicle Registration</span>
       <DocumentItem 
@@ -415,7 +457,11 @@ const DocumentItem = ({ document, label, onImageClick }) => (
       />
     </div>
   </div>
-</div>
+            </div> */}
+
+            <DocumentSection driverData={driverData} />
+
+
 
                 
               </div>

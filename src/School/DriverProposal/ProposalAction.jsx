@@ -4,11 +4,13 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
-const ProposalActions = ({ proposalId, onProposalUpdate }) => {
+const ProposalActions = ({ proposalId, onProposalUpdate,disabled }) => {
       const navigate = useNavigate();
 
 
 const handleProposalDecision = async (status) => {
+      if (disabled) return; // ✅ prevent API call if disabled
+
   try {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -59,15 +61,23 @@ const handleProposalDecision = async (status) => {
     <div className="mt-auto flex flex-col space-y-3">
       <button
         onClick={() => handleProposalDecision('accepted')}
-        className="text-center justify-center flex bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 transition-colors font-medium w-full"
-      >
+         disabled={disabled}
+className={`text-center justify-center flex py-3 px-4 rounded-lg font-medium w-full transition-colors
+          ${disabled
+            ? "bg-gray-300 cursor-not-allowed opacity-50"
+            : "bg-green-500 text-white hover:bg-green-600"
+          }`}      >
         <CheckCircle className="mr-2" />
         Accept Proposal
       </button>
       <button
         onClick={() => handleProposalDecision('rejected')}
-        className="flex justify-center bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors font-medium w-full"
-      >
+disabled={disabled}
+        className={`flex justify-center py-3 px-4 rounded-lg font-medium w-full transition-colors
+          ${disabled
+            ? "bg-gray-300 cursor-not-allowed opacity-50"
+            : "bg-red-500 text-white hover:bg-red-600"
+          }`}      >
         <CircleXIcon className="mr-2" />
         Reject Proposal
       </button>

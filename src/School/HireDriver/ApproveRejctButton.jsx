@@ -117,10 +117,22 @@ const DriverActions = ({ driverId }) => {
 
   return (
     <>
-      <ToastContainer />
-      <div className="flex gap-3">
-        {/* Show Verify button only if not approved */}
-        {driverStatus !== 'approved' && (
+    <ToastContainer />
+    <div className="flex gap-3">
+      {/* ✅ Show only Suspend button if approved */}
+      {driverStatus === 'approved' ? (
+        <motion.button
+          onClick={handleSuspendDriver}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="content-center flex text-[14px] sm:text-[16px] px-3 py-2 sm:px-4 sm:py-2 text-white bg-yellow-500 rounded-[10px] inter-medium transition-colors hover:bg-yellow-600"
+        >
+          <TriangleAlert className="w-4 h-4 sm:w-5 sm:h-5 mr-1 my-auto" />
+          Suspend
+        </motion.button>
+      ) : (
+        <>
+          {/* Verify button (only if not approved) */}
           <motion.button
             onClick={handleVerifyDriver}
             disabled={loading}
@@ -156,33 +168,21 @@ const DriverActions = ({ driverId }) => {
               </>
             )}
           </motion.button>
-        )}
 
-        {/* Reject Button (always visible) */}
-        <motion.button
-          onClick={handleRejectDriver}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="content-center flex text-[14px] sm:text-[16px] px-3 py-2 sm:px-4 sm:py-2 text-white bg-red-500 rounded-[10px] inter-medium transition-colors hover:bg-red-600"
-        >
-          <X className="w-4 h-4 sm:w-5 sm:h-5 mr-1 my-auto" />
-          Reject
-        </motion.button>
-
-        {/* Suspend Button (only if approved) */}
-        {driverStatus === 'approved' && (
+          {/* Reject Button (only if not approved) */}
           <motion.button
-            onClick={handleSuspendDriver}
+            onClick={handleRejectDriver}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="content-center flex text-[14px] sm:text-[16px] px-3 py-2 sm:px-4 sm:py-2 text-white bg-yellow-500 rounded-[10px] inter-medium transition-colors hover:bg-yellow-600"
+            className="content-center flex text-[14px] sm:text-[16px] px-3 py-2 sm:px-4 sm:py-2 text-white bg-red-500 rounded-[10px] inter-medium transition-colors hover:bg-red-600"
           >
-            <TriangleAlert className="w-4 h-4 sm:w-5 sm:h-5 mr-1 my-auto" />
-            Suspend
+            <X className="w-4 h-4 sm:w-5 sm:h-5 mr-1 my-auto" />
+            Reject
           </motion.button>
-        )}
-      </div>
-    </>
+        </>
+      )}
+    </div>
+  </>
   );
 };
 

@@ -3,6 +3,7 @@ import axios from 'axios';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { toast } from 'react-toastify';
+import { useLocation } from 'react-router-dom';
 
 import { 
   Calendar, 
@@ -38,6 +39,15 @@ const TripManagementBody = () => {
   const [loading, setLoading] = useState(true);
   const [trips, setTrips] = useState([]);
   const navigate = useNavigate();
+  const location = useLocation();
+
+
+    useEffect(() => {
+    if (location.state?.tab) {
+      setActiveFilter(location.state.tab);
+    }
+  }, [location.state]);
+
 
   // Fetch trips from backend
   useEffect(() => {
@@ -223,8 +233,13 @@ const TripManagementBody = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3">
           <h3 className="text-[20px] archivo-semibold text-gray-900 break-words">
-            {loading ? <Skeleton width={120} /> : trip.title}
+            {loading ? (
+              <Skeleton width={120} />
+            ) : (
+              trip.title.length > 50 ? trip.title.slice(0, 50) + "…" : trip.title
+            )}
           </h3>
+
         </div>
         <div className="flex flex-wrap gap-2">
           <span className={`px-2 py-1 inter-medium rounded-full text-[12px] font-medium ${getStatusColor(trip.status)}`}>
@@ -306,10 +321,16 @@ const TripManagementBody = () => {
       ))}
     </div>
 
-    <button className="flex items-center justify-center space-x-2 px-3 py-1.5 bg-[#EEF3FE] text-[#0A41A0] rounded-[6px] text-sm font-medium hover:bg-green-200 transition-colors">
-      <Eye className="w-4 h-4" />
-      <span>Live Track</span>
-    </button>
+    {/* ✅ Show Live Track only if trip is active */}
+    {trip.status === 'Active' && (
+      <button onClick={() => navigate('/live-tracking')} className="cursor-pointer flex items-center justify-center space-x-2 px-3 py-1.5 bg-[#EEF3FE] text-[#0A41A0] rounded-[6px] text-sm font-medium hover:bg-green-200 transition-colors">
+        <Eye className="w-4 h-4" />
+        <span>Live Track</span>
+      </button>
+    )}
+
+
+
   </div>
 ) : (
   <div className="pt-4 border-t border-gray-100">
@@ -337,8 +358,13 @@ const TripManagementBody = () => {
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-3">
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 max-w-full">
           <h3 className="text-[20px] archivo-semibold text-gray-900 break-words">
-            {loading ? <Skeleton width={120} /> : trip.title}
+            {loading ? (
+              <Skeleton width={120} />
+            ) : (
+              trip.title.length > 50 ? trip.title.slice(0, 50) + "…" : trip.title
+            )}
           </h3>
+
           <span className={`px-2 py-1 text-center inter-medium rounded-full text-[12px] font-medium ${getStatusColor(trip.status)}`}>
             {loading ? <Skeleton width={60} /> : trip.status}
           </span>
@@ -361,7 +387,7 @@ const TripManagementBody = () => {
                   },
                 });
               }}
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              className="p-2 cursor-pointer  rounded-full hover:bg-gray-100 transition-colors"
             >
               <MessageCircle className="w-5 h-5 text-red-500" />
             </button>
@@ -460,8 +486,12 @@ const TripManagementBody = () => {
       {/* Header: title, status, type, message icon */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-3 gap-2">
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2">
-          <h3 className="text-lg archivo-semibold text-[#1F2633]">
-            {loading ? <Skeleton width={120} /> : trip.title}
+           <h3 className="text-[20px] archivo-semibold text-gray-900 break-words">
+            {loading ? (
+              <Skeleton width={120} />
+            ) : (
+              trip.title.length > 50 ? trip.title.slice(0, 50) + "…" : trip.title
+            )}
           </h3>
           <div className="flex flex-wrap gap-2 ml-0 sm:ml-3">
             <span className={`px-2 py-1 inter-medium rounded-full text-[12px] font-medium ${getStatusColor(trip.status)}`}>
@@ -489,7 +519,7 @@ const TripManagementBody = () => {
                   },
                 });
               }}
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              className="p-2 cursor-pointer  rounded-full hover:bg-gray-100 transition-colors"
             >
               <MessageCircle className="w-5 h-5 text-red-500" />
             </button>
@@ -574,8 +604,12 @@ const TripManagementBody = () => {
     <div className="bg-white rounded-lg border border-white p-6 shadow-sm transition-shadow hover:shadow-md">
       <div className="justify-between flex items-center mb-4 gap-3">
         <h3 className="text-[20px] archivo-semibold text-gray-900 break-words">
-          {loading ? <Skeleton width={120} /> : trip.title}
-        </h3>
+            {loading ? (
+              <Skeleton width={120} />
+            ) : (
+              trip.title.length > 50 ? trip.title.slice(0, 50) + "…" : trip.title
+            )}
+          </h3>
         <div className="flex">
           {loading ? <Skeleton width={40} height={20} /> : (
            <>
@@ -649,8 +683,12 @@ const CompletedTripCard = ({ trip }) => {
       <div className="flex flex-col md:flex-row md:items-center md:gap-2 mb-3">
         <div className="flex items-center gap-2">
           <CheckCircle className="w-5 h-5 text-gray-600" />
-          <h3 className="text-lg archivo-semibold text-gray-900">
-            {loading ? <Skeleton width={120} /> : trip.title}
+           <h3 className="text-[20px] archivo-semibold text-gray-900 break-words">
+            {loading ? (
+              <Skeleton width={120} />
+            ) : (
+              trip.title.length > 50 ? trip.title.slice(0, 50) + "…" : trip.title
+            )}
           </h3>
         </div>
         <div className="flex flex-wrap gap-2 mt-2 md:mt-0 md:ml-auto">
@@ -748,7 +786,7 @@ const CompletedTripCard = ({ trip }) => {
                   onClick={() =>
                     navigate(`/trip-management/feedback/${trip.id}/${driver.id}`)
                   }
-                  className="px-3 py-2 bg-red-600 text-white text-sm inter-medium rounded-md hover:bg-red-700 cursor-pointer transition-colors"
+                  className="px-3 py-2   bg-red-600 text-white text-sm inter-medium rounded-md hover:bg-red-700 cursor-pointer transition-colors"
                 >
                   Give Feedback
                 </button>

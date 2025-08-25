@@ -33,7 +33,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { icon: TbCurrentLocation, label: 'Live Tracking', path: '/live-tracking' },
     { icon: MessageSquare, label: 'Messages', path: '/messages' },
     { icon: IoDocumentTextOutline, label: 'Job Posts', path: '/job-post' },
-    { icon: User, label: 'Hired Drivers', path: '/hire-driver' },
+    { icon: User, label: 'Driver Verification', path: '/hire-driver' },
     { icon: FileText, label: 'Proposal', path: '/proposal' },
     { icon: CiSettings, label: 'Settings', path: '/setting' },
   ];

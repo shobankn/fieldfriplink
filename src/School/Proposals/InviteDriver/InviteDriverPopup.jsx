@@ -17,7 +17,14 @@ const TripCard = ({ trip,loading, onSendJobPost }) => {
       <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4 hover:shadow-md transition-shadow">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
         <div className="flex-1">
-          <h3 className="inter-semibold text-gray-900 text-sm capitalize sm:text-base mb-1"> {loading ? <Skeleton width={120} /> : trip.tripName}</h3>
+         <h3 className="inter-semibold text-gray-900 text-sm capitalize sm:text-base mb-1 break-words max-w-[50ch]">
+            {loading ? (
+              <Skeleton width={120} />
+            ) : (
+              trip.tripName.length > 50 ? trip.tripName.slice(0, 50) + "…" : trip.tripName
+            )}
+          </h3>
+
           <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
             {loading ? (
               <Skeleton width={60} />
@@ -135,7 +142,7 @@ const TripCard = ({ trip,loading, onSendJobPost }) => {
     <button
   onClick={() => onSendJobPost(trip)}
   disabled={trip.isDisabled}  // <-- new prop
-  className={`px-4 py-2 rounded-lg text-white transition-colors text-sm ${
+  className={`px-4 py-2 cursor-pointer  rounded-lg text-white transition-colors text-sm ${
     trip.isDisabled
       ? "bg-gray-400 cursor-not-allowed"
       : "bg-red-600 hover:bg-red-700"

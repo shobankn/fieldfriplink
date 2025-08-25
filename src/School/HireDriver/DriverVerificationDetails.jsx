@@ -485,7 +485,7 @@ const DocumentItem = ({ document, label, onImageClick }) => (
                   <h3 className="text-lg inter-semibold text-gray-900 mb-4">Verification Notes</h3>
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <p className="text-gray-800 text-sm leading-relaxed">
-                      {driverData.verificationNotes}
+                      {/* {driverData.verificationNotes} */}
                     </p>
                   </div>
                 </div>

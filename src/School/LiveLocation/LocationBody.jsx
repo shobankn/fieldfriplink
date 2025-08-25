@@ -243,8 +243,13 @@ const LiveTrackingComponent = () => {
                 ))}
               </div>
             ) : (
-              <div className="space-y-3">
-                {trips.map((trip) => (
+             <div className="space-y-3">
+              {trips.length === 0 ? (
+                <div className="p-4 text-center inter-bold text-gray-600 bg-gray-50 rounded-lg border border-gray-200">
+                   No active trip available
+                </div>
+              ) : (
+                trips.map((trip) => (
                   <div
                     key={trip.id}
                     onClick={() => handleTripSelect(trip)}
@@ -267,143 +272,168 @@ const LiveTrackingComponent = () => {
                         <Users className="w-4 h-4 text-gray-400" />
                         <span className="text-gray-600 inter-regular">{trip.students} students</span>
                       </div>
-                      {/* <div className="bg-green-100 inter-regular text-green-800 px-2 py-1 rounded-full text-xs">
-                        ETA: {trip.eta}
-                      </div> */}
                     </div>
                   </div>
-                ))}
-              </div>
+                ))
+              )}
+            </div>
+
             )}
           </div>
 
           {/* Right Column - Live Location */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 sm:p-6 lg:col-span-2">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg inter-semibold text-gray-900">
-                {selectedTrip ? `${selectedTrip.name} - Live Location` : 'Select a Trip'}
-              </h2>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-green-600 font-medium">Live</span>
-              </div>
-            </div>
+  <div className="flex items-center justify-between mb-6">
+    <h2 className="text-lg inter-semibold text-gray-900">
+      {selectedTrip
+        ? `${selectedTrip.name} - Live Location`
+        : trips.length === 0
+        ? ''
+        : 'Select a Trip'}
+    </h2>
+    {selectedTrip && (
+      <div className="flex items-center gap-2">
+        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+        <span className="text-sm text-green-600 font-medium">Live</span>
+      </div>
+    )}
+  </div>
 
-            {/* Map */}
-            {loading || !selectedTrip ? (
-              <div className="bg-gray-100 rounded-lg h-64 lg:h-72 animate-pulse"></div>
-            ) : (
-              <div className="rounded-lg h-64 lg:h-72 overflow-hidden relative"> 
-                <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY}>
-                  <GoogleMap
-                    mapContainerStyle={{ height: '100%', width: '100%' }}
-                    center={
-                      selectedLocation
-                        ? { lat: selectedLocation.lat, lng: selectedLocation.lng }
-                        : { lat: 34.16977089044261, lng: 73.22476850235304 } // 🟢 Default: Abbottabad
-                    }
-                    zoom={selectedLocation ? 13 : 13} // 🟢 Always zoom in properly
-                  >
-
-                    {selectedLocation && (
-                      <Marker position={{ lat: selectedLocation.lat, lng: selectedLocation.lng }} />
-                    )}
-                    {selectedLocation && (
-                      <Marker
-                        position={{ lat: selectedLocation.lat, lng: selectedLocation.lng }}
-                        
-                        onClick={() => setSelectedPosition({ lat: selectedLocation.lat, lng: selectedLocation.lng })}
-                      />
-                    )}
-                    {selectedPosition && selectedLocation && (
-                      <InfoWindow
-                        position={selectedPosition}
-                        onCloseClick={() => setSelectedPosition(null)}
-                      >
-                        <div>
-                          Current Location: {selectedTrip.currentLocation}<br />
-                          Speed: {selectedTrip.speed}<br />
-                          Updated: {new Date(selectedLocation.timestamp).toLocaleTimeString()}
-                        </div>
-                      </InfoWindow>
-                    )}
-                  </GoogleMap>
-                </LoadScript>
-              
+  {/* Map */}
+  {loading ? (
+    <div className="bg-gray-100 rounded-lg h-64 lg:h-72 animate-pulse"></div>
+  ) : !selectedTrip ? (
+    <div className="text-center text-gray-600 py-24 bg-gray-50 rounded-lg border border-gray-200">
+      No active trip available
+    </div>
+  ) : (
+    <div className="rounded-lg h-64 lg:h-72 overflow-hidden relative">
+      <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY}>
+        <GoogleMap
+          mapContainerStyle={{ height: '100%', width: '100%' }}
+          center={
+            selectedLocation
+              ? { lat: selectedLocation.lat, lng: selectedLocation.lng }
+              : { lat: 34.16977089044261, lng: 73.22476850235304 } // Default: Abbottabad
+          }
+          zoom={13}
+        >
+          {selectedLocation && (
+            <Marker position={{ lat: selectedLocation.lat, lng: selectedLocation.lng }} />
+          )}
+          {selectedLocation && (
+            <Marker
+              position={{ lat: selectedLocation.lat, lng: selectedLocation.lng }}
+              onClick={() => setSelectedPosition({ lat: selectedLocation.lat, lng: selectedLocation.lng })}
+            />
+          )}
+          {selectedPosition && selectedLocation && (
+            <InfoWindow
+              position={selectedPosition}
+              onCloseClick={() => setSelectedPosition(null)}
+            >
+              <div>
+                Current Location: {selectedTrip.currentLocation}<br />
+                Speed: {selectedTrip.speed}<br />
+                Updated: {new Date(selectedLocation.timestamp).toLocaleTimeString()}
               </div>
-            )}
-          </div>
+            </InfoWindow>
+          )}
+        </GoogleMap>
+      </LoadScript>
+    </div>
+  )}
+</div>
+
+
+
+
+
+
         </div>
 
         {/* Bottom Row - Full Width Trip Progress */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg inter-semibold text-gray-900 mb-6">Trip Progress</h2>
-          {loading || !selectedTrip ? (
-            <div className="space-y-4 animate-pulse">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
-                  <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-1"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
-              {/* Progress Timeline */}
-              <div className="space-y-4">
-                {selectedTrip.progress.map((point, index) => {
-                  const IconComponent = point.icon;
-                  return (
-                    <div key={point.id} className="flex items-center gap-4">
-                      <div className={`flex-shrink-0 ${getStatusColor(point.status)}`}>
-                        <IconComponent className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h4 className="inter-medium text-gray-900 truncate">{point.name}</h4>
-                          <span className={`px-2 py-1 inter-medium rounded-full text-xs font-medium capitalize ${getStatusBadge(point.status)}`}>
-                            {point.status}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-500 mt-1">{point.time}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+  <h2 className="text-lg inter-semibold text-gray-900 mb-6">Trip Progress</h2>
 
-              {/* Statistics */}
-              <div className="flex">
-                <div className="grid grid-cols-2 gap-4 sm:gap-8 w-full max-w-md">
-                  {/* Students */}
-                  <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5">
-                    <div className="mb-2 sm:mb-0 sm:mr-4 flex items-center justify-center">
-                      <Users className="w-7 h-7 text-blue-500" />
-                    </div>
-                    <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-                      <span className="text-sm sm:text-base inter-medium text-gray-600">Students</span>
-                      <span className="text-2xl sm:text-3xl font-bold text-gray-900">{selectedTrip.totalStudents}</span>
-                    </div>
-                  </div>
-
-                  {/* No. of Buses */}
-                  <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5">
-                    <div className="mb-2 sm:mb-0 sm:mr-4 flex items-center justify-center">
-                      <Bus className="w-8 h-8 text-orange-500" />
-                    </div>
-                    <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-                      <span className="text-sm sm:text-base inter-medium text-gray-600">No. of Buses</span>
-                      <span className="text-2xl sm:text-3xl font-bold text-gray-900">{selectedTrip.totalBuses}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+  {loading ? (
+    // 🔄 Still loading trips → show skeleton
+    <div className="space-y-4 animate-pulse">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="flex items-center gap-4">
+          <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
+          <div className="flex-1">
+            <div className="h-4 bg-gray-200 rounded w-3/4 mb-1"></div>
+            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+          </div>
         </div>
+      ))}
+    </div>
+  ) : !selectedTrip ? (
+    // ❌ No active trip → show message
+    <div className="text-center text-gray-600 inter-semi-bold py-6 bg-gray-50 rounded-lg border border-gray-200">
+       No active trip available
+    </div>
+  ) : (
+    // ✅ Trip available → show timeline & stats
+    <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
+      {/* Progress Timeline */}
+      <div className="space-y-4">
+        {selectedTrip.progress.map((point) => {
+          const IconComponent = point.icon;
+          return (
+            <div key={point.id} className="flex items-center gap-4">
+              <div className={`flex-shrink-0 ${getStatusColor(point.status)}`}>
+                <IconComponent className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <h4 className="inter-medium text-gray-900 truncate">{point.name}</h4>
+                  <span
+                    className={`px-2 py-1 inter-medium rounded-full text-xs font-medium capitalize ${getStatusBadge(
+                      point.status
+                    )}`}
+                  >
+                    {point.status}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">{point.time}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Statistics */}
+      <div className="flex">
+        <div className="grid grid-cols-2 gap-4 sm:gap-8 w-full max-w-md">
+          {/* Students */}
+          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5">
+            <div className="mb-2 sm:mb-0 sm:mr-4 flex items-center justify-center">
+              <Users className="w-7 h-7 text-blue-500" />
+            </div>
+            <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+              <span className="text-sm sm:text-base inter-medium text-gray-600">Students</span>
+              <span className="text-2xl sm:text-3xl font-bold text-gray-900">{selectedTrip.totalStudents}</span>
+            </div>
+          </div>
+
+          {/* No. of Buses */}
+          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5">
+            <div className="mb-2 sm:mb-0 sm:mr-4 flex items-center justify-center">
+              <Bus className="w-8 h-8 text-orange-500" />
+            </div>
+            <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+              <span className="text-sm sm:text-base inter-medium text-gray-600">No. of Buses</span>
+              <span className="text-2xl sm:text-3xl font-bold text-gray-900">{selectedTrip.totalBuses}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+</div>
+
       </div>
     </div>
   );

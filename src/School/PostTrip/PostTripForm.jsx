@@ -9,15 +9,12 @@ import {
   Users, 
   Plus,
   ChevronDown,
-  Calendar
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import TimePicker from 'react-time-picker';
-import TimeForm from './SelectTime';
 import CustomTimePicker from './SelectTime';
 import DatePickerComponent from './CustomDatePicker';
-
+import InviteDriverPopup from './InvitedDriverpopup';
 
 const PostTripForm = () => {
   const [formData, setFormData] = useState({
@@ -41,25 +38,20 @@ const PostTripForm = () => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showGenderDropdown, setShowGenderDropdown] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [newTripId, setNewTripId] = useState(null);
   const dateInputRef = useRef(null);
   const pickupTimeRef = useRef(null);
   const returnTimeRef = useRef(null);
-  // At the top of your PostTripForm component
-const [showGenderDropdown, setShowGenderDropdown] = useState(false);
-
-  
-
-
   const BaseUrl = 'https://fieldtriplinkbackend-production.up.railway.app/api';
 
-
   const removePickupAddress = (index) => {
-  setFormData((prev) => ({
-    ...prev,
-    pickupAddresses: prev.pickupAddresses.filter((_, i) => i !== index),
-  }));
-};
-
+    setFormData((prev) => ({
+      ...prev,
+      pickupAddresses: prev.pickupAddresses.filter((_, i) => i !== index),
+    }));
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -163,17 +155,11 @@ const [showGenderDropdown, setShowGenderDropdown] = useState(false);
     }
 
     const isOneTime = activeTab === 'one-time';
-    const baseDate = formData.tripDate;
-
-
     const now = new Date();
     const year = now.getUTCFullYear();
     const month = (now.getUTCMonth() + 1).toString().padStart(2, '0');
     const day = now.getUTCDate().toString().padStart(2, '0');
     const dummyDate = `${year}-${month}-${day}`;
-
-
-
 
     const startTime = formData.pickupTime
       ? new Date(`${dummyDate}T${formData.pickupTime}:00Z`).toISOString()
@@ -218,13 +204,18 @@ const [showGenderDropdown, setShowGenderDropdown] = useState(false);
         }
       });
 
-      toast.success(`Trip ${id ? 'updated' : 'posted'} successfully!`, {
-        onClose: () => {
-          navigate('/job-post');
-        },
-        autoClose: 2000,
-      });
-      console.log('API Response:', response.data);
+      if (!id) {
+        setNewTripId(response.data.trip._id);
+        setIsPopupOpen(true);
+      } else {
+        toast.success('Trip updated successfully!', {
+          onClose: () => navigate('/job-post'),
+          autoClose: 2000,
+        });
+      }
+
+      console.log("Trip Response:",response.data.trip._id);
+
 
       setFormData({
         tripName: '',
@@ -248,16 +239,21 @@ const [showGenderDropdown, setShowGenderDropdown] = useState(false);
     }
   };
 
+  const handlePublish = () => {
+    toast.success('Trip published successfully!', {
+      onClose: () => navigate('/job-post'),
+      autoClose: 2000,
+    });
+  };
+
   useEffect(() => {
     if (id) {
-      console.log("Edit mode activated, fetching trip with ID:", id);
       setIsEditing(true);
-
       const fetchTrip = async () => {
         try {
           const token = localStorage.getItem('token');
           if (!token) {
-            console.warn('No token found in localStorage');
+            toast.error('Please log in to view trip details.');
             return;
           }
 
@@ -266,8 +262,6 @@ const [showGenderDropdown, setShowGenderDropdown] = useState(false);
           });
 
           const trip = res.data.trip;
-          console.log('Fetched trip data:', trip);
-
           setFormData({
             tripName: trip.tripName || '',
             tripType: trip.tripType === 'recurring' ? 'Recurring' : 'One-time',
@@ -297,14 +291,11 @@ const [showGenderDropdown, setShowGenderDropdown] = useState(false);
             trip.tripType === 'recurring' ? 'recurring' : 'one-time'
           );
         } catch (err) {
-          console.error('Failed to fetch trip:', err);
           toast.error('Failed to fetch trip details.');
         }
       };
 
       fetchTrip();
-    } else {
-      console.warn('No ID found in URL params');
     }
   }, [id]);
 
@@ -313,21 +304,6 @@ const [showGenderDropdown, setShowGenderDropdown] = useState(false);
       dateInputRef.current.showPicker();
     }
   };
-
-  const handlePickupTimeClick = () => {
-    if (pickupTimeRef.current) {
-      pickupTimeRef.current.showPicker();
-    }
-  };
-
-  const handleReturnTimeClick = () => {
-    if (returnTimeRef.current) {
-      returnTimeRef.current.showPicker();
-    }
-  };
-
-
-  
 
   return (
     <div className="min-h-screen">
@@ -358,6 +334,7 @@ const [showGenderDropdown, setShowGenderDropdown] = useState(false);
                 </label>
                 <input
                   type="text"
+                  maxLength={50} 
                   name="tripName"
                   value={formData.tripName}
                   onChange={handleInputChange}
@@ -382,6 +359,7 @@ const [showGenderDropdown, setShowGenderDropdown] = useState(false);
                   <p className="absolute text-red-500 text-xs mt-1">{errors.tripName}</p>
                 )}
               </div>
+
               <div className="lg:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Trip Type</label>
                 <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
@@ -413,247 +391,114 @@ const [showGenderDropdown, setShowGenderDropdown] = useState(false);
               <h2 className="text-lg font-semibold text-gray-900">Schedule</h2>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-
-
-
-              {/* <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Pickup Time <span className="text-red-500">*</span>
-                </label>
-
-                  <div 
-                    className={`relative flex items-center border rounded-lg transition-colors ${
-                      errors.pickupTime ? "border-red-500 ring-2 ring-red-500" : "border-gray-300"
-                    }`}
-                    onClick={handlePickupTimeClick}
-                  >
-                    <input
-                      type="time"
-                      name="pickupTime"
-                      value={formData.pickupTime}
-                      onChange={handleInputChange}
-                      ref={pickupTimeRef}
-                      className={`w-full px-3 py-2 bg-transparent outline-none text-gray-900 rounded-lg
-                        focus:ring-2 focus:ring-red-500 focus:border-red-500`} 
-                    />
-                  </div>
-                
-                {errors.pickupTime && (
-                  <p className="absolute text-red-500 text-xs mt-1">{errors.pickupTime}</p>
-                )}
-
-
+              <div className="relative flex-1">
+                <CustomTimePicker
+                  label="Pickup Time"
+                  value={formData.pickupTime}
+                  onChange={(time) =>
+                    setFormData((prev) => ({ ...prev, pickupTime: time }))
+                  }
+                  error={errors.pickupTime}
+                />
               </div>
 
+              <div className="relative flex-1 mt-4 md:mt-0">
+                <CustomTimePicker
+                  label="Return Time"
+                  value={formData.returnTime}
+                  onChange={(time) =>
+                    setFormData((prev) => ({ ...prev, returnTime: time }))
+                  }
+                  error={errors.returnTime}
+                />
+              </div>
 
-              <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Return Time <span className="text-red-500">*</span>
-                </label>
-                <div 
-                  className={`relative flex items-center border rounded-lg transition-colors ${
-                    errors.returnTime ? "border-red-500 ring-2 ring-red-500" : "border-gray-300"
-                  }`}
-                  onClick={handleReturnTimeClick}
-                >
-                  <input
-                    type="time"
-                    name="returnTime"
-                    value={formData.returnTime}
-                    onChange={handleInputChange}
-                    ref={returnTimeRef}
-                    className="w-full px-3 py-2 bg-transparent outline-none text-gray-900 rounded-lg "
-                  />
-                </div>
-                {errors.returnTime && (
-                  <p className="absolute text-red-500 text-xs mt-1">{errors.returnTime}</p>
-                )}
-               </div>  */}
-
-
-
-                  <div className="relative flex-1">
-                    <CustomTimePicker
-                      label="Pickup Time"
-                      value={formData.pickupTime}
-                      onChange={(time) =>
-                        setFormData((prev) => ({ ...prev, pickupTime: time }))
-                      }
-                      error={errors.pickupTime}
-                    />
-                  </div>
-
-                  <div className="relative flex-1 mt-4 md:mt-0">
-                    <CustomTimePicker
-                      label="Return Time"
-                      value={formData.returnTime}
-                      onChange={(time) =>
-                        setFormData((prev) => ({ ...prev, returnTime: time }))
-                      }
-                      error={errors.returnTime}
-                    />
-                </div> 
-
-
-
-
-
-{/*               
-              <div className="col-span-full lg:col-span-2 relative">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {activeTab === 'one-time' ? 'Trip Date' : 'Recurring Days'} 
-                  <span className="text-red-500">*</span>
-                </label>
-                {activeTab === 'one-time' ? (
-                  <div 
-                    className={`relative flex items-center border rounded-lg transition-colors ${
-                      errors.tripDate ? "border-red-500 ring-2 ring-red-500" : "border-gray-300"
-                    }`}
-                    onClick={handleDateContainerClick}
-                  >
-                    <input
-                      type="date"
-                      name="tripDate"
-                      value={formData.tripDate}
-                      onChange={handleInputChange}
-                      min={new Date().toISOString().split("T")[0]}
-                      ref={dateInputRef}
-                      className="w-full px-3 py-2 bg-transparent outline-none text-gray-900 rounded-lg "
-                    />
-                  </div>
-                ) : (
-                  <div className="flex space-x-2">
-                    {['M', 'T', 'W', 'Th', 'F', 'S'].map((day) => (
-                      <button
-                        key={day}
-                        type="button"
-                        onClick={() => toggleRecurringDay(day)}
-                        className={`w-12 h-12 rounded-lg border 
-                          ${formData.recurringDays.includes(
-                            { M: 'mon', T: 'tue', W: 'wed', Th: 'thu', F: 'fri', S: 'sat' }[day]
-                          )
-                            ? 'bg-red-600 text-white'
-                            : 'bg-white text-gray-700 hover:bg-gray-100'} 
-                          border-gray-300 flex items-center justify-center text-sm font-medium transition-colors`}
-                      >
-                        {day}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {errors.tripDate && activeTab === 'one-time' && (
-                  <p className="absolute text-red-500 text-xs mt-1">{errors.tripDate}</p>
-                )}
-                {errors.recurringDays && activeTab === 'recurring' && (
-                  <p className="absolute text-red-500 text-xs mt-1">{errors.recurringDays}</p>
-                )}
-              </div> */}
-
-              {/* Render the DatePickerComponent */}
-      <DatePickerComponent
-
-        activeTab={activeTab}
-        formData={formData}
-        setFormData={setFormData}
-        errors={errors}
-        handleDateContainerClick={handleDateContainerClick}
-        toggleRecurringDay={toggleRecurringDay}
-      />
-
-              
-
-
-              
+              <DatePickerComponent
+                activeTab={activeTab}
+                formData={formData}
+                setFormData={setFormData}
+                errors={errors}
+                handleDateContainerClick={handleDateContainerClick}
+                toggleRecurringDay={toggleRecurringDay}
+              />
             </div>
           </div>
 
+          <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4">
+            <div className="flex items-center space-x-2 mb-6">
+              <MapPin className="w-5 h-5 text-gray-600" />
+              <h2 className="text-lg font-semibold text-gray-900">Locations</h2>
+            </div>
 
-<div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4">
-  <div className="flex items-center space-x-2 mb-6">
-    <MapPin className="w-5 h-5 text-gray-600" />
-    <h2 className="text-lg font-semibold text-gray-900">Locations</h2>
-  </div>
+            <div className="space-y-3">
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Pickup Addresses <span className="text-red-500">*</span>
+                </label>
 
-  <div className="space-y-3">
-    <div className="relative">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        Pickup Addresses <span className="text-red-500">*</span>
-      </label>
+                {formData.pickupAddresses.map((address, index) => (
+                  <div key={index} className="relative mb-2">
+                    <input
+                      type="text"
+                      name={`pickupAddress-${index}`}
+                      value={address}
+                      onChange={(e) => handlePickupAddressChange(index, e.target.value)}
+                      className={`w-full pr-8 px-3 py-2 border ${
+                        errors.pickupAddresses && !address.trim()
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
+                      placeholder="Enter pickup address"
+                    />
 
-      {formData.pickupAddresses.map((address, index) => (
-        <div key={index} className="relative mb-2">
-          <input
-            type="text"
-            name={`pickupAddress-${index}`}
-            value={address}
-            onChange={(e) => handlePickupAddressChange(index, e.target.value)}
-            className={`w-full pr-8 px-3 py-2 border ${
-              errors.pickupAddresses && !address.trim()
-                ? "border-red-500"
-                : "border-gray-300"
-            } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
-            placeholder="Enter pickup address"
-          />
+                    {index > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => removePickupAddress(index)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 hover:text-red-700"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                ))}
 
-          {/* Show ❌ only for sub pickup addresses (index > 0) */}
-          {index > 0 && (
-            <button
-              type="button"
-              onClick={() => removePickupAddress(index)}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 hover:text-red-700"
-            >
-              ✕
-            </button>
-          )}
-        </div>
-      ))}
+                {errors.pickupAddresses && (
+                  <p className="text-red-500 text-xs mt-1">{errors.pickupAddresses}</p>
+                )}
 
-      {errors.pickupAddresses && (
-        <p className="text-red-500 text-xs mt-1">{errors.pickupAddresses}</p>
-      )}
+                <button
+                  type="button"
+                  onClick={addPickupAddress}
+                  className="mt-0 text-blue-500 text-sm font-medium hover:text-red-600 flex items-center"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Another Pickup Point
+                </button>
+              </div>
 
-      <button
-        type="button"
-        onClick={addPickupAddress}
-        className="mt-0 text-blue-500 text-sm font-medium hover:text-red-600 flex items-center"
-      >
-        <Plus className="w-4 h-4 mr-1" />
-        Add Another Pickup Point
-      </button>
-    </div>
-
-    <div className="relative">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        Destination <span className="text-red-500">*</span>
-      </label>
-      <input
-        type="text"
-        name="destination"
-        value={formData.destination}
-        onChange={handleInputChange}
-        className={`w-full px-3 py-2 border ${
-          errors.destination ? "border-red-500" : "border-gray-300"
-        } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
-        placeholder="School Campus or Event Venue"
-      />
-      {errors.destination && (
-        <p className="absolute text-red-500 text-xs mt-1">
-          {errors.destination}
-        </p>
-      )}
-    </div>
-  </div>
-</div>
-
-
-
-
-
-
-
-
-
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Destination <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="destination"
+                  value={formData.destination}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border ${
+                    errors.destination ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
+                  placeholder="School Campus or Event Venue"
+                />
+                {errors.destination && (
+                  <p className="absolute text-red-500 text-xs mt-1">
+                    {errors.destination}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
 
           <div className="px-0 sm:px-6 ml-2 mr-2 sm:ml-4 mt-4 lg:sticky lg:top-4 lg:self-start">
             <div className="flex items-center space-x-2 mb-6">
@@ -662,115 +507,100 @@ const [showGenderDropdown, setShowGenderDropdown] = useState(false);
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-
-             <div className="relative">
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    No. of Students <span className="text-red-500">*</span>
-  </label>
-  <input
-    type="number"
-    name="numberOfStudents"
-    value={formData.numberOfStudents}
-    onChange={(e) => {
-      const value = e.target.value;
-      // ✅ Prevent negative values
-      if (value >= 0 || value === "") {
-        handleInputChange(e);
-      }
-    }}
-    min="0" // ✅ Stops arrow down below 0
-    onKeyDown={(e) => {
-      if (["e", "E", "+", "-","."].includes(e.key)) {
-        e.preventDefault();
-      }
-    }}
-    className={`w-full px-3 py-2 border ${
-      errors.numberOfStudents ? "border-red-500" : "border-gray-300"
-    } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
-    placeholder="25"
-  />
-  {errors.numberOfStudents && (
-    <p className="absolute text-red-500 text-xs mt-1">
-      {errors.numberOfStudents}
-    </p>
-  )}
-</div>
-
-
-
               <div className="relative">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              No of Buses <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              name="busCapacity"
-              value={formData.busCapacity}
-              onChange={(e) => {
-                const value = e.target.value;
-                // ✅ Prevent negative values
-                if (value >= 0 || value === "") {
-                  handleInputChange(e);
-                }
-              }}
-              min="0"  // ✅ Ensures arrow down won’t go below 0
-              className={`w-full px-3 py-2 border ${
-                errors.busCapacity ? "border-red-500" : "border-gray-300"
-              } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
-              placeholder="30"
-              onKeyDown={(e) => {
-                // ✅ Prevent invalid characters
-                if (["e", "E", "+", "-","."].includes(e.key)) {
-                  e.preventDefault();
-                }
-              }}
-            />
-            {errors.busCapacity && (
-              <p className="absolute text-red-500 text-xs mt-1">{errors.busCapacity}</p>
-            )}
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  No. of Students <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="numberOfStudents"
+                  value={formData.numberOfStudents}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value >= 0 || value === "") {
+                      handleInputChange(e);
+                    }
+                  }}
+                  min="0"
+                  onKeyDown={(e) => {
+                    if (["e", "E", "+", "-","."].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  className={`w-full px-3 py-2 border ${
+                    errors.numberOfStudents ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
+                  placeholder="25"
+                />
+                {errors.numberOfStudents && (
+                  <p className="absolute text-red-500 text-xs mt-1">
+                    {errors.numberOfStudents}
+                  </p>
+                )}
               </div>
 
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  No of Buses <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="busCapacity"
+                  value={formData.busCapacity}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value >= 0 || value === "") {
+                      handleInputChange(e);
+                    }
+                  }}
+                  min="0"
+                  className={`w-full px-3 py-2 border ${
+                    errors.busCapacity ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
+                  placeholder="30"
+                  onKeyDown={(e) => {
+                    if (["e", "E", "+", "-","."].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+                {errors.busCapacity && (
+                  <p className="absolute text-red-500 text-xs mt-1">{errors.busCapacity}</p>
+                )}
+              </div>
 
+              <div className="lg:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Driver Gender</label>
+                <div className="relative">
+                  <div
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg cursor-pointer flex justify-between items-center bg-white text-gray-900"
+                    onClick={() => setShowGenderDropdown(!showGenderDropdown)}
+                  >
+                    {formData.preferredGender}
+                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                  </div>
 
+                  {showGenderDropdown && (
+                    <ul className="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                      {["No preference", "Male", "Female"].map((option) => (
+                        <li
+                          key={option}
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, preferredGender: option }));
+                            setShowGenderDropdown(false);
+                          }}
+                          className={`px-3 py-2 cursor-pointer ${
+                            formData.preferredGender === option ? "bg-red-500 text-white" : "hover:bg-red-100 text-gray-900"
+                          }`}
+                        >
+                          {option}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
 
-             <div className="lg:col-span-2">
-  <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Driver Gender</label>
-  <div className="relative">
-    <div
-      className="w-full px-3 py-2 border border-gray-300 rounded-lg cursor-pointer flex justify-between items-center bg-white text-gray-900"
-      onClick={() => setShowGenderDropdown(!showGenderDropdown)}
-    >
-      {formData.preferredGender}
-      <ChevronDown className="w-4 h-4 text-gray-400" />
-    </div>
-
-    {showGenderDropdown && (
-      <ul className="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
-        {["No preference", "Male", "Female"].map((option) => (
-          <li
-            key={option}
-            onClick={() => {
-              setFormData(prev => ({ ...prev, preferredGender: option }));
-              setShowGenderDropdown(false);
-            }}
-            className={`px-3 py-2 cursor-pointer ${
-              formData.preferredGender === option ? "bg-red-500 text-white" : "hover:bg-red-100 text-gray-900"
-            }`}
-          >
-            {option}
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
-</div>
-
-
-
-
-
-              
               <div className="lg:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Extra Instructions (Optional)</label>
                 <textarea
@@ -798,7 +628,7 @@ const [showGenderDropdown, setShowGenderDropdown] = useState(false);
                   className={`flex-1 cursor-pointer py-3 sm:py-2 bg-red-500 text-white rounded-lg transition inter-semibold text-sm sm:text-lg flex items-center justify-center ${
                     loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-red-600'
                   }`}
-                  aria-label="Submit property form"
+                  aria-label="Submit trip form"
                 >
                   {loading ? (
                     <>
@@ -814,11 +644,15 @@ const [showGenderDropdown, setShowGenderDropdown] = useState(false);
                 </motion.button>
               </div>
             </div>
-
-
           </div>
         </form>
       </div>
+      <InviteDriverPopup
+        isOpen={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
+        tripId={newTripId}
+        onPublish={handlePublish}
+      />
     </div>
   );
 };

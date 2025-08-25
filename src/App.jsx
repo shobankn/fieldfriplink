@@ -44,6 +44,7 @@ import Messages from './School/messages/Messages';
 import DriverChat from './drivers/DChat/DriverChat';
 import SchoolProfileView from './School/Setting/ProfileViwPage';
 import Profileview from './School/Setting/Profileview';
+import MyHairDriver from './School/Proposals/MYhairDriver';
 
 function App() {
 
@@ -72,10 +73,12 @@ function App() {
       <Route path='/trip-management' element={<ProtectedRoute><TripManagment/></ProtectedRoute>}/>
       <Route path='/live-tracking' element={<ProtectedRoute><Location/></ProtectedRoute>}/>
       <Route path='/job-post' element={<ProtectedRoute><Proposals/></ProtectedRoute>}/>
-      <Route path='/job-post/:id' element={<ProtectedRoute><ProposalDetails/></ProtectedRoute>}/>
+     
       <Route path='/job-post/invite-drivers' element={<ProtectedRoute><InviteDriver/></ProtectedRoute>}/>
       <Route path='/my-hires' element={<ProtectedRoute><MyHiring/></ProtectedRoute>}/>
       <Route path='/hire-driver' element={<ProtectedRoute><HireDriver/></ProtectedRoute>}/>
+      <Route path='/job-post/my-hair-driver' element={<ProtectedRoute><MyHairDriver/></ProtectedRoute>}/>
+       <Route path='/job-post/:id' element={<ProtectedRoute><ProposalDetails/></ProtectedRoute>}/>
       <Route path='/hire-driver/:id'element={<ProtectedRoute><HireDriverDetails/></ProtectedRoute>}/>
       <Route path='/proposal' element={<ProtectedRoute><DriverProposal/></ProtectedRoute>}/>
       <Route path='/messages' element={<ProtectedRoute><Messages/></ProtectedRoute>}/>

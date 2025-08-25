@@ -59,11 +59,11 @@ const HeaderTopBar = ({ onMenuClick }) => {
     className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
   />
   <div className="flex flex-col items-start">
-    <span className="text-sm mb-1 font-semibold text-gray-900 leading-none">
+    <span className="text-sm mb-1 my-auto font-semibold text-gray-900 leading-none">
       {profileData?.user?.name}
     </span>
 
-    {profileData?.user?.accountStatus === "active" ? (
+    {/* {profileData?.user?.accountStatus === "active" ? (
       <span className="flex items-center text-green-600 text-xs font-medium leading-none">
         Verified
         <svg
@@ -84,7 +84,7 @@ const HeaderTopBar = ({ onMenuClick }) => {
         Pending
         <Clock className="w-3.4 h-3.5 ml-0.5" />
       </span>
-    )}
+    )} */}
   </div>
 </div>
 

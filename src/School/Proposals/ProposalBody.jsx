@@ -176,13 +176,12 @@ const handleDeleteTrip = async (id) => {
           {/* Search and Filter */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Search job postings..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none text-gray-900 placeholder-gray-500"
               />
             </div>
             {/* <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
@@ -218,7 +217,14 @@ const handleDeleteTrip = async (id) => {
                   <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-4">
                     <div className="flex-1">
                       <div className='flex justify-between'> 
-                        <h3 className="text-lg inter-semibold capitalize text-gray-900 mb-2">{trip.tripName}</h3>
+                        <h3
+                          className="text-lg inter-semibold capitalize text-gray-900 mb-2 line-clamp-1"
+                          title={trip.tripName} // ✅ shows full name on hover
+                        >
+                          {trip.tripName?.length > 50
+                            ? trip.tripName.slice(0, 50) + "..."
+                            : trip.tripName}
+                        </h3>
                          <div className="hidden lg:flex">
                     <span className={`px-3 py-1 capitalize justify-center items-center text-center content-center rounded-full text-sm inter-medium  ${statusColors[trip.tripStatus]}`}>
                       {trip.tripStatus}

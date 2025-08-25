@@ -25,7 +25,6 @@ import Resgister from './auth/Resgister';
 import ForgetPassword from './auth/Forgetpassword';
 import Notifications from './drivers/notifications/Notifications';
 import MyProporals from './drivers/Proposals/MyProporals'
-import MyRides from './drivers/myrides/MyRides';
 import AvailableRides from './drivers/Availablerides/AvailableRides';
 import Documents from './drivers/Documents/Documents';
 import DriverProfile from './drivers/DriverProfile/DriverProfile';
@@ -45,6 +44,7 @@ import DriverChat from './drivers/DChat/DriverChat';
 import SchoolProfileView from './School/Setting/ProfileViwPage';
 import Profileview from './School/Setting/Profileview';
 import MyHairDriver from './School/Proposals/MYhairDriver';
+import MyRides from './drivers/myrides/MyRides';
 
 function App() {
 

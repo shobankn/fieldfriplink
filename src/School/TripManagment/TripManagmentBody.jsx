@@ -126,6 +126,7 @@ const TripManagementBody = () => {
 
             assignedDrivers: trip.assignedDrivers || [], 
 
+
            driver: trip.assignedDrivers && trip.assignedDrivers.length > 0
           ? trip.assignedDrivers.map(driver => ({
               id: driver._id,
@@ -133,7 +134,9 @@ const TripManagementBody = () => {
               profileImage: driver.profileImage || null,
               rating: driver.averageRating || null,
               address: driver.address || 'N/A',
-              role: driver.role || 'assigned'
+              role: driver.role || 'assigned',
+            schoolRating: driver.mySchoolAverageRating ?? null // ✅ NEW: school rating
+
             }))
           : [], // empty array if no drivers
       }));
@@ -458,7 +461,7 @@ const TripManagementBody = () => {
       <span className="text-sm text-[#808080] inter-regular">Current Rating</span>
       <Star className="w-4 h-4 ml-1 text-yellow-400 fill-current" />
       <span className="text-sm font-medium text-gray-900">
-        {uniqueDrivers.map(d => d.rating || 0).join(", ")}
+        {uniqueDrivers.map(d => d.schoolRating || 0 ).join(", ")}
       </span>
     </div>
   </div>
@@ -669,7 +672,7 @@ const CompletedTripCard = ({ trip }) => {
               id: driver._id,
               name: driver.name || "Unknown",
               profileImage: driver.profileImage || null,
-              rating: driver.averageRating ?? null,
+           schoolRating: driver.mySchoolAverageRating ?? null, // ✅ NEW: school rating
               address: driver.address || "N/A",
             },
           ])
@@ -776,10 +779,10 @@ const CompletedTripCard = ({ trip }) => {
               </p>
             </div>
             <div className="md:ml-auto">
-              {driver.rating != null && driver.rating !== "" ? (
+              {driver.schoolRating != null && driver.schoolRating !== "" ? (
                 <div className="flex items-center space-x-1 text-gray-700 text-sm font-semibold">
                   <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                  <span>{driver.rating}</span>
+                  <span>{driver.schoolRating}</span>
                 </div>
               ) : (
                 <button

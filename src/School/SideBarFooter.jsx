@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
-import { LogOut, AlertTriangle, X } from "lucide-react";
+import { LogOut, AlertTriangle, X, User } from "lucide-react";
 import Skeleton from "react-loading-skeleton";
 import axios from "axios";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -131,36 +131,44 @@ export default function SidebarFooter() {
 
         {/* Content - Responsive */}
         <div className="relative px-4 sm:px-6 md:px-8 pb-4 sm:pb-5 md:pb-6">
-          <div className="bg-white/70 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 border border-gray-100/50 shadow-sm">
-            <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3 sm:mb-4 font-medium">
-              Are you sure you want to end your session? You'll need to sign in again to access your account.
-            </p>
-            
-            {profileData?.user?.name && (
-              <div className="bg-gradient-to-r from-gray-50 to-blue-50/50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-100">
-                <div className="flex items-center space-x-3 sm:space-x-4">
-                  <div className="relative flex-shrink-0">
-                    <img
-                      src={profileData?.school?.logo}
-                      alt={profileData?.user?.name}
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl object-cover border-2 border-white shadow-md"
-                    />
-                    <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full border-2 border-white"></div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm sm:text-base font-semibold text-gray-800 truncate">
-                      {profileData?.user?.name}
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-600 flex items-center space-x-1">
-                      <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-600 rounded-full animate-pulse flex-shrink-0"></span>
-                      <span className="truncate">Active session will be terminated</span>
-                    </p>
-                  </div>
-                </div>
+  <div className="bg-white/70 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 border border-gray-100/50 shadow-sm">
+    <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3 sm:mb-4 font-medium">
+      Are you sure you want to end your session? You'll need to sign in again to access your account.
+    </p>
+
+    {profileData?.user?.name && (
+      <div className="bg-gradient-to-r from-gray-50 to-blue-50/50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-100">
+        <div className="flex items-center space-x-3 sm:space-x-4">
+          <div className="relative flex-shrink-0">
+            {profileData?.school?.logo ? (
+              <img
+                src={profileData.school.logo}
+                alt={profileData?.user?.name}
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl object-cover border-2 border-white shadow-md"
+              />
+            ) : (
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-400 flex items-center justify-center border-2 border-white shadow-md">
+                <User className="w-6 h-6 text-white" />
               </div>
             )}
+            <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full border-2 border-white"></div>
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <p className="text-sm sm:text-base font-semibold text-gray-800 truncate">
+              {profileData?.user?.name}
+            </p>
+            <p className="text-xs sm:text-sm text-gray-600 flex items-center space-x-1">
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-600 rounded-full animate-pulse flex-shrink-0"></span>
+              <span className="truncate">Active session will be terminated</span>
+            </p>
           </div>
         </div>
+      </div>
+    )}
+  </div>
+</div>
+
 
         {/* Actions - Responsive */}
         <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center justify-center space-y-3 sm:space-y-0 sm:space-x-3 md:space-x-4 p-4 sm:p-6 md:p-8 pt-2 sm:pt-3 md:pt-4 bg-gradient-to-r from-gray-50/50 to-white/50 backdrop-blur-sm">

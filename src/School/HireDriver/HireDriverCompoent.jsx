@@ -146,23 +146,29 @@ const DriverVerificationInterface = () => {
               <div className="flex justify-end gap-3">
                 <button
                   onClick={onClose}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                  className="px-4 py-2 cursor-pointer bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
                 >
                   Cancel
                 </button>
+
                 <button
-                  onClick={() => {
-                    handleStatusChangeApi(status);
-                    onClose();
-                  }}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    status === 'suspended'
-                      ? 'bg-[#F0AD4E] text-white hover:bg-[#E0A040]'
-                      : 'bg-[#EF4444] text-white hover:bg-[#D43D3D]'
-                  }`}
-                >
-                  {actionText}
-                </button>
+              onClick={() => {
+                handleStatusChangeApi(status);
+                onClose();
+              }}
+              className={`px-4 py-2 cursor-pointer rounded-lg font-medium transition-colors ${
+                status === 'suspended'
+                  ? 'bg-[#F0AD4E] text-white hover:bg-[#E0A040]'
+                  : status === 'approved'
+                  ? 'bg-[#10B981] text-white hover:bg-[#0E9E6E]'
+                  : 'bg-[#EF4444] text-white hover:bg-[#D43D3D]'
+              }`}
+            >
+              {actionText}
+            </button>
+
+
+
               </div>
             </div>
           );
@@ -187,16 +193,17 @@ const DriverVerificationInterface = () => {
               <Eye className="text-[#6B7280] w-4 h-4" />
             </button>
 
-            <button
+                      <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleStatusChangeApi("approved");
+                showConfirmDialog("approved", "Approve"); // ✅ show confirmation
               }}
-              className={`p-2 cursor-pointer rounded-lg transition-colors `}
+              className="p-2 cursor-pointer rounded-lg transition-colors"
               title="Mark as Approved"
             >
               <CircleCheck className="text-[#10B981] w-4 h-4" />
             </button>
+
 
             <button
               onClick={(e) => {

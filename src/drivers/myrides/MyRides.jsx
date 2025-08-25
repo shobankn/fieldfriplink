@@ -735,6 +735,7 @@ const MyRides = () => {
                   )}
 
                   {activeTab === "Scheduled" && (
+                    
                     <button
                       onClick={() => handleStartRide(ride.id)}
                       className="mt-4 bg-yellow-400 text-black font-semibold px-4 py-1.5 rounded-md hover:bg-yellow-500 ml-auto flex items-center gap-1"

@@ -171,7 +171,7 @@ useEffect(() => {
         <h3 className="text-[20px] archivo-semibold text-gray-900">Upcoming Trips</h3>
          {trips.length > 0 && (
             <button
-              onClick={() => navigate('/job-post')}
+             onClick={() => navigate('/trip-management', { state: { tab: 'Scheduled' } })}
               className="cursor-pointer text-red-500 archivo-semibold text-sm font-medium hover:text-red-600"
             >
               View All

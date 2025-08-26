@@ -93,7 +93,7 @@ export default function TripFeedbackPage() {
           email: dUser.email || 'N/A',
           phone: dUser.phone || 'N/A',
           profileImage: dUser.profileImage || null,
-          accountStatus: dUser.accountStatus || 'N/A',
+          // accountStatus: dUser.accountStatus || 'N/A',
           isOnline: dUser.is_online ?? false,
           lastSeen: dUser.last_seen
             ? new Date(dUser.last_seen).toLocaleString()

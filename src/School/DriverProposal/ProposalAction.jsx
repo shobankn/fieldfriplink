@@ -62,7 +62,7 @@ const handleProposalDecision = async (status) => {
       <button
         onClick={() => handleProposalDecision('accepted')}
          disabled={disabled}
-className={`text-center justify-center flex py-3 px-4 rounded-lg font-medium w-full transition-colors
+className={`text-center cursor-pointer  justify-center flex py-3 px-4 rounded-lg font-medium w-full transition-colors
           ${disabled
             ? "bg-gray-300 cursor-not-allowed opacity-50"
             : "bg-green-500 text-white hover:bg-green-600"
@@ -73,7 +73,7 @@ className={`text-center justify-center flex py-3 px-4 rounded-lg font-medium w-f
       <button
         onClick={() => handleProposalDecision('rejected')}
 disabled={disabled}
-        className={`flex justify-center py-3 px-4 rounded-lg font-medium w-full transition-colors
+        className={`flex  !cursor-pointer justify-center py-3 px-4 rounded-lg font-medium w-full transition-colors
           ${disabled
             ? "bg-gray-300 cursor-not-allowed opacity-50"
             : "bg-red-500 text-white hover:bg-red-600"

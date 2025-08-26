@@ -11,6 +11,8 @@ import { RxCrossCircled } from "react-icons/rx";
 import { LuPlane } from "react-icons/lu";
 import { ImStopwatch } from "react-icons/im";
 import { LuShieldPlus } from "react-icons/lu";
+import { startTracking, stopTracking } from './StartRide';
+
 
 const rideData = {
   Scheduled: [],
@@ -94,100 +96,100 @@ const MyRides = () => {
   };
 
   // Function to handle start ride
-  const handleStartRide = async (tripId) => {
-    setButtonLoading((prev) => ({ ...prev, [tripId + 'start']: true }));
-    try {
-      const token = localStorage.getItem('token');
-      const headers = {
-        'Content-Type': 'application/json',
+const handleStartRide = async (tripId, schoolId) => {
+  setButtonLoading((prev) => ({ ...prev, [tripId + 'start']: true }));
+  try {
+    const token = localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const response = await fetch(
+      `https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips/${tripId}/status`,
+      {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ status: 'active' }),
+      }
+    );
+
+    if (!response.ok) throw new Error('Failed to start ride');
+
+    const responseData = await response.json();
+    console.log(responseData);
+
+    setRideDataState((prev) => {
+      const rideToStart = prev.Scheduled.find((r) => r.id === tripId);
+      if (!rideToStart) return prev;
+      return {
+        ...prev,
+        Scheduled: prev.Scheduled.filter((r) => r.id !== tripId),
+        Active: [...prev.Active, rideToStart],
       };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+    });
 
-      const response = await fetch(
-        `https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips/${tripId}/status`,
-        {
-          method: 'PATCH',
-          headers,
-          body: JSON.stringify({
-            status: 'active',
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to start ride');
-      }
-
-      setRideDataState((prev) => {
-        const rideToStart = prev.Scheduled.find((ride) => ride.id === tripId);
-        if (!rideToStart) return prev;
-
-        return {
-          ...prev,
-          Scheduled: prev.Scheduled.filter((ride) => ride.id !== tripId),
-          Active: [...prev.Active, rideToStart],
-        };
-      });
-
-      toast.success('Ride started successfully!');
-      setActiveTab('Active');
-    } catch (error) {
-      console.error('Error starting ride:', error);
-      toast.error('Failed to start ride. Please try again.');
-    } finally {
-      setButtonLoading((prev) => ({ ...prev, [tripId + 'start']: false }));
+    // ✅ Start tracking after success
+    const ride = rideDataState.Scheduled.find(r => r.id === tripId);
+    if (ride) {
+      // startTracking(tripId, ride.schoolId);
+        // startTracking(tripId, "68933539d2cc260997867265");
+        startTracking(tripId, "68933539d2cc260997867265");
     }
-  };
+
+    toast.success('Ride started successfully!');
+    setActiveTab('Active');
+  } catch (error) {
+    console.error('Error starting ride:', error);
+    toast.error('Failed to start ride. Please try again.');
+  } finally {
+    setButtonLoading((prev) => ({ ...prev, [tripId + 'start']: false }));
+  }
+};
+
+
+
 
   // Function to handle end ride
-  const handleEndRide = async (tripId) => {
-    setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: true }));
-    try {
-      const token = localStorage.getItem('token');
-      const headers = {
-        'Content-Type': 'application/json',
+ const handleEndRide = async (tripId) => {
+  setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: true }));
+  try {
+    const token = localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const response = await fetch(
+      `https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips/${tripId}/status`,
+      {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ status: 'completed' }),
+      }
+    );
+
+    if (!response.ok) throw new Error('Failed to end ride');
+
+    setRideDataState((prev) => {
+      const rideToEnd = prev.Active.find((ride) => ride.id === tripId);
+      if (!rideToEnd) return prev;
+      return {
+        ...prev,
+        Active: prev.Active.filter((ride) => ride.id !== tripId),
+        Completed: [...prev.Completed, rideToEnd],
       };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+    });
 
-      const response = await fetch(
-        `https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips/${tripId}/status`,
-        {
-          method: 'PATCH',
-          headers,
-          body: JSON.stringify({
-            status: 'completed',
-          }),
-        }
-      );
+    // ✅ Stop tracking
+    stopTracking();
 
-      if (!response.ok) {
-        throw new Error('Failed to end ride');
-      }
+    toast.success('Ride ended successfully!');
+    setActiveTab('Completed');
+  } catch (error) {
+    console.error('Error ending ride:', error);
+    toast.error('Failed to end ride. Please try again.');
+  } finally {
+    setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: false }));
+  }
+};
 
-      setRideDataState((prev) => {
-        const rideToEnd = prev.Active.find((ride) => ride.id === tripId);
-        if (!rideToEnd) return prev;
-
-        return {
-          ...prev,
-          Active: prev.Active.filter((ride) => ride.id !== tripId),
-          Completed: [...prev.Completed, rideToEnd],
-        };
-      });
-
-      toast.success('Ride ended successfully!');
-      setActiveTab('Completed');
-    } catch (error) {
-      console.error('Error ending ride:', error);
-      toast.error('Failed to end ride. Please try again.');
-    } finally {
-      setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: false }));
-    }
-  };
 
   // Function to handle view live navigation
   const handleViewLive = (tripId) => {
@@ -367,7 +369,7 @@ const MyRides = () => {
             : startDate.toISOString().split('T')[0];
           const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
           const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
-
+console.log(data);
           return {
             id: trip._id,
             school: trip.tripName,
@@ -402,6 +404,8 @@ const MyRides = () => {
 
     fetchActiveRides();
   }, []);
+
+
 
   // Fetch Completed Rides
   useEffect(() => {
@@ -735,8 +739,10 @@ const MyRides = () => {
                   )}
 
                   {activeTab === "Scheduled" && (
+                    
                     <button
-                      onClick={() => handleStartRide(ride.id)}
+                      // onClick={() => handleStartRide(ride.id)}
+                      onClick={() => handleStartRide(ride.id, ride.schoolId)}
                       className="mt-4 bg-yellow-400 text-black font-semibold px-4 py-1.5 rounded-md hover:bg-yellow-500 ml-auto flex items-center gap-1"
                       disabled={buttonLoading[ride.id + 'start']}
                     >

@@ -2,6 +2,8 @@
 import React from 'react';
 import { Plus ,Bus, MapPin, TrendingUp, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { MdOutlineGraphicEq } from "react-icons/md";
+
 
 const QuickActions = () => {
    const navigate = useNavigate();
@@ -21,11 +23,11 @@ const QuickActions = () => {
        path: '/live-tracking',
     },
     {
-      title: 'View Reports',
-      icon: TrendingUp,
+      title: 'View Proposals',
+      icon: MdOutlineGraphicEq,
       // color: 'bg-yellow-100',
       iconColor: 'text-[#6B7280]',
-       path: '#',
+       path: '/proposal',
     },
     {
       title: 'Messages',

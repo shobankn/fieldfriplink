@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Added for navigation
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
 import { LuPlane, LuClock4, LuMapPin, LuUsers, LuCalendar, LuClock, LuBus } from 'react-icons/lu';
@@ -18,6 +19,7 @@ const MyProposals = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(10); // Fixed limit as per API
+  const navigate = useNavigate(); // Added for navigation
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -28,6 +30,16 @@ const MyProposals = () => {
       window.location.href = `tel:${phoneNumber}`;
     } else {
       console.warn('No valid phone number provided for call');
+    }
+  };
+
+  // Function to handle chat navigation
+  const handleChat = (schoolId) => {
+    if (schoolId && schoolId !== 'N/A') {
+      console.log(`Navigating to chat with school ID: ${schoolId}`); // Debugging log
+      navigate(`/chat`, { state: { schoolId } });
+    } else {
+      console.warn('No valid school ID provided for chat');
     }
   };
 
@@ -106,6 +118,7 @@ const MyProposals = () => {
             return {
               id: proposal._id,
               school: 'Unknown School',
+              schoolId: 'N/A', // Added schoolId for chat navigation
               job: 'Unknown Trip',
               pickup: 'N/A',
               drop: 'N/A',
@@ -143,6 +156,7 @@ const MyProposals = () => {
           return {
             id: proposal._id,
             school: trip.schoolId?.schoolName || 'Unknown School',
+            schoolId: trip.schoolId?._id || 'N/A', // Added schoolId for chat navigation
             job: trip.tripName || 'Unknown Trip',
             pickup: trip.pickupPoints?.[0]?.address || 'N/A',
             drop: trip.destination?.address || 'N/A',
@@ -329,13 +343,17 @@ const MyProposals = () => {
                               <div className="flex gap-2 sm:gap-3">
                                 <button 
                                   onClick={() => handleCall(proposal.phoneNumber)}
-                                  className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold flex items-center justify-center interregular px-3 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm"
+                                  className="bg-yellow-400 hover:bg-yellow-500 hover:cursor-pointer text-black font-semibold flex items-center justify-center interregular px-3 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm"
                                   disabled={proposal.phoneNumber === 'N/A'}
                                 >
                                   <IoCallOutline className='me-1 text-base sm:text-lg' />
                                   Call
                                 </button>
-                                <button className="bg-red-500 hover:bg-red-600 text-white font-semibold px-3 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm flex items-center justify-center">
+                                <button 
+                                  onClick={() => handleChat(proposal.schoolId)} // Updated to handle chat navigation
+                                  className="bg-red-500 hover:bg-red-600 hover:cursor-pointer text-white font-semibold px-3 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm flex items-center justify-center"
+                                  disabled={proposal.schoolId === 'N/A'}
+                                >
                                   <IoChatbubbleOutline className='me-1' />
                                   Chat
                                 </button>

@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Search, 
-  SlidersHorizontal, 
   Eye, 
   MessageCircle, 
   Phone,
@@ -11,9 +9,6 @@ import {
   Calendar,
   Users,
   X,
-  Filter,
-  CircleXIcon,
-  CheckCircle,
   Briefcase,
   Check
 } from 'lucide-react';
@@ -28,7 +23,6 @@ import ProposalIconActions from './ProposalIconAction';
 import { useNavigate } from 'react-router-dom';
 
 const DriverRequestsComponent = () => {
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [activeTab, setActiveTab] = useState('proposal');
   const [driverRequests, setDriverRequests] = useState([]);
@@ -37,9 +31,23 @@ const DriverRequestsComponent = () => {
   const [driverDetails, setDriverDetails] = useState(null);
   const [driverDetailsLoading, setDriverDetailsLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState('applied'); // default applied
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false); // for filter dropdown
 
   let navigate = useNavigate();
+
+
+  const containerRef = useRef(null);
+const [activeLeft, setActiveLeft] = useState(0);
+const [activeWidth, setActiveWidth] = useState(0);
+
+useEffect(() => {
+  const activeButton = containerRef.current.querySelector(
+    `button[data-status="${statusFilter}"]`
+  );
+  if (activeButton) {
+    setActiveLeft(activeButton.offsetLeft + "px");
+    setActiveWidth(activeButton.offsetWidth + "px");
+  }
+}, [statusFilter]);
 
   function formatExactDate(dateString) {
     const date = new Date(dateString);
@@ -188,10 +196,7 @@ const DriverRequestsComponent = () => {
   };
 
   const filteredRequests = driverRequests.filter(driver => 
-    (statusFilter === 'all' || driver.status === statusFilter) &&
-    (driver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    driver.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    driver.location.toLowerCase().includes(searchTerm.toLowerCase()))
+    statusFilter === 'all' || driver.status === statusFilter
   );
 
   return (
@@ -207,51 +212,34 @@ const DriverRequestsComponent = () => {
           </div>
         </div>
 
-        {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-3 mb-4 w-full">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search proposals by job title, driver name, or location..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-500 text-sm break-words"
-            />
-          </div>
-          <div className="relative w-full sm:w-auto">
-            <button 
-              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              className="justify-center cursor-pointer inter-bold flex items-center space-x-2 px-4 py-2 border border-red-600 rounded-lg hover:bg-gray-50 text-sm w-full sm:w-auto"
-            >
-              <Filter className="w-4 h-4 text-red-500" />
-              <span className="text-red-500">Filter</span>
-            </button>
-            {showFilterDropdown && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                <div className="p-2">
-                  {['applied', 'accepted', 'rejected'].map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => {
-                        setStatusFilter(status);
-                        setShowFilterDropdown(false);
-                      }}
-                      className={`w-full text-left px-4 py-2 text-sm inter-medium capitalize ${
-                        statusFilter === status 
-                          ? 'bg-red-50 text-red-600' 
-                          : 'text-gray-600 hover:bg-gray-50'
-                      } rounded-md flex items-center justify-between`}
-                    >
-                      <span>{status}</span>
-                      {statusFilter === status && <Check className="w-4 h-4 text-red-600" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        {/* Tabs */}
+ <div className="relative mb-4" ref={containerRef}>
+  {/* Sliding background */}
+  <span
+    className="absolute top-0 left-0 h-full bg-red-500 rounded-lg transition-all duration-300 z-0"
+    style={{
+      width: activeWidth,
+      left: activeLeft,
+    }}
+  />
+
+  <div className="flex space-x-1 relative z-10">
+    {['applied', 'accepted', 'rejected'].map((status) => (
+      <button
+        key={status}
+        data-status={status}
+        onClick={() => setStatusFilter(status)}
+        className={`px-4 py-2 text-sm cursor-pointer inter-medium rounded-lg capitalize transition-colors duration-300 ${
+          statusFilter === status ? 'text-white' : 'text-gray-600'
+        }`}
+      >
+        {status}
+      </button>
+    ))}
+  </div>
+</div>
+
+
 
         {/* Driver Cards */}
         <div className="space-y-4 w-full max-w-full">
@@ -318,8 +306,7 @@ const DriverRequestsComponent = () => {
                       </button>
                       <ProposalIconActions
                         proposalId={driver.id}
-                     disabled={driver.status === "accepted" || driver.status === "rejected"}
-
+                        disabled={driver.status === "accepted" || driver.status === "rejected"}
                         onActionComplete={(id, status) => {
                           console.log(`Proposal ${id} was ${status}`);
                         }}
@@ -365,7 +352,7 @@ const DriverRequestsComponent = () => {
                   <div className="flex space-x-1 flex-wrap">
                     <button
                       onClick={() => setActiveTab('proposal')}
-                      className={`px-4 py-2 text-sm inter-medium rounded-lg ${
+                      className={`px-4 cursor-pointer  py-2 text-sm inter-medium rounded-lg ${
                         activeTab === 'proposal' ? 'bg-red-500 text-white' : 'text-gray-600 hover:text-gray-900'
                       }`}
                     >
@@ -373,7 +360,7 @@ const DriverRequestsComponent = () => {
                     </button>
                     <button
                       onClick={() => setActiveTab('driver-profile')}
-                      className={`px-4 py-2 text-sm inter-medium rounded-lg ${
+                      className={`px-4  cursor-pointer py-2 text-sm inter-medium rounded-lg ${
                         activeTab === 'driver-profile' ? 'bg-red-500 text-white' : 'text-gray-600 hover:text-gray-900'
                       }`}
                     >
@@ -543,7 +530,7 @@ const DriverRequestsComponent = () => {
                                 },
                               });
                             }}
-                            className="w-full sm:w-auto bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2 inter-medium"
+                            className="w-full cursor-pointer  sm:w-auto bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2 inter-medium"
                           >
                             <MessageCircle className="w-5 h-5" />
                             <span>Message Driver</span>

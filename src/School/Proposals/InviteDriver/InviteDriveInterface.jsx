@@ -188,6 +188,8 @@ const handleSendJobPost = async (trip, note = "Please accept the invitation") =>
               <div className="space-y-6">
             
                 {filteredDrivers.map((driver) => (
+
+                  
                   <div
                     key={driver._id}
                     className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-all duration-200"
@@ -262,6 +264,8 @@ const handleSendJobPost = async (trip, note = "Please accept the invitation") =>
                       </div>
                     </div>
                   </div>
+
+
                 ))}
               </div>
 

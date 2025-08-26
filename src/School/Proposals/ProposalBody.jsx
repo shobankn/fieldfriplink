@@ -17,6 +17,9 @@ const JobProposalsInterface = () => {
    const navigate = useNavigate();
      const [loading, setLoading] = useState(true);
       const [trips, setTrips] = useState([]);
+      const [page, setPage] = useState(1);
+const [hasMore, setHasMore] = useState(true); // to know if API has more data
+
 
       const BaseUrl = 'https://fieldtriplinkbackend-production.up.railway.app/api'
    
@@ -64,38 +67,97 @@ const statusColors = {
   ];
 
 
-useEffect(() => {
-  const fetchTrips = async () => {
-    const toastId = 'fetchTripsError';
+// useEffect(() => {
+//   const fetchTrips = async () => {
+//     const toastId = 'fetchTripsError';
 
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        if (!toast.isActive(toastId)) {
-          toast.error('Token not found. Please log in.', { toastId });
-        }
-        return;
-      }
+//     try {
+//       const token = localStorage.getItem('token');
+//       if (!token) {
+//         if (!toast.isActive(toastId)) {
+//           toast.error('Token not found. Please log in.', { toastId });
+//         }
+//         return;
+//       }
 
-      const res = await axios.get(`${BaseUrl}/school/my-trips`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+//       const res = await axios.get(`${BaseUrl}/school/my-trips`, {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
 
-      setTrips(res.data.trips || []);
-    } catch (err) {
-      const errorMessage = err.response?.data?.error || err.message;
+//       setTrips(res.data.trips || []);
+//     } catch (err) {
+//       const errorMessage = err.response?.data?.error || err.message;
+//       if (!toast.isActive(toastId)) {
+//         toast.error(`Failed to fetch trips: ${errorMessage}`, { toastId });
+//       }
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   fetchTrips();
+// }, []);
+
+
+const fetchTrips = async (pageNumber = 1) => {
+  const toastId = 'fetchTripsError';
+
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
       if (!toast.isActive(toastId)) {
-        toast.error(`Failed to fetch trips: ${errorMessage}`, { toastId });
+        toast.error('Token not found. Please log in.', { toastId });
       }
-    } finally {
-      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    const res = await axios.get(`${BaseUrl}/school/my-trips?page=${pageNumber}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const newTrips = res.data.trips || [];
+
+    setTrips((prev) => [...prev, ...newTrips]); // ✅ append new trips
+    setHasMore(newTrips.length > 0); // if no new trips, stop loading more
+  } catch (err) {
+    const errorMessage = err.response?.data?.error || err.message;
+    if (!toast.isActive(toastId)) {
+      toast.error(`Failed to fetch trips: ${errorMessage}`, { toastId });
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+useEffect(() => {
+  fetchTrips(1);
+}, []);
+
+useEffect(() => {
+  const handleScroll = () => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop + 200 >=
+      document.documentElement.offsetHeight
+    ) {
+      if (!loading && hasMore) {
+        setPage((prev) => prev + 1);
+      }
     }
   };
 
-  fetchTrips();
-}, []);
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, [loading, hasMore]);
+
+useEffect(() => {
+  if (page > 1) fetchTrips(page);
+}, [page]);
+
+
 
 const handleDeleteTrip = async (id) => {
   const token = localStorage.getItem('token');
@@ -176,13 +238,12 @@ const handleDeleteTrip = async (id) => {
           {/* Search and Filter */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Search job postings..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none text-gray-900 placeholder-gray-500"
               />
             </div>
             {/* <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
@@ -218,7 +279,14 @@ const handleDeleteTrip = async (id) => {
                   <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-4">
                     <div className="flex-1">
                       <div className='flex justify-between'> 
-                        <h3 className="text-lg inter-semibold capitalize text-gray-900 mb-2">{trip.tripName}</h3>
+                        <h3
+                          className="text-lg inter-semibold capitalize text-gray-900 mb-2 line-clamp-1"
+                          title={trip.tripName} // ✅ shows full name on hover
+                        >
+                          {trip.tripName?.length > 50
+                            ? trip.tripName.slice(0, 50) + "..."
+                            : trip.tripName}
+                        </h3>
                          <div className="hidden lg:flex">
                     <span className={`px-3 py-1 capitalize justify-center items-center text-center content-center rounded-full text-sm inter-medium  ${statusColors[trip.tripStatus]}`}>
                       {trip.tripStatus}
@@ -299,21 +367,33 @@ const handleDeleteTrip = async (id) => {
                   />
 
                     <Edit
-                      onClick={() => navigate(`/post-trip-update/${trip._id}`)}
-                      className="w-5 h-5 text-[#27AE60] cursor-pointer transition duration-200 ease-in-out transform hover:scale-125 hover:text-green-700 active:scale-95 hover:drop-shadow-md"
-                    />
+                      onClick={() => {
+                         if (trip.tripStatus === 'scheduled') return;
+                        navigate(`/post-trip-update/${trip._id}`)
+                      }}
+                      className={`w-5 h-5 transition duration-200 ease-in-out transform ${
+                        trip.tripStatus === 'scheduled'
+                          ? 'text-gray-400 cursor-not-allowed opacity-50'
+                          : 'text-[#27AE60] cursor-pointer hover:scale-125 hover:text-green-700 active:scale-95 hover:drop-shadow-md'
+                      }`}                  
+                        />
                
                     <Trash2
                       onClick={() => {
-                        if (trip.tripStatus === 'completed' || trip.tripStatus === 'active') return;
+                        if (trip.tripStatus === 'completed' || trip.tripStatus === 'active' || trip.tripStatus === 'scheduled') return;
                         handleDeleteTrip(trip._id);
                       }}
-                      className={`w-5 h-5 transition duration-200 ease-in-out transform ${
-                        trip.tripStatus === 'completed' || trip.tripStatus === 'active'
-                          ? 'text-gray-400 cursor-not-allowed opacity-50'
-                          : 'text-[#E74C3C] cursor-pointer hover:scale-125 hover:text-red-700 active:scale-95 hover:drop-shadow-md'
-                      }`}
+                                      className={`w-5 h-5 transition duration-200 ease-in-out transform ${
+                    trip.tripStatus === 'completed' ||
+                    trip.tripStatus === 'active' ||
+                    trip.tripStatus === 'scheduled'
+                      ? 'text-gray-400 cursor-not-allowed opacity-50'
+                      : 'text-[#E74C3C] cursor-pointer hover:scale-125 hover:text-red-700 active:scale-95 hover:drop-shadow-md'
+                  }`}
                     />
+
+
+
                   </div>
                   </div>
                 </div>
@@ -336,7 +416,36 @@ const handleDeleteTrip = async (id) => {
           </div>
         )}
       </div>
+ 
+
     </div>
+   {loading && (
+  <div className="flex justify-center py-6">
+    <svg
+      className="animate-spin text-red-600"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      width="40"
+      height="40"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      ></circle>
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+      ></path>
+    </svg>
+  </div>
+)}
+
     </>
   );
 };

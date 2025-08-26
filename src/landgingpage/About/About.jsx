@@ -13,11 +13,26 @@ const About = () => {
       {/* Top Banner */}
       <section className="bg-[#ea2127] text-white text-center px-4 sm:px-6 lg:px-20 py-12 sm:py-16 lg:py-[106px]">
         <h1 className="text-4xl sm:text-5xl lg:text-[60px] archivobold mb-4 sm:mb-[22px]">About FieldTripLink</h1>
-        <p className="text-base sm:text-lg lg:text-[18px] mx-auto max-w-[90%] sm:max-w-[60%] lg:max-w-[40%] interregular">
-          Founded on the belief that every student deserves equal access to enrichment opportunities,
-          regardless of transportation limitations.
+        <p className="text-base sm:text-lg lg:text-[18px] mx-auto max-w-[90%] sm:max-w-[60%] lg:max-w-[70%] interregular">
+        FieldTripLink is a first-of-its-kind driver share system that bridges the gap between schools and professional drivers. Our platform makes it easy for schools to post trips, for drivers to claim them, and for both to stay connected in real time. With built-in safety features, compliance checks, and a transparent process, we bring peace of mind while solving one of the biggest challenges in student transportation.
         </p>
       </section>
+
+
+
+<section className="text-center px-4 sm:px-6 lg:px-20 py-12 sm:py-16 lg:py-[106px] bg-[#F8F9FB]">
+        <h1 className="text-2xl sm:text-3xl lg:text-[36px]  archivobold mb-4 sm:mb-[22px]">Why We Care</h1>
+        <p className="text-base sm:text-lg lg:text-[18px] mx-auto max-w-[90%] sm:max-w-[60%] lg:max-w-[70%] interregular text-[#555555]">
+        We’re more than a technology company, we’re a community built on the belief that students deserve every chance to learn and grow. Too often, opportunities are lost not because of lack of passion or resources, but simply because there aren’t enough drivers available. That’s where we step in. By connecting schools with professional, certified drivers, we remove barriers that stand in the way of learning.
+At FieldTripLink, we’re not just moving buses, we’re moving possibilities.
+        </p>
+        <p className="text-base sm:text-lg lg:text-[18px] mx-auto max-w-[90%] sm:max-w-[60%] lg:max-w-[70%] interregular">
+          
+</p>
+
+      </section>
+
+
 
       {/* Story Section */}
       <section className="flex flex-col lg:flex-row px-4 sm:px-6 lg:px-20 py-12 sm:py-16 lg:py-[92px] gap-6 lg:gap-10">
@@ -33,18 +48,30 @@ const About = () => {
         </div>
         {/* Story Text */}
         <div className="flex-1">
-          <h2 className="archivobold text-2xl sm:text-3xl lg:text-[36px] mb-4">The Story Behind FieldTripLink</h2>
+          <h2 className="archivobold text-2xl sm:text-3xl lg:text-[36px] mb-4">From Our Founders</h2>
           <p className="text-[#555555] interregular text-sm sm:text-base lg:text-[16px] mb-4 sm:mb-[24px]">
-            Amanda L. Heyen founded FieldTripLink after witnessing firsthand how transportation shortages were preventing students from accessing valuable educational experiences. As a former educator, she saw how field trips could transform learning and inspire students, but too often these opportunities were missed due to driver availability.
+
+As a local school bus driver, I’ve seen firsthand how important afterschool activities are for students. Sadly, these opportunities are sometimes missed simply because we just don’t have a driver available. 
+
           </p>
           <p className="text-[#555555] interregular text-sm sm:text-base lg:text-[16px] mb-4 sm:mb-[24px]">
-            The turning point came when she learned about a school district that had to cancel multiple field trips in a single semester, leaving hundreds of students without access to hands-on learning experiences at museums, nature centers, and cultural sites.
+
+           That’s why I started FieldTripLink. I know how important it is to share this load so that every district can thrive. It takes all of us, working together to make sure no child misses out on the experiences that equip them with skills for life. 
+
           </p>
-          <p className="text-[#555555] interregular text-sm sm:text-base lg:text-[16px]">
+          
+          <p className="text-[#555555] interregular text-sm sm:text-base lg:text-[16px] mb-4 sm:mb-[24px]">My hope is that by connecting schools and drivers in a new way, we can support each other, ease the stress on districts, and most importantly, open more doors for students.</p>
+          <p className="text-[#555555] interregular text-sm sm:text-base lg:text-[16px] mb-4 sm:mb-[24px]">
+            With gratitude,<br/>
+Amanda L. Heyen <br/>
+Founder & CEO, FieldTripLink
+          </p>
+          <li className='text-[#555555] interregular text-sm sm:text-base lg:text-[16px]'>My favorite people call me Miss Mandy</li>
+          {/* <p className="text-[#555555] interregular text-sm sm:text-base lg:text-[16px]">
             Determined to solve this problem, Amanda developed FieldTripLink as a secure,
             transparent platform that connects schools with certified drivers while maintaining the
             highest safety standards and promoting educational equity.
-          </p>
+          </p> */}
         </div>
       </section>
 
@@ -54,7 +81,7 @@ const About = () => {
           <div className="text-[#be1d1d] text-2xl mb-2">🎯</div>
           <h3 className="archivobold text-xl sm:text-[24px] mb-2">Our Mission</h3>
           <p className="text-gray-700 interregular text-sm sm:text-[16px]">
-            To connect schools and certified bus drivers through a simple, secure platform—ensuring that students never miss an opportunity to learn, grow, and thrive.
+            To connect schools and certified bus drivers through a simple, secure platform, ensuring that students never miss an opportunity to learn, grow, and thrive.
           </p>
         </div>
         <div className="flex-1 bg-white shadow-md rounded-lg px-6 sm:px-[35px] py-8 sm:py-[41px] flex flex-col justify-center w-full max-w-[450px] sm:max-w-[500px] h-[250px]">
@@ -71,8 +98,8 @@ const About = () => {
 
       {/* Core Values */}
       <section className="bg-white text-center px-4 sm:px-6 lg:px-20 py-12 sm:py-16 lg:py-[96px]">
-        <h2 className="text-2xl sm:text-3xl lg:text-[36px] archivobold mb-2">Our Core Values</h2>
-        <p className="text-[#555555] interregular text-base sm:text-lg lg:text-[18px] mb-6 sm:mb-10 max-w-2xl mx-auto">
+        <h2 className="text-2xl sm:text-3xl lg:text-[36px] archivobold mb-4">Our Core Values</h2>
+        <p className="text-[#555555] interregular text-base sm:text-lg lg:text-[18px] mb-4 sm:mb-10 max-w-2xl mx-auto">
           These principles guide everything we do at FieldTripLink.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-4 sm:px-10 lg:px-[272px]">

@@ -373,12 +373,12 @@ const Contactus = () => {
                 All drivers undergo comprehensive background checks, drug screening, CDL verification, and safety training. We also use RAP Back integration for continuous monitoring and maintain a rating system for quality assurance.
               </p>
             </div>
-            <div className="bg-white pt-6 sm:pt-8 px-6 sm:px-8 pb-4 sm:pb-6 rounded-lg">
+            {/* <div className="bg-white pt-6 sm:pt-8 px-6 sm:px-8 pb-4 sm:pb-6 rounded-lg">
               <h4 className="archivobold text-base sm:text-lg">What if no drivers are available for my trip?</h4>
               <p className="interregular text-sm sm:text-base text-gray-700">
                 Our network is designed to provide reliable coverage, but if no drivers are available, we'll work with you to find alternatives or help you adjust your trip timing. We're committed to ensuring your students don't miss out.
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

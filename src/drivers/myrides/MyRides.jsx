@@ -114,6 +114,9 @@ const handleStartRide = async (tripId, schoolId) => {
 
     if (!response.ok) throw new Error('Failed to start ride');
 
+    const responseData = await response.json();
+    console.log(responseData);
+
     setRideDataState((prev) => {
       const rideToStart = prev.Scheduled.find((r) => r.id === tripId);
       if (!rideToStart) return prev;
@@ -127,7 +130,9 @@ const handleStartRide = async (tripId, schoolId) => {
     // ✅ Start tracking after success
     const ride = rideDataState.Scheduled.find(r => r.id === tripId);
     if (ride) {
-      startTracking(tripId, ride.schoolId);
+      // startTracking(tripId, ride.schoolId);
+        // startTracking(tripId, "68933539d2cc260997867265");
+        startTracking(tripId, "68933539d2cc260997867265");
     }
 
     toast.success('Ride started successfully!');

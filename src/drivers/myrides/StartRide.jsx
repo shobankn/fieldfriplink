@@ -77,7 +77,7 @@ export function startTracking(tripId, schoolId) {
         },
         (err) => console.error("❌ Geolocation error:", err.message)
       );
-    }, 2000);
+    }, 5000);
   } else {
     console.error("❌ Geolocation not supported in this browser");
   }

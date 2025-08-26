@@ -44,7 +44,7 @@ const LiveTrackingComponent = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 60000);
+    }, 2000);
     return () => clearInterval(timer);
   }, []);
 

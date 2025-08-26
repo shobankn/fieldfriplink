@@ -42,16 +42,18 @@ const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessa
   console.log('[ChatWindow] Messages:', messages);
 
   return (
-    <div className="flex-1 flex flex-col bg-gray-50">
-      {/* Header or fixed elements can go here if needed */}
-      <div className="flex-1 mx-auto mt-15 h-[calc(100vh-80px)] overflow-y-auto px-4 py-4 w-full">
+    <div
+      className="flex-1 flex flex-col bg-gray-50 h-full"
+      style={{ boxSizing: 'border-box' }}
+    >
+      <div className="flex-1 mx-auto w-full px-4 pb-4 pt-45 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full">
             <div className="w-32 h-32 mb-6 opacity-50">
               <img className="w-full h-full object-contain" src={noMessage} alt="No Message" />
             </div>
-            <p className="text-gray-500 text-lg">No Chat yet</p>
-            <p className="text-gray-400 text-sm mt-2">Start a conversation by sending a message</p>
+            <p className="text-gray-500 text-lg">Welcome to Your Inbox</p>
+            <p className="text-gray-400 text-sm mt-2">Select a conversation from the sidebar to start chatting, or begin a new conversation.</p>
           </div>
         ) : (
           <>
@@ -83,10 +85,10 @@ const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessa
                       isMyMessage ? 'flex-row-reverse ml-auto' : 'flex-row mr-auto'
                     }`}
                   >
-                    {!isMyMessage && showAvatar && (
+                    {!isMyMessage && (
                       <div className="w-8 h-8 mb-1 flex-shrink-0">
                         <img
-                          src={receiver?.profilePicture || customer}
+                          src={receiver?.profilePicture || receiver?.profileImage || customer}
                           alt="Avatar"
                           className="w-8 h-8 rounded-full object-cover"
                         />

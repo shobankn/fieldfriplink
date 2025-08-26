@@ -262,6 +262,8 @@ useEffect(() => {
   socket.emit("JOIN_APP", { userId: socket.userId });
 }, [socket?.userId]);
 
+
+
 useEffect(() => {
   if (!socket) return;
 
@@ -371,7 +373,7 @@ useEffect(() => {
 
       <div
         className={`
-          fixed left-0 lg:left-70     w-80 h-screen bg-white border-r border-gray-200 z-50 shadow-lg transition-transform duration-300 ease-in-out
+          fixed left-0 lg:left-50 xl:left-60 2xl:left-90     w-80 h-screen bg-white border-r border-gray-200 z-50 shadow-lg transition-transform duration-300 ease-in-out
           md:translate-x-0 md:z-30
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         `}

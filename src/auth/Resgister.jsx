@@ -270,7 +270,7 @@ const Register = () => {
         setLoading(false);
       }
     } else {
-      const requiredFields = ['UserName', 'email', 'password', 'schoolName', 'city', 'location'];
+      const requiredFields = ['UserName', 'email', 'phone', 'password', 'schoolName', 'city', 'location'];
       for (const field of requiredFields) {
         if (!formData[field]) {
           setError(`Please fill in the ${field} field`);
@@ -287,6 +287,13 @@ const Register = () => {
         return;
       }
 
+      if (!validatePhone(formData.phone)) {
+        setError('Please enter a valid phone number (10-15 digits)');
+        toast.error('Please enter a valid phone number (10-15 digits)', { toastId: 'phone-error' });
+        setLoading(false);
+        return;
+      }
+
       if (!validatePassword(formData.password)) {
         setError('Password must be at least 8 characters long');
         toast.error('Password must be at least 8 characters long', { toastId: 'password-error' });
@@ -297,6 +304,7 @@ const Register = () => {
       const dataToSend = {
         name: formData.UserName,
         email: formData.email,
+        phoneNumber: formData.phone,
         password: formData.password,
         schoolName: formData.schoolName,
         location: {

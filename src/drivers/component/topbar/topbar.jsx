@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 const Topbar = ({ toggleSidebar }) => {
   const [userData, setUserData] = useState({
     name: '',
-    accountStatus: '',
+    status: '',
     profileImage: '',
   });
   const [loading, setLoading] = useState(true); // Loading state for shimmer effect
@@ -24,10 +24,10 @@ const Topbar = ({ toggleSidebar }) => {
           },
         });
 
-        const { user } = response.data;
+        const { user, schoolAssignments } = response.data;
         setUserData({
           name: user.name || 'Unknown User',
-          accountStatus: user.accountStatus || 'pending_approval',
+          status: schoolAssignments && schoolAssignments.length > 0 ? schoolAssignments[0].status : 'pending',
           profileImage: user.profileImage || '',
         });
       } catch (error) {
@@ -89,9 +89,9 @@ const Topbar = ({ toggleSidebar }) => {
           )}
           <div className="flex flex-col items-start">
             <span className="text-sm mb-1 font-semibold text-gray-900 leading-none">{userData.name}</span>
-            <span className={`flex items-center ${userData.accountStatus === 'verified' ? 'text-green-600' : 'text-[#DE3B40]'} text-xs font-medium leading-none`}>
-              {userData.accountStatus === 'verified' ? 'Verified' : 'Unverified'}
-              {userData.accountStatus === 'verified' && (
+            <span className={`flex items-center ${userData.status === 'approved' ? 'text-green-600' : 'text-[#DE3B40]'} text-xs font-medium leading-none`}>
+              {userData.status === 'approved' ? 'Approved' : 'Pending'}
+              {userData.status === 'approved' && (
                 <svg
                   className="w-4 h-4 ml-1.5"
                   fill="currentColor"

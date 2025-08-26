@@ -365,7 +365,7 @@ const AvailableRides = () => {
                 {availableRides.map((ride) => (
                   <div 
                     key={ride.id} 
-                    className="bg-white rounded-lg shadow p-5 mb-4 relative cursor-pointer hover:shadow-md transition-shadow duration-200"
+                    className="bg-white rounded-lg shadow p-5 mb-4 relative border border-gray-200"
                     onClick={() => handleCardClick(ride)}
                   >
                     <div className="flex justify-between items-center mb-[18px]">
@@ -379,7 +379,7 @@ const AvailableRides = () => {
                         className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded font-medium text-white ${
                           appliedProposals.includes(ride.id)
                             ? 'bg-[#F0B100] cursor-not-allowed'
-                            : 'bg-[#EE5B5B] hover:bg-red-600'
+                            : 'bg-[#EE5B5B] hover:bg-red-600 cursor-pointer'
                         } ${isSubmittingProposal[ride.id] ? 'opacity-70 cursor-not-allowed' : ''}`}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -463,7 +463,7 @@ const AvailableRides = () => {
                 {totalPages > 1 && (
                   <div className="flex justify-center items-center gap-2 mt-6">
                     <button
-                      className={`px-4 py-2 rounded-md ${currentPage === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-[#EE5B5B] text-white hover:bg-red-600'}`}
+                      className={`px-4 py-2 rounded-md cursor-pointer ${currentPage === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-[#EE5B5B] text-white hover:bg-red-600'}`}
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
                     >
@@ -473,7 +473,7 @@ const AvailableRides = () => {
                       Page {currentPage} of {totalPages}
                     </span>
                     <button
-                      className={`px-4 py-2 rounded-md ${currentPage === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-[#EE5B5B] text-white hover:bg-red-600'}`}
+                      className={`px-4 py-2 rounded-md cursor-pointer ${currentPage === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-[#EE5B5B] text-white hover:bg-red-600'}`}
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
                     >
@@ -497,7 +497,7 @@ const AvailableRides = () => {
               </div>
               <button
                 onClick={handleCloseModal}
-                className={`flex items-center justify-center gap-2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200 ${
+                className={`flex items-center justify-center gap-2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200 cursor-pointer ${
                   isClosingModal ? 'opacity-70 cursor-not-allowed' : ''
                 }`}
                 disabled={isClosingModal}
@@ -584,7 +584,7 @@ const AvailableRides = () => {
             <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
               <button
                 onClick={handleCloseModal}
-                className={`flex items-center justify-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium rounded-md transition-colors duration-200 ${
+                className={`flex items-center justify-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium rounded-md transition-colors duration-200 cursor-pointer ${
                   isClosingModal ? 'opacity-70 cursor-not-allowed' : ''
                 }`}
                 disabled={isClosingModal}
@@ -619,7 +619,7 @@ const AvailableRides = () => {
               </button>
               <button
                 onClick={() => handleSubmitProposal(selectedRide.id)}
-                className={`flex items-center justify-center gap-2 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-medium rounded-md transition-colors duration-200 ${
+                className={`flex items-center justify-center gap-2 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-medium rounded-md transition-colors duration-200 cursor-pointer ${
                   isSubmittingProposal[selectedRide.id] ? 'opacity-70 cursor-not-allowed' : ''
                 }`}
                 disabled={isSubmittingProposal[selectedRide.id]}

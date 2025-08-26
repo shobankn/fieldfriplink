@@ -39,7 +39,7 @@ const DriverVerificationInterface = () => {
       }
 
       try {
-        const response = await axios.get(`${BaseUrl}/school/drivers`, {
+        const response = await axios.get(`${BaseUrl}/school/drivers?myDriversOnly=true`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

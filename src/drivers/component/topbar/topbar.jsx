@@ -89,8 +89,10 @@ const Topbar = ({ toggleSidebar }) => {
           )}
           <div className="flex flex-col items-start">
             <span className="text-sm mb-1 font-semibold text-gray-900 leading-none">{userData.name}</span>
-            <span className={`flex items-center ${userData.status === 'approved' ? 'text-green-600' : 'text-[#DE3B40]'} text-xs font-medium leading-none`}>
-              {userData.status === 'approved' ? 'Approved' : 'Pending'}
+            <span className={`flex items-center ${
+              userData.status === 'approved' ? 'text-green-600' : userData.status === 'rejected' || userData.status === 'suspended' ? 'text-[#DE3B40]' : 'text-[#DE3B40]'
+            } text-xs font-medium leading-none`}>
+              {userData.status.charAt(0).toUpperCase() + userData.status.slice(1)}
               {userData.status === 'approved' && (
                 <svg
                   className="w-4 h-4 ml-1.5"

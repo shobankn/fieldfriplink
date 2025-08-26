@@ -60,7 +60,7 @@ const AllHairDriverList = () => {
   return (
     <>
       <h1 className="text-2xl ml-5 sm:text-3xl archivo-bold text-gray-900 mb-6">
-        My Hair Drivers
+        My Hire Drivers
       </h1>
       <Navbar />
 

@@ -23,7 +23,7 @@ const DriverVerificationInterface = () => {
   const statusMap = {
      pending: 'Pending',
     approved: 'Verified',
-    suspended: 'Suspended'
+    // suspended: 'Suspended'
   };
 
   // Fetch driver data from backend
@@ -39,7 +39,7 @@ const DriverVerificationInterface = () => {
       }
 
       try {
-        const response = await axios.get(`${BaseUrl}/school/drivers`, {
+        const response = await axios.get(`${BaseUrl}/school/drivers?myDriversOnly=true`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -231,7 +231,7 @@ const DriverVerificationInterface = () => {
             >
               <Eye className="text-[#3B82F6] w-4 h-4" />
             </button>
-            <button
+            {/* <button
               onClick={(e) => {
                 e.stopPropagation();
                 showConfirmDialog("suspended", "Suspend");
@@ -240,12 +240,12 @@ const DriverVerificationInterface = () => {
               title="Mark as Suspended"
             >
               <AlertTriangle className="text-[#F0AD4E] w-4 h-4" />
-            </button>
+            </button> */}
           </>
         )}
 
         {/* Suspended: 1 button */}
-        {currentStatus === 'Suspended' && (
+        {/* {currentStatus === 'Suspended' && (
           <button
             onClick={(e) => {
               e.stopPropagation(); // prevent triggering parent's onClick
@@ -256,7 +256,7 @@ const DriverVerificationInterface = () => {
           >
             <Eye className="w-4 h-4" />
           </button>
-        )}
+        )} */}
       </div>
     );
   };
@@ -280,7 +280,7 @@ const DriverVerificationInterface = () => {
 
         {/* Navigation Tabs */}
         <div className="flex flex-wrap gap-1 mb-6 bg-white rounded-lg p-1 shadow-sm  max-w-full">
-          {['Pending', 'Verified', 'Suspended'].map((tab) => (
+          {['Pending', 'Verified'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -294,7 +294,7 @@ const DriverVerificationInterface = () => {
             >
               {tab === 'Pending' && <Clock className="w-4 h-4 " />}
               {tab === 'Verified' && <CheckCircle className="w-4 h-4" />}
-              {tab === 'Suspended' && <AlertTriangle className="w-4 h-4" />}
+              {/* {tab === 'Suspended' && <AlertTriangle className="w-4 h-4" />} */}
               <span>{tab}</span>
               <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                 activeTab === tab

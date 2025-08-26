@@ -28,8 +28,8 @@ const AvailableRides = () => {
   const MAX_WORDS = 500;
 
   const truncateTripName = (name) => {
-    if (name.length > 20) {
-      return name.substring(0, 20) + '...';
+    if (name.length > 40) {
+      return name.substring(0, 40) + '...';
     }
     return name;
   };

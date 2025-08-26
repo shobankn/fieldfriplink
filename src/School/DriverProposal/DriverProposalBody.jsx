@@ -199,6 +199,12 @@ useEffect(() => {
     statusFilter === 'all' || driver.status === statusFilter
   );
 
+  const statusText = {
+    applied: 'proposals received',
+    accepted: 'proposals accepted',
+    rejected: 'proposals rejected'
+  }[statusFilter];
+
   return (
     <>
     <ToastContainer/>
@@ -208,7 +214,7 @@ useEffect(() => {
         <div className="flex items-center justify-between mb-6 flex-wrap">
           <div>
             <h1 className="text-2xl md:text-3xl inter-bold text-gray-900 mb-1">Driver Requests</h1>
-            <p className="text-gray-500 inter-regular text-sm">{filteredRequests.length} proposals received</p>
+            <p className="text-gray-500 inter-regular text-sm">{filteredRequests.length} {statusText}</p>
           </div>
         </div>
 

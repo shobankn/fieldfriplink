@@ -74,7 +74,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               </div>
               <div>
                 <h1 className="font-bold text-gray-900">FieldTrip Link</h1>
-                <p className="text-xs text-gray-500">School</p>
+                <p className="text-xs text-gray-500">School Dashboard</p>
               </div>
             </div>
             <button

@@ -110,35 +110,7 @@ const About = () => {
       </section>
 
       {/* Team Section */}
-      <section className="bg-[#111827] text-white px-4 sm:px-6 lg:px-20 py-12 sm:py-16 lg:py-[96px] text-center">
-        <h2 className="archivobold text-2xl sm:text-3xl lg:text-[36px] mb-2">Our Team</h2>
-        <p className="text-base sm:text-lg lg:text-[18px] interregular mb-6 sm:mb-10 max-w-2xl mx-auto">
-          Dedicated professionals working to make field trips accessible for all students.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 sm:px-10 lg:px-[216px]">
-          <div>
-            <div className="w-16 sm:w-20 h-16 sm:h-20 bg-[#f44336] rounded-full flex items-center justify-center mx-auto text-lg sm:text-xl font-bold">
-              AH
-            </div>
-            <p className="mt-3 font-semibold text-base sm:text-lg">Amanda L. Heyen</p>
-            <p className="text-sm text-gray-400">Founder & CEO</p>
-          </div>
-          <div>
-            <div className="w-16 sm:w-20 h-16 sm:h-20 bg-yellow-400 rounded-full flex items-center justify-center mx-auto text-lg sm:text-xl font-bold">
-              TM
-            </div>
-            <p className="mt-3 font-semibold text-base sm:text-lg">Tech Team</p>
-            <p className="text-sm text-gray-400">Platform Development</p>
-          </div>
-          <div>
-            <div className="w-16 sm:w-20 h-16 sm:h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto text-lg sm:text-xl font-bold">
-              ST
-            </div>
-            <p className="mt-3 font-semibold text-base sm:text-lg">Safety Team</p>
-            <p className="text-sm text-gray-400">Driver Vetting & Compliance</p>
-          </div>
-        </div>
-      </section>
+
 
       {/* Final Banner */}
       <section className="bg-[#be1d1d] text-white text-center py-12 sm:py-16 lg:py-[62px] px-4 sm:px-6">

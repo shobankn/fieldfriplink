@@ -60,7 +60,7 @@ const AllHairDriverList = () => {
   return (
     <>
       <h1 className="text-2xl ml-5 sm:text-3xl archivo-bold text-gray-900 mb-6">
-        My Hair Drivers
+        My Hired Drivers
       </h1>
       <Navbar />
 
@@ -188,12 +188,15 @@ const AllHairDriverList = () => {
                           <span className="inter-regular">{driver.phone}</span>
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
+
+                      {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
                         <div>
                           <span className="text-gray-500 inter-regular block">CNIC:</span>
                           <span className="inter-semibold text-gray-900">{driver.cnicNumber}</span>
                         </div>
-                      </div>
+                      </div> */}
+
+
                       <div className="flex flex-col sm:flex-row gap-4 text-sm justify-center items-center sm:justify-start">
                         <div className="flex items-center gap-2 text-gray-600">
                           <MapPin className="w-4 h-4 flex-shrink-0" />

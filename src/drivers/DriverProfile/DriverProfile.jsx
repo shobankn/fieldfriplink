@@ -27,9 +27,9 @@ const DriverProfile = () => {
     fullName: '',
     email: '',
     city: '',
-    cnic: '',
+    // cnic: '',
     phone: '',
-    partnerSchool: localStorage.getItem('partnerSchool') || '',
+    partnerSchool: '',
     profileImage: '',
   });
   const [editData, setEditData] = useState({ ...profileData });
@@ -76,18 +76,33 @@ const DriverProfile = () => {
           },
         });
 
-        const { user, profile } = response.data;
+        const { user, profile, schoolAssignments } = response.data;
+        
+        // Get the assigned school name from schoolAssignments array
+        let assignedSchool = '';
+        if (schoolAssignments && schoolAssignments.length > 0) {
+          // Just take the first school assignment regardless of status
+          assignedSchool = schoolAssignments[0].schoolName || '';
+        }
+
         const updatedProfileData = {
           fullName: user.name || '',
           email: user.email || '',
           city: profile.address || '',
-          cnic: profile.cnicNumber || '',
+          // cnic: profile.cnicNumber || '',
           phone: user.phone || user.phoneNumber || '',
-          partnerSchool: localStorage.getItem('partnerSchool') || '',
+          partnerSchool: assignedSchool,
           profileImage: user.profileImage || '',
         };
+        
         setProfileData(updatedProfileData);
         setEditData(updatedProfileData);
+        
+        // Also update localStorage with the correct school name
+        if (assignedSchool) {
+          localStorage.setItem('partnerSchool', assignedSchool);
+        }
+        
       } catch (error) {
         console.error('Error fetching profile data:', error);
         showToast(error.response?.data?.message || 'Failed to load profile data. Please try again.', 'error', 'fetch-profile-error');
@@ -190,7 +205,7 @@ const DriverProfile = () => {
       formData.append('email', editData.email);
       formData.append('phone', editData.phone);
       formData.append('address', editData.city);
-      formData.append('cnicNumber', editData.cnic);
+      // formData.append('cnicNumber', editData.cnic);
 
       if (selectedImage) {
         formData.append('profileImage', selectedImage);
@@ -212,11 +227,18 @@ const DriverProfile = () => {
         }
       );
 
-      setProfileData({
+      // Update profile data but keep the partner school from API response
+      const updatedProfile = {
         ...editData,
         profileImage: response.data.user.profileImage || editData.profileImage,
-      });
-      localStorage.setItem('partnerSchool', editData.partnerSchool);
+      };
+
+      setProfileData(updatedProfile);
+      setEditData(updatedProfile);
+      
+      // Update localStorage
+      localStorage.setItem('partnerSchool', updatedProfile.partnerSchool);
+      
       setIsEditModalOpen(false);
       setSelectedImage(null);
       showToast('Profile updated successfully!', 'success', 'profile-update-success');
@@ -365,6 +387,7 @@ const DriverProfile = () => {
                         </p>
                       )}
                     </div>
+{/* 
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">CNIC</label>
                       {isLoading ? (
@@ -374,7 +397,8 @@ const DriverProfile = () => {
                           {profileData.cnic || 'Not Available'}
                         </p>
                       )}
-                    </div>
+                    </div> */}
+
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
                       {isLoading ? (
@@ -527,7 +551,9 @@ const DriverProfile = () => {
                           required
                         />
                       </div>
-                      <div>
+
+                      {/* <div>
+
                         <label className="block text-sm font-medium text-gray-700 mb-2">CNIC</label>
                         <input
                           type="text"
@@ -536,7 +562,8 @@ const DriverProfile = () => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           placeholder="Enter CNIC"
                         />
-                      </div>
+                      </div> */}
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                         <input
@@ -571,27 +598,21 @@ const DriverProfile = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">School Partner</label>
                         <div className="relative">
                           <div
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F0B100] focus:border-[#F0B100] cursor-pointer flex justify-between items-center"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md cursor-pointer flex justify-between items-center"
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                           >
-                            <span>{editData.partnerSchool || 'Select a school'}</span>
-                            <svg
-                              className={`w-5 h-5 transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
+                            <span className="text-black">{editData.partnerSchool || 'Select school'}</span>
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                             </svg>
                           </div>
                           {isDropdownOpen && (
-                            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                            <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                               {schools.map((school) => (
                                 <div
                                   key={school._id}
-                                  className="px-3 py-2 hover:bg-[#F0B100] cursor-pointer focus:ring-2 focus:ring-[#F0B100]"
                                   onClick={() => handleSchoolSelect(school.schoolName)}
+                                  className="px-3 py-2 text-black hover:bg-gray-100 cursor-pointer"
                                 >
                                   {school.schoolName}
                                 </div>

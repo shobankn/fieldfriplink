@@ -45,7 +45,7 @@ const Home = () => {
       <Navbar />
       {/* Hero Section */}
       <section className="bg-[#d02323] text-white px-4 sm:px-6 lg:px-[80px] py-8 sm:py-12 flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-10 min-h-[400px] lg:h-[500px]">
-        <div className="lg:w-1/2 w-full text-center lg:text-left">
+        <div className="lg:w-1/2 w-full text-center lg:text-left animate-move-in-left">
           <h1 className="archivobold text-3xl sm:text-4xl lg:text-[48px]">
             Connecting Schools to Drivers
           </h1>
@@ -54,20 +54,22 @@ const Home = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start flex-wrap">
             <button
-              className="bg-[#facc15] text-black text-sm sm:text-[14px] rounded-[6px] interbold w-full sm:w-[206px] h-[40px] cursor-pointer"
+              className="bg-[#facc15] text-black text-sm sm:text-[14px] rounded-[6px] interbold w-full sm:w-[206px] h-[40px] cursor-pointer relative overflow-hidden group"
               onClick={handleGetStarted}
             >
-              Get Started<i className="fas fa-arrow-right ms-2"></i>
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300 ease-in-out"></span>
+              <span className="relative z-10">Get Started<i className="fas fa-arrow-right ms-2"></i></span>
             </button>
             <button
-              className="border border-white w-full sm:w-[153px] h-[40px] rounded-[6px] interbold text-sm sm:text-[14px] cursor-pointer"
+              className="border border-white w-full sm:w-[153px] h-[40px] rounded-[6px] interbold text-sm sm:text-[14px] cursor-pointer relative overflow-hidden group"
               onClick={handleHowItWorks}
             >
-              How It Works
+              <span className="absolute inset-0 bg-[#facc15] translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300 ease-in-out"></span>
+              <span className="relative z-10">How It Works</span>
             </button>
           </div>
         </div>
-        <div className="w-[250px] sm:w-[300px] bg-[#da3737] text-center rounded-[6px] py-6 px-4 sm:px-8 flex flex-col items-center gap-2 text-lg sm:text-xl text-[#FFC34C]">
+        <div className="w-[250px] sm:w-[300px] bg-[#da3737] text-center rounded-[6px] py-6 px-4 sm:px-8 flex flex-col items-center gap-2 text-lg sm:text-xl text-[#FFC34C] animate-move-in-right">
           <p className="archivobold text-3xl sm:text-[48px]">100%</p>
           <p className="text-sm sm:text-[18px] interregular">Vetted Drivers</p>
           <p className="archivobold text-3xl sm:text-[48px]">100%</p>
@@ -78,7 +80,7 @@ const Home = () => {
       </section>
 
       {/* How It Works */}
-      <section className="text-center py-12 sm:py-16 flex items-center justify-center">
+      <section className="text-center py-12 sm:py-16 flex items-center justify-center animate-move-in-bottom">
         <div className="px-4 sm:px-6">
           <h2 className="archivobold text-2xl sm:text-3xl lg:text-[36px] mb-4 sm:mb-[19px]">
             How FieldTripLink Works
@@ -121,7 +123,7 @@ const Home = () => {
 
       {/* Why Choose FieldTripLink */}
       <section className="p-4 sm:p-6 lg:p-[80px] flex flex-col lg:flex-row justify-between bg-gray-50 gap-8">
-        <div className="w-full lg:w-1/2">
+        <div className="w-full lg:w-1/2 animate-move-in-left">
           <h2 className="archivobold text-2xl sm:text-3xl lg:text-[36px] mb-6 sm:mb-8">
             Why Choose FieldTripLink?
           </h2>
@@ -149,26 +151,28 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className="text-center mt-6 sm:mt-8 lg:mt-10 w-full lg:w-1/2">
+        <div className="text-center mt-6 sm:mt-8 lg:mt-10 w-full lg:w-1/2 animate-move-in-right">
           <h1 className="archivobold text-2xl sm:text-3xl lg:text-[36px] mb-6">Ready to Get Started?</h1>
           <button
-            className="bg-red-500 w-full sm:w-[300px] lg:w-[400px] h-[40px] interbold text-sm sm:text-[14px] text-white rounded-[6px] mt-4 sm:mt-[32px] hover:bg-red-600 cursor-pointer"
+            className="bg-red-500 w-full sm:w-[300px] lg:w-[400px] h-[40px] interbold text-sm sm:text-[14px] text-white rounded-[6px] mt-4 sm:mt-[32px] relative overflow-hidden group cursor-pointer"
             onClick={handleSchoolAdmin}
           >
-            I'm a School Administrator
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300 ease-in-out"></span>
+            <span className="relative z-10">I'm a School Administrator</span>
           </button>
           <br />
           <button
-            className="bg-yellow-400 w-full sm:w-[300px] lg:w-[400px] h-[40px] interbold text-sm sm:text-[14px] text-black rounded-[6px] mt-4 hover:bg-yellow-500 cursor-pointer"
+            className="bg-yellow-400 w-full sm:w-[300px] lg:w-[400px] h-[40px] interbold text-sm sm:text-[14px] text-black rounded-[6px] mt-4 relative overflow-hidden group cursor-pointer"
             onClick={handleBusDriver}
           >
-            I'm a Bus Driver
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300 ease-in-out"></span>
+            <span className="relative z-10">I'm a Bus Driver</span>
           </button>
         </div>
       </section>
 
       {/* What Our Users Say */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-20 bg-gray-100">
+      <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-20 bg-gray-100 animate-move-in-bottom">
         <h2 className="archivobold text-2xl sm:text-3xl lg:text-[36px] text-center mb-4 sm:mb-[19px]">
           What Our Users Say
         </h2>
@@ -189,7 +193,7 @@ const Home = () => {
               </p>
             </div>
           </div>
-          <div className="bg-[#2A2A2A] p-6 sm:p-[32px] shadow-md w-full sm:w-[500px] lg:w-[550px] rounded-[8px] tokenext-white">
+          <div className="bg-[#2A2A2A] p-6 sm:p-[32px] shadow-md w-full sm:w-[500px] lg:w-[550px] rounded-[8px] text-white">
             <p className="text-white italic text-sm sm:text-base">"As a retired driver, FieldTripLink lets me stay connected to the community while earning extra income. The platform is easy to use and the schools are always grateful."</p>
             <div className="flex mt-4 sm:mt-[21px] gap-2 sm:gap-[10px]">
               <span className="inline-block bg-[#FFD700] h-10 w-10 sm:h-[48px] sm:w-[48px] text-center leading-10 sm:leading-[48px] rounded-full text-sm sm:text-base">

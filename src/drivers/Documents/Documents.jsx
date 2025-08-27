@@ -28,6 +28,7 @@ const Documents = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [files, setFiles] = useState({});
   const [previews, setPreviews] = useState({});
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [profileData, setProfileData] = useState({
     accountStatus: 'pending_approval',
     cnicFrontImage: '',
@@ -123,8 +124,6 @@ const Documents = () => {
 
   // Detect unsaved changes and handle navigation
   useEffect(() => {
-    const hasUnsavedChanges = Object.keys(files).length > 0;
-
     const handleBeforeUnload = (e) => {
       if (hasUnsavedChanges) {
         e.preventDefault();
@@ -151,7 +150,7 @@ const Documents = () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       links.forEach((link) => link.removeEventListener('click', handleNavigationAttempt));
     };
-  }, [files, navigate]);
+  }, [hasUnsavedChanges, navigate]);
 
   const handleFileChange = (e, id) => {
     const file = e.target.files[0];
@@ -159,6 +158,7 @@ const Documents = () => {
       setFiles((prev) => ({ ...prev, [id]: file }));
       const previewUrl = URL.createObjectURL(file);
       setPreviews((prev) => ({ ...prev, [id]: previewUrl }));
+      setHasUnsavedChanges(true); // Mark as unsaved when a new file is selected
     }
   };
 
@@ -203,6 +203,7 @@ const Documents = () => {
         ...prev,
         [fieldId]: '',
       }));
+      setHasUnsavedChanges(false); // Reset unsaved changes after deletion
 
       showToast(`${uploadFields.find((f) => f.id === fieldId).label} deleted successfully!`, 'success', `delete-${fieldId}`);
     } catch (error) {
@@ -231,17 +232,41 @@ const Documents = () => {
     setFieldToDelete(null);
   };
 
-  const handleDownload = (url, label) => {
+  const handleDownload = async (url, label) => {
     if (!url) {
       showToast(`No ${label} available for download.`, 'error', `download-error-${label}`);
       return;
     }
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${label}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    try {
+      // Fetch the file as a blob
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch the file');
+      }
+      const blob = await response.blob();
+
+      // Determine file extension based on URL or content type
+      const extension = url.toLowerCase().endsWith('.pdf') ? '.pdf' : '.jpg';
+      const fileName = `${label}${extension}`;
+
+      // Create a temporary URL for the blob
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      // Create a temporary <a> element to trigger the download
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error downloading document:', error.message);
+      showToast(`Failed to download ${label}: ${error.message}`, 'error', `download-error-${label}`);
+    }
   };
 
   const handleUpload = (fieldId) => {
@@ -290,23 +315,33 @@ const Documents = () => {
         throw new Error('Invalid API response structure: Missing profile data');
       }
 
+      // Update profileData, preserving existing fields if not updated in the response
       setProfileData((prev) => ({
         ...prev,
-        cnicFrontImage: profile.cnicFrontImage || prev.cnicFrontImage,
-        cnicBackImage: profile.cnicBackImage || prev.cnicBackImage,
-        drivingLicenseImage: profile.drivingLicenseImage || prev.drivingLicenseImage,
-        vehicleRegistrationImage: profile.vehicleRegistrationImage || prev.vehicleRegistrationImage,
         accountStatus: profile.accountStatus || prev.accountStatus || 'pending_approval',
+        cnicFrontImage: profile.cnicFrontImage || prev.cnicFrontImage || '',
+        cnicBackImage: profile.cnicBackImage || prev.cnicBackImage || '',
+        drivingLicenseImage: profile.drivingLicenseImage || prev.drivingLicenseImage || '',
+        vehicleRegistrationImage: profile.vehicleRegistrationImage || prev.vehicleRegistrationImage || '',
       }));
 
-      setPreviews({
-        cnicFront: profile.cnicFrontImage || previews.cnicFront || '',
-        cnicBack: profile.cnicBackImage || previews.cnicBack || '',
-        license: profile.drivingLicenseImage || previews.license || '',
-        vehicleReg: profile.vehicleRegistrationImage || previews.vehicleReg || '',
+      // Update previews, preserving existing previews if not updated
+      setPreviews((prev) => ({
+        cnicFront: profile.cnicFrontImage || prev.cnicFront || '',
+        cnicBack: profile.cnicBackImage || prev.cnicBack || '',
+        license: profile.drivingLicenseImage || prev.license || '',
+        vehicleReg: profile.vehicleRegistrationImage || prev.vehicleReg || '',
+      }));
+
+      // Update files to reflect server state
+      setFiles({
+        cnicFront: profile.cnicFrontImage ? { name: 'CNIC Front Uploaded' } : null,
+        cnicBack: profile.cnicBackImage ? { name: 'CNIC Back Uploaded' } : null,
+        license: profile.drivingLicenseImage ? { name: 'Driving License Uploaded' } : null,
+        vehicleReg: profile.vehicleRegistrationImage ? { name: 'Vehicle Registration Uploaded' } : null,
       });
 
-      setFiles({}); // Clear local files after successful submit
+      setHasUnsavedChanges(false); // Reset unsaved changes after submission
       setShowUnsavedModal(false); // Close modal if open
 
       showToast('Documents submitted successfully for verification!', 'success', 'submit-success');
@@ -320,7 +355,7 @@ const Documents = () => {
 
   const handleSaveChanges = async () => {
     await handleSubmit();
-    if (blockerRef.current && !Object.keys(files).length) {
+    if (blockerRef.current && !hasUnsavedChanges) {
       blockerRef.current();
     }
   };
@@ -333,6 +368,7 @@ const Documents = () => {
       license: profileData.drivingLicenseImage || '',
       vehicleReg: profileData.vehicleRegistrationImage || '',
     });
+    setHasUnsavedChanges(false); // Reset unsaved changes after discarding
     setShowUnsavedModal(false);
     if (blockerRef.current) {
       blockerRef.current();
@@ -345,8 +381,8 @@ const Documents = () => {
     blockerRef.current = null;
   };
 
-  // Modified logic to enable submit button if at least one field is uploaded
-  const allFieldsUploaded = uploadFields.some((field) => files[field.id] || profileData[field.apiKey]);
+  // Modified logic to enable submit button and calculate progress
+  const allFieldsUploaded = uploadFields.every((field) => files[field.id] || profileData[field.apiKey]);
   const uploadedCount = uploadFields.filter((field) => files[field.id] || profileData[field.apiKey]).length;
   const progressPercentage = Math.round((uploadedCount / uploadFields.length) * 100);
 
@@ -647,15 +683,15 @@ const Documents = () => {
 
           {/* Unsaved Changes Modal */}
           {showUnsavedModal && (
-            <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-                <div className="p-6 border-b border-gray-200">
+            <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-8 z-50">
+              <div className="bg-white rounded-lg shadow-xl w-full max-w-lg">
+                <div className="p-6 ">
                   <h3 className="text-lg font-semibold text-gray-900">Unsaved Changes</h3>
                   <p className="text-sm text-gray-600 mt-2">
                     You have unsaved changes in your uploaded documents. Would you like to save them before leaving?
                   </p>
                 </div>
-                <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
+                <div className="flex justify-end gap-3 p-6 ">
                   <button
                     onClick={handleCancelUnsaved}
                     className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium rounded-md transition-colors duration-200"

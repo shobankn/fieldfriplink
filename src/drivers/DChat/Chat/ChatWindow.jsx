@@ -42,16 +42,23 @@ const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessa
   console.log('[ChatWindow] Messages:', messages);
 
   return (
-    <div className="flex-1 flex flex-col bg-gray-50">
-      {/* Header or fixed elements can go here if needed */}
-      <div className="flex-1 mx-auto mt-15 h-[calc(100vh-80px)] overflow-y-auto px-4 py-4 w-full">
+    <div
+      className="flex-1 flex flex-col bg-gray-50 h-full"
+      style={{ boxSizing: 'border-box' }}
+    >
+      <div className="flex-1 mx-auto w-full px-4 pb-4 pt-43 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full">
+          <div className="flex flex-col items-center justify-center h-full w-full">
             <div className="w-32 h-32 mb-6 opacity-50">
               <img className="w-full h-full object-contain" src={noMessage} alt="No Message" />
             </div>
-            <p className="text-gray-500 text-lg">No Chat yet</p>
-            <p className="text-gray-400 text-sm mt-2">Start a conversation by sending a message</p>
+            <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-3">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-[#ea4444]">
+                <path d="M21 11.5C21.0034 12.8199 20.6951 14.1219 20.1 15.3C19.3944 16.7118 18.3098 17.8992 16.9674 18.7293C15.6251 19.5594 14.0782 19.9994 12.5 20C11.1801 20.0035 9.87812 19.6951 8.7 19.1L3 21L4.9 15.3C4.30493 14.1219 3.99656 12.8199 4 11.5C4.00061 9.92179 4.44061 8.37488 5.27072 7.03258C6.10083 5.69028 7.28825 4.60571 8.7 3.90003C9.87812 3.30496 11.1801 2.99659 12.5 3.00003H13C15.0843 3.11502 17.053 3.99479 18.5291 5.47086C20.0052 6.94694 20.885 8.91568 21 11V11.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <p className="text-gray-500 text-lg">Welcome to Your Inbox</p>
+            <p className="text-gray-400 text-sm mt-2">Select a conversation from the sidebar to start chatting, or begin a new conversation.</p>
           </div>
         ) : (
           <>
@@ -83,10 +90,10 @@ const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessa
                       isMyMessage ? 'flex-row-reverse ml-auto' : 'flex-row mr-auto'
                     }`}
                   >
-                    {!isMyMessage && showAvatar && (
+                    {!isMyMessage && (
                       <div className="w-8 h-8 mb-1 flex-shrink-0">
                         <img
-                          src={receiver?.profilePicture || customer}
+                          src={receiver?.profilePicture || receiver?.profileImage || customer}
                           alt="Avatar"
                           className="w-8 h-8 rounded-full object-cover"
                         />

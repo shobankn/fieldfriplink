@@ -102,7 +102,7 @@ const MessageInput = ({ chatId, receiverId, onOptimisticSend, className }) => {
   };
 
   return (
-    <div className={`fixed bottom-0 right-0 left-0 md:left-80 lg:left-150  bg-white/95 backdrop-blur-md border-t border-gray-200 z-20 transition-all duration-200 ${imagePreview ? 'pb-0' : ''}`}>
+    <div className={`fixed bottom-0 right-0 left-0 md:left-80 lg:left-130 xl:left-140 2xl:left-170   backdrop-blur-md border-t border-gray-200 z-20 transition-all duration-200 ${imagePreview ? 'pb-0' : ''}`}>
       {/* Image Preview - WhatsApp Style */}
       {imagePreview && (
         <div className="px-4 pt-3 pb-2 bg-gray-50/50 border-b border-gray-200">
@@ -191,7 +191,7 @@ const MessageInput = ({ chatId, receiverId, onOptimisticSend, className }) => {
             disabled={!message && !selectedImage}
             className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
               (message || selectedImage)
-                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700'
+                ? 'bg-[#EA4444] text-white hover:bg-[#D13A3A]'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >

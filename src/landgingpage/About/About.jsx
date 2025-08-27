@@ -54,9 +54,7 @@ const About = () => {
           <div className="text-[#be1d1d] text-2xl mb-2">🎯</div>
           <h3 className="archivobold text-xl sm:text-[24px] mb-2">Our Mission</h3>
           <p className="text-gray-700 interregular text-sm sm:text-[16px]">
-            To connect schools with certified school bus drivers through a secure, easy-to-use
-            platform that ensures students never miss out on enrichment opportunities due to
-            transportation shortages.
+            To connect schools and certified bus drivers through a simple, secure platform—ensuring that students never miss an opportunity to learn, grow, and thrive.
           </p>
         </div>
         <div className="flex-1 bg-white shadow-md rounded-lg px-6 sm:px-[35px] py-8 sm:py-[41px] flex flex-col justify-center w-full max-w-[450px] sm:max-w-[500px] h-[250px]">

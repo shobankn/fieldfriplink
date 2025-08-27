@@ -313,13 +313,18 @@ const TripManagementBody = () => {
             <p className="text-xs text-[#808080] inter-regular">{drv.address}</p>
           </div>
 
-          <div className="flex items-center space-x-1">
-            <span className="ml-0 sm:ml-6 text-sm text-[#808080] inter-regular">
-              Overall Rating
-            </span>
-            <Star className="w-4 h-4 ml-1 text-yellow-400 fill-current" />
-            <span className="text-sm font-medium text-gray-900">{drv.rating}</span>
-          </div>
+          {drv.rating !== null && drv.rating !== undefined && drv.rating !== "" && (
+            <div className="flex items-center space-x-1">
+              <span className="ml-0 sm:ml-6 text-sm text-[#808080] inter-regular">
+                Overall Rating
+              </span>
+              <Star className="w-4 h-4 ml-1 text-yellow-400 fill-current" />
+              <span className="text-sm font-medium text-gray-900">{drv.rating}</span>
+            </div>
+          )}
+
+
+
         </div>
       ))}
     </div>

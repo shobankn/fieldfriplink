@@ -48,10 +48,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           },
         });
 
-        const { user } = response.data;
+        const { user, schoolAssignments } = response.data;
         setProfileData({
           name: user.name || 'John Doe',
           profileImage: user.profileImage || '',
+          status: schoolAssignments && schoolAssignments.length > 0 ? schoolAssignments[0].status : 'pending',
         });
       } catch (err) {
         console.error('Error fetching driver profile:', err);
@@ -208,9 +209,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                     <p className="text-sm sm:text-base font-semibold text-gray-800 truncate">
                       {profileData?.name}
                     </p>
-                    <p className="text-xs sm:text-sm text-gray-600 flex items-center space-x-1">
+                    <p className="text-sm text-gray-600 flex items-center space-x-1">
                       <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-600 rounded-full animate-pulse flex-shrink-0"></span>
-                      <span className="truncate">Active session will be terminated</span>
+                      <span className="truncate">Status: {profileData?.status}</span>
                     </p>
                   </div>
                 </div>

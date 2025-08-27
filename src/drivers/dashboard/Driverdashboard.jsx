@@ -24,7 +24,7 @@ const Driverdashboard = () => {
     activities: true,
     activeRide: true,
   });
-  const [isVerified, setIsVerified] = useState(false);
+  const [isApproved, setIsApproved] = useState(false);
   const [userName, setUserName] = useState('Driver'); // State for user's name
   const navigate = useNavigate();
 
@@ -38,13 +38,13 @@ const Driverdashboard = () => {
           },
         });
 
-        const { user } = response.data;
+        const { user, schoolAssignments } = response.data;
         setUserName(user.name || 'Driver'); // Set user's name or fallback to 'Driver'
-        setIsVerified(user.accountStatus === 'verified');
+        setIsApproved(schoolAssignments && schoolAssignments.length > 0 && schoolAssignments[0].status === 'approved');
       } catch (error) {
         console.error('Error fetching user data:', error);
         setUserName('Driver'); // Fallback in case of error
-        setIsVerified(false);
+        setIsApproved(false);
       }
     };
 
@@ -292,8 +292,8 @@ const Driverdashboard = () => {
               <p className="text-gray-600 inter-regular mt-1">Here is your driving dashboard overview</p>
             </div>
 
-            {/* Verified Driver Alert */}
-            {isVerified ? (
+            {/* Approval Status Alert */}
+            {isApproved ? (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 flex items-center">
                 <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-3">
                   <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -305,9 +305,9 @@ const Driverdashboard = () => {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-green-800 inter-semibold">Verified Driver</p>
+                  <p className="text-green-800 inter-semibold">Approved Driver</p>
                   <p className="text-green-700 inter-regular text-sm">
-                    You have been verified and approved for rides
+                    You have been approved and can start accepting rides
                   </p>
                 </div>
               </div>
@@ -323,9 +323,9 @@ const Driverdashboard = () => {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-red-800 inter-semibold">Unverified Driver</p>
+                  <p className="text-red-800 inter-semibold">Pending Approval</p>
                   <p className="text-red-700 inter-regular text-sm">
-                    Your account is not yet verified. Please complete the verification process.
+                    Your account is awaiting approval. Please wait for admin approval.
                   </p>
                 </div>
               </div>

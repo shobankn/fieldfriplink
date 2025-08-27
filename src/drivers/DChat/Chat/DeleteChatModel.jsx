@@ -3,7 +3,8 @@ import React from "react";
 import { Trash2, X, AlertTriangle } from "lucide-react";
 import { createPortal } from "react-dom";
 import axios from "axios";
-import customer from "../../../images/customer.png";
+import customer from '../../../images/customer.png';
+
 import { useSocketContext } from "./SocketContext";
 
 const BASE_URL = "https://fieldtriplinkbackend-production.up.railway.app/api";

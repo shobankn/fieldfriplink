@@ -3,8 +3,9 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Topbar from '../component/topbar/topbar';
+import { LuPlane, LuClock4, LuMapPin, LuUsers,  LuClock} from 'react-icons/lu';
 import Sidebar from '../component/sidebar/Sidebar';
-import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaUsers, FaExclamationTriangle, FaTimes, FaCommentDots, FaCheckCircle } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaUsers, FaTimesCircle, FaTimes, FaCommentDots, FaCheckCircle } from 'react-icons/fa';
 import { CiFilter, CiLocationOn, CiClock2 } from "react-icons/ci";
 import { LuUser, LuBus, LuCalendar } from "react-icons/lu";
 
@@ -27,8 +28,8 @@ const AvailableRides = () => {
   const MAX_WORDS = 500;
 
   const truncateTripName = (name) => {
-    if (name.length > 20) {
-      return name.substring(0, 20) + '...';
+    if (name.length > 40) {
+      return name.substring(0, 40) + '...';
     }
     return name;
   };
@@ -364,7 +365,7 @@ const AvailableRides = () => {
                 {availableRides.map((ride) => (
                   <div 
                     key={ride.id} 
-                    className="bg-white rounded-lg shadow p-5 mb-4 relative cursor-pointer hover:shadow-md transition-shadow duration-200"
+                    className="bg-white rounded-lg shadow p-5 mb-4 relative border border-gray-200"
                     onClick={() => handleCardClick(ride)}
                   >
                     <div className="flex justify-between items-center mb-[18px]">
@@ -378,7 +379,7 @@ const AvailableRides = () => {
                         className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded font-medium text-white ${
                           appliedProposals.includes(ride.id)
                             ? 'bg-[#F0B100] cursor-not-allowed'
-                            : 'bg-[#EE5B5B] hover:bg-red-600'
+                            : 'bg-[#EE5B5B] hover:bg-red-600 cursor-pointer'
                         } ${isSubmittingProposal[ride.id] ? 'opacity-70 cursor-not-allowed' : ''}`}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -423,30 +424,30 @@ const AvailableRides = () => {
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-y-2">
                       <div>
                         <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
-                          <CiLocationOn className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">Pickup:</span> <span className="interregular">{ride.pickup}</span>
+                          <LuMapPin className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
+                          <span className="archivomedium">Pickup:</span> <span className="interregular">{ride.pickup}</span>
                         </p>
                         <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
-                          <CiLocationOn className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">Drop:</span> <span className="interregular">{ride.drop}</span>
+                          <LuMapPin className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
+                          <span className="archivomedium">Drop:</span> <span className="interregular">{ride.drop}</span>
                         </p>
                         <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
                           <LuUser className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">{ride.students} students</span> <span className="interregular"></span>
+                          <span className="archivomedium">{ride.students} students</span> <span className="interregular"></span>
                         </p>
                       </div>
                       <div>
                         <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
                           <LuCalendar className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">{ride.isRecurring ? 'Days' : 'Date'}:</span> <span className="interregular">{ride.date}</span>
+                          <span className="archivomedium">{ride.isRecurring ? 'Days' : 'Date'}:</span> <span className="interregular">{ride.date}</span>
                         </p>
                         <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
-                          <CiClock2 className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">Start Time:</span> <span className="interregular">{ride.startTime}</span> - <span className="font-medium">End Time:</span> <span className="interregular">{ride.endTime}</span>
+                          <LuClock4 className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
+                          <span className="archivomedium">Start Time:</span> <span className="interregular">{ride.startTime}</span> - <span className="font-medium">End Time:</span> <span className="interregular">{ride.endTime}</span>
                         </p>
                         <p className="flex items-center gap-2 text-[#606060] text-[16px] mb-[8px]">
                           <LuBus className="text-[#EE5B5B] w-5 h-5 flex-shrink-0"/>
-                          <span className="font-medium">Number of Buses:</span> <span className="interregular">{ride.buses}</span>
+                          <span className="archivomedium">Number of Buses:</span> <span className="interregular">{ride.buses}</span>
                         </p>
                       </div>
                     </div>
@@ -462,7 +463,7 @@ const AvailableRides = () => {
                 {totalPages > 1 && (
                   <div className="flex justify-center items-center gap-2 mt-6">
                     <button
-                      className={`px-4 py-2 rounded-md ${currentPage === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-[#EE5B5B] text-white hover:bg-red-600'}`}
+                      className={`px-4 py-2 rounded-md cursor-pointer ${currentPage === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-[#EE5B5B] text-white hover:bg-red-600'}`}
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
                     >
@@ -472,7 +473,7 @@ const AvailableRides = () => {
                       Page {currentPage} of {totalPages}
                     </span>
                     <button
-                      className={`px-4 py-2 rounded-md ${currentPage === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-[#EE5B5B] text-white hover:bg-red-600'}`}
+                      className={`px-4 py-2 rounded-md cursor-pointer ${currentPage === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-[#EE5B5B] text-white hover:bg-red-600'}`}
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
                     >
@@ -496,7 +497,7 @@ const AvailableRides = () => {
               </div>
               <button
                 onClick={handleCloseModal}
-                className={`flex items-center justify-center gap-2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200 ${
+                className={`flex items-center justify-center gap-2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200 cursor-pointer ${
                   isClosingModal ? 'opacity-70 cursor-not-allowed' : ''
                 }`}
                 disabled={isClosingModal}
@@ -583,7 +584,7 @@ const AvailableRides = () => {
             <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
               <button
                 onClick={handleCloseModal}
-                className={`flex items-center justify-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium rounded-md transition-colors duration-200 ${
+                className={`flex items-center justify-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium rounded-md transition-colors duration-200 cursor-pointer ${
                   isClosingModal ? 'opacity-70 cursor-not-allowed' : ''
                 }`}
                 disabled={isClosingModal}
@@ -618,7 +619,7 @@ const AvailableRides = () => {
               </button>
               <button
                 onClick={() => handleSubmitProposal(selectedRide.id)}
-                className={`flex items-center justify-center gap-2 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-medium rounded-md transition-colors duration-200 ${
+                className={`flex items-center justify-center gap-2 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-medium rounded-md transition-colors duration-200 cursor-pointer ${
                   isSubmittingProposal[selectedRide.id] ? 'opacity-70 cursor-not-allowed' : ''
                 }`}
                 disabled={isSubmittingProposal[selectedRide.id]}

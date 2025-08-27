@@ -199,6 +199,12 @@ useEffect(() => {
     statusFilter === 'all' || driver.status === statusFilter
   );
 
+  const statusText = {
+    applied: 'proposals received',
+    accepted: 'proposals accepted',
+    rejected: 'proposals rejected'
+  }[statusFilter];
+
   return (
     <>
     <ToastContainer/>
@@ -208,7 +214,7 @@ useEffect(() => {
         <div className="flex items-center justify-between mb-6 flex-wrap">
           <div>
             <h1 className="text-2xl md:text-3xl inter-bold text-gray-900 mb-1">Driver Requests</h1>
-            <p className="text-gray-500 inter-regular text-sm">{filteredRequests.length} proposals received</p>
+            <p className="text-gray-500 inter-regular text-sm">{filteredRequests.length} {statusText}</p>
           </div>
         </div>
 
@@ -253,7 +259,13 @@ useEffect(() => {
           ) : error ? (
             <div className="text-red-500 inter-regular text-center">{error}</div>
           ) : filteredRequests.length === 0 ? (
-            <div className="text-gray-500 inter-regular text-center">No proposals found</div>
+
+             <div className="flex items-center justify-center h-[50vh]">
+              <div className="text-gray-500 inter-regular text-center">
+                No proposals found
+              </div>
+            </div>
+
           ) : (
             filteredRequests.map((driver) => (
               <div key={driver.id} className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 w-full max-w-full">
@@ -503,16 +515,18 @@ useEffect(() => {
                                 <span className="text-sm inter-regular text-gray-500 block mb-1">Phone:</span>
                                 <div className="inter-medium text-gray-900 break-words">{driverDetails.user.phone}</div>
                               </div>
-                              <div>
+                              {/* <div>
                                 <span className="text-sm inter-regular text-gray-500 block mb-1">School Partner:</span>
                                 <div className="inter-medium text-gray-900 break-words">{driverDetails.schoolDriver ? driverDetails.schoolDriver.name : 'N/A'}</div>
-                              </div>
+                              </div> */}
                             </div>
                             <div className="space-y-4">
-                              <div>
+
+                              {/* <div>
                                 <span className="text-sm inter-regular text-gray-500 block mb-1">CNIC:</span>
                                 <div className="inter-medium text-gray-900 break-words">{driverDetails.profile.cnicNumber}</div>
-                              </div>
+                              </div> */}
+
                               <div>
                                 <span className="text-sm inter-regular text-gray-500 block mb-1">Service Area:</span>
                                 <div className="inter-medium text-gray-900 break-words">{driverDetails.profile.address}</div>

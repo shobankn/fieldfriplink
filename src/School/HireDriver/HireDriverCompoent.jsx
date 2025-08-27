@@ -23,7 +23,7 @@ const DriverVerificationInterface = () => {
   const statusMap = {
      pending: 'Pending',
     approved: 'Verified',
-    suspended: 'Suspended'
+    // suspended: 'Suspended'
   };
 
   // Fetch driver data from backend
@@ -52,7 +52,7 @@ const DriverVerificationInterface = () => {
           profileImage: driver.profileImage || profile, // Fallback to default profile image
           email: driver.email,
           phone: driver.phone,
-          cnic: driver.cnicNumber || 'N/A', // Fallback if CNIC not provided
+          // cnic: driver.cnicNumber || 'N/A', 
           experience: driver.experience || 'N/A', // Fallback if experience not provided
           address: driver.address,
           submittedDate: driver.createdAt
@@ -83,7 +83,7 @@ const DriverVerificationInterface = () => {
       const matchesTab = driver.status === activeTab;
       const matchesSearch = searchTerm === '' || 
         driver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        driver.cnic.includes(searchTerm) ||
+        // driver.cnic.includes(searchTerm) ||
         driver.phone.includes(searchTerm);
       return matchesTab && matchesSearch;
     });
@@ -231,7 +231,7 @@ const DriverVerificationInterface = () => {
             >
               <Eye className="text-[#3B82F6] w-4 h-4" />
             </button>
-            <button
+            {/* <button
               onClick={(e) => {
                 e.stopPropagation();
                 showConfirmDialog("suspended", "Suspend");
@@ -240,12 +240,12 @@ const DriverVerificationInterface = () => {
               title="Mark as Suspended"
             >
               <AlertTriangle className="text-[#F0AD4E] w-4 h-4" />
-            </button>
+            </button> */}
           </>
         )}
 
         {/* Suspended: 1 button */}
-        {currentStatus === 'Suspended' && (
+        {/* {currentStatus === 'Suspended' && (
           <button
             onClick={(e) => {
               e.stopPropagation(); // prevent triggering parent's onClick
@@ -256,7 +256,7 @@ const DriverVerificationInterface = () => {
           >
             <Eye className="w-4 h-4" />
           </button>
-        )}
+        )} */}
       </div>
     );
   };
@@ -280,11 +280,11 @@ const DriverVerificationInterface = () => {
 
         {/* Navigation Tabs */}
         <div className="flex flex-wrap gap-1 mb-6 bg-white rounded-lg p-1 shadow-sm  max-w-full">
-          {['Pending', 'Verified', 'Suspended'].map((tab) => (
+          {['Pending', 'Verified'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${
+              className={` cursor-pointer flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${
                 activeTab === tab
                   ? tab === 'Pending' ? ' text-[#B00000] border-b-3 ' :
                     tab === 'Verified' ? 'text-[#B00000] border-b-3' :
@@ -294,7 +294,7 @@ const DriverVerificationInterface = () => {
             >
               {tab === 'Pending' && <Clock className="w-4 h-4 " />}
               {tab === 'Verified' && <CheckCircle className="w-4 h-4" />}
-              {tab === 'Suspended' && <AlertTriangle className="w-4 h-4" />}
+              {/* {tab === 'Suspended' && <AlertTriangle className="w-4 h-4" />} */}
               <span>{tab}</span>
               <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                 activeTab === tab
@@ -393,12 +393,12 @@ const DriverVerificationInterface = () => {
                           <span className='inter-regular'>{driver.phone}</span>
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
+                      {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
                         <div>
                           <span className="text-gray-500 inter-regular block">CNIC:</span>
                           <span className="inter-semibold text-gray-900">{driver.cnic}</span>
                         </div>
-                      </div>
+                      </div> */}
                       <div className="flex flex-col sm:flex-row gap-4 text-sm justify-center items-center sm:justify-start">
                         <div className="flex items-center gap-2 text-gray-600">
                           <MapPin className="w-4 h-4 flex-shrink-0" />

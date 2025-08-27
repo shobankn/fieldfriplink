@@ -302,15 +302,7 @@ const Notifications = () => {
                         <span className="text-[10px] sm:text-xs text-gray-400">{n.time}</span>
                       </div>
                     </div>
-                    <div className="flex gap-2 mt-2 sm:mt-0">
-                      <button
-                        onClick={() => deleteNotification(n.id)}
-                        title="Delete notification"
-                        className="p-1 sm:p-2 cursor-pointer"
-                      >
-                        <MdOutlineDeleteForever className="text-[#94a3b8] text-base sm:text-lg" />
-                      </button>
-                    </div>
+                    
                   </div>
                 ))
               ) : (

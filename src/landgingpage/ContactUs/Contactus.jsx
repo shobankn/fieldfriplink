@@ -77,6 +77,22 @@ const Contactus = () => {
 
   return (
     <div className="w-full bg-[#F8F9FB] text-gray-800">
+      <style>
+        {`
+          @keyframes slideInLeft {
+            0% { transform: translateX(-100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+          }
+          @keyframes slideInRight {
+            0% { transform: translateX(100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+          }
+          @keyframes slideInBottom {
+            0% { transform: translateY(100%); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+          }
+        `}
+      </style>
       <Navbar />
       {/* Hero Section */}
       <div className="bg-[#ea2127] text-white text-center py-12 sm:py-16 md:py-20 px-4 flex items-center justify-center flex-col">
@@ -89,7 +105,7 @@ const Contactus = () => {
       {/* Form & Contact Info Section */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 px-4 py-12 sm:py-16 md:py-20">
         {/* Form */}
-        <div className="bg-white shadow-md rounded-lg p-6 sm:p-8">
+        <div className="bg-white shadow-md rounded-lg p-6 sm:p-8 animate-move-in-left delay-2000" style={{ animation: 'slideInLeft 0.5s ease-out forwards 2s' }}>
           <h2 className="text-2xl sm:text-3xl archivobold mb-4">Request a Demo or Pilot</h2>
           <p className="interregular text-sm sm:text-base text-[#666666] mb-6">
             Fill out the form below and we'll get back to you within 24 hours to schedule your demo or discuss pilot program opportunities.
@@ -225,44 +241,47 @@ const Contactus = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`bg-[#ef4444] text-white py-2 px-6 rounded w-full text-sm sm:text-base flex items-center justify-center cursor-pointer ${
-                loading ? 'opacity-75 cursor-not-allowed' : 'hover:bg-red-600'
+              className={`bg-[#ef4444] text-white py-2 px-6 rounded w-full text-sm sm:text-base flex items-center justify-center cursor-pointer relative overflow-hidden group ${
+                loading ? 'opacity-75 cursor-not-allowed' : ''
               }`}
             >
-              {loading ? (
-                <>
-                  <svg
-                    className="animate-spin h-5 w-5 text-white mr-2"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Processing...
-                </>
-              ) : (
-                'Send Message'
-              )}
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300 ease-in-out"></span>
+              <span className="relative z-10">
+                {loading ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 text-white mr-2"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  'Send Message'
+                )}
+              </span>
             </button>
           </form>
         </div>
 
         {/* Contact Info */}
         <div className="space-y-6">
-          <div className="bg-white shadow-md rounded-lg p-6 sm:p-8">
+          <div className="bg-white shadow-md rounded-lg p-6 sm:p-8 animate-move-in-right delay-2000" style={{ animation: 'slideInRight 0.5s ease-out forwards 2s' }}>
             <h3 className="text-xl sm:text-2xl archivobold mb-4">Contact Information</h3>
             <div className="interregular flex gap-3 items-center mb-4">
               <span className="bg-[#FEF2F2] h-12 w-12 flex items-center justify-center rounded-full">
@@ -305,7 +324,7 @@ const Contactus = () => {
               </div>
             </div>
           </div>
-          <div className="bg-white shadow-md rounded-lg p-6 sm:p-8">
+          <div className="bg-white shadow-md rounded-lg p-6 sm:p-8 animate-move-in-right delay-2000" style={{ animation: 'slideInRight 0.5s ease-out forwards 2s' }}>
             <h3 className="text-xl sm:text-2xl archivobold mb-4">Ready to Get Started?</h3>
             <p className="interregular text-[#4B5563] mb-4 text-sm sm:text-base">
               We're excited to show you how FieldTripLink can transform your school's transportation experience. Here's what happens next:
@@ -329,7 +348,7 @@ const Contactus = () => {
       </div>
 
       {/* FAQ Section */}
-      <div className="bg-[#F8F9FB] pt-12 sm:pt-16 md:pt-20 pb-8 sm:pb-10 px-4">
+      <div className="bg-[#F8F9FB] pt-12 sm:pt-16 md:pt-20 pb-8 sm:pb-10 px-4 animate-move-in-bottom delay-2000" style={{ animation: 'slideInBottom 0.5s ease-out forwards 2s' }}>
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl sm:text-3xl archivobold text-center">Frequently Asked Questions</h2>
           <p className="pb-6 sm:pb-8 interregular text-center text-sm sm:text-base text-gray-500 mb-6">

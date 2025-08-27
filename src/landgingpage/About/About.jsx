@@ -5,6 +5,7 @@ import { CiHeart } from "react-icons/ci";
 import { LuGraduationCap } from "react-icons/lu";
 import { LuUsers } from "react-icons/lu";
 import { MdOutlineBalance } from "react-icons/md";
+import pf from '../../images/pf.jpeg'
 
 const About = () => {
   return (
@@ -13,7 +14,7 @@ const About = () => {
       {/* Top Banner */}
       <section className="bg-[#ea2127] text-white text-center px-4 sm:px-6 lg:px-20 py-12 sm:py-16 lg:py-[106px]">
         <h1 className="text-4xl sm:text-5xl lg:text-[60px] archivobold mb-4 sm:mb-[22px]">About FieldTripLink</h1>
-        <p className="text-base sm:text-lg lg:text-[18px] mx-auto max-w-[90%] sm:max-w-[60%] lg:max-w-[70%] interregular">
+        <p className="interregular text-lg sm:text-xl md:text-2xl mx-auto max-w-[90%] sm:max-w-[60%] lg:max-w-[70%]">
         FieldTripLink is a first-of-its-kind driver share system that bridges the gap between schools and professional drivers. Our platform makes it easy for schools to post trips, for drivers to claim them, and for both to stay connected in real time. With built-in safety features, compliance checks, and a transparent process, we bring peace of mind while solving one of the biggest challenges in student transportation.
         </p>
       </section>
@@ -38,16 +39,19 @@ At FieldTripLink, we’re not just moving buses, we’re moving possibilities.
       <section className="flex flex-col lg:flex-row px-4 sm:px-6 lg:px-20 py-12 sm:py-16 lg:py-[92px] gap-6 lg:gap-10">
         {/* Image/Avatar Block */}
         <div className="flex-1 flex justify-center">
-          <div className="bg-amber-100 rounded-lg p-6 sm:p-8 text-center w-full max-w-[350px] sm:max-w-[400px] h-[300px] sm:h-[350px] flex flex-col justify-center items-center mx-auto">
+
+<img src={pf} alt="" width={400} />
+        
+          {/* <div className="bg-amber-100 rounded-lg p-6 sm:p-8 text-center w-full max-w-[350px] sm:max-w-[400px] h-[300px] sm:h-[350px] flex flex-col justify-center items-center mx-auto">
             <div className="w-12 sm:w-16 h-12 sm:h-16 bg-[#be1d1d] text-white rounded-full flex items-center justify-center font-bold text-base sm:text-lg">
               AH
             </div>
             <p className="font-semibold mt-4 text-base sm:text-lg">Amanda L. Heyen</p>
             <p className="text-sm text-gray-600">Founder & CEO</p>
-          </div>
+          </div> */}
         </div>
         {/* Story Text */}
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col justify-center">
           <h2 className="archivobold text-2xl sm:text-3xl lg:text-[36px] mb-4">From Our Founders</h2>
           <p className="text-[#555555] interregular text-sm sm:text-base lg:text-[16px] mb-4 sm:mb-[24px]">
 

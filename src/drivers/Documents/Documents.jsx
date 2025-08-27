@@ -18,10 +18,10 @@ const debounce = (func, wait) => {
 };
 
 const uploadFields = [
-  { id: 'cnicFront', label: 'CNIC Front', required: true, apiKey: 'cnicFrontImage' },
-  { id: 'cnicBack', label: 'CNIC Back', required: true, apiKey: 'cnicBackImage' },
-  { id: 'license', label: 'Driving License (PSV/School Bus)', required: true, apiKey: 'drivingLicenseImage' },
-  { id: 'vehicleReg', label: 'Vehicle Registration', required: true, apiKey: 'vehicleRegistrationImage' },
+  { id: 'cnicFront', label: 'State Drivers License ', required: true, apiKey: 'cnicFrontImage' },
+  { id: 'cnicBack', label: 'School bus driver certification card ', required: true, apiKey: 'cnicBackImage' },
+  { id: 'license', label: 'BCI/FBI Background check verification papers ', required: true, apiKey: 'drivingLicenseImage' },
+  { id: 'vehicleReg', label: 'Photo of Driver', required: true, apiKey: 'vehicleRegistrationImage' },
 ];
 
 const Documents = () => {
@@ -595,7 +595,7 @@ const Documents = () => {
                       <li>All images should be clear and readable</li>
                       <li>Driving license must be PSV or school bus category</li>
                       <li>Vehicle registration should be current and valid</li>
-                      <li>CNIC should be valid and not expired</li>
+                      {/* <li>CNIC should be valid and not expired</li> */}
                     </ul>
                   </div>
                 </div>

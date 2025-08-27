@@ -289,7 +289,7 @@ const Contactus = () => {
               </span>
               <div>
                 <p className="archivobold text-base sm:text-lg">Email</p>
-                <p className="text-[#666666] text-sm sm:text-base">info@fieldtriplink.com</p>
+                <p className="text-[#666666] text-sm sm:text-base">fieldtriplink2025@gmail.com</p>
                 <p className="text-[#666666] text-sm sm:text-base">For general inquiries</p>
               </div>
             </div>
@@ -299,7 +299,7 @@ const Contactus = () => {
               </span>
               <div>
                 <p className="archivobold text-base sm:text-lg">Phone</p>
-                <p className="text-[#666666] text-sm sm:text-base">(555) 123-4567</p>
+                <p className="text-[#666666] text-sm sm:text-base">330 780 1649</p>
                 <p className="text-[#666666] text-sm sm:text-base">Monday - Friday, 8AM - 6PM EST</p>
               </div>
             </div>
@@ -356,29 +356,35 @@ const Contactus = () => {
           </p>
           <div className="space-y-6">
             <div className="bg-white pt-6 sm:pt-8 px-6 sm:px-8 pb-4 sm:pb-6 rounded-lg">
-              <h4 className="archivobold text-base sm:text-lg">How does the pilot program work?</h4>
+              <h4 className="archivobold text-base sm:text-lg">How does FieldTripLink work for schools?</h4>
               <p className="interregular text-sm sm:text-base text-gray-700">
-                Our pilot program allows schools to test the platform with a limited number of trips at no cost. This helps you understand the benefits and see how it fits into your transportation workflow before making a commitment.
+                Schools can easily post trip details such as date, time, destination, and other requirements on our platform. Drivers are notified and can send proposals for those trips, ensuring students reach their destinations safely and reliably.
               </p>
             </div>
             <div className="bg-white pt-6 sm:pt-8 px-6 sm:px-8 pb-4 sm:pb-6 rounded-lg">
-              <h4 className="archivobold text-base sm:text-lg">What are the costs involved?</h4>
+              <h4 className="archivobold text-base sm:text-lg">Are the drivers verified?</h4>
               <p className="interregular text-sm sm:text-base text-gray-700">
-                We offer transparent, competitive pricing with no hidden fees. Costs vary based on your school's size and usage. We'll provide a detailed quote during your demo based on your specific needs.
+               Yes. Every driver on FieldTripLink must upload their verification documents. Once submitted, these documents are shared with schools, who then have the authority to verify or reject the drivers.
               </p>
             </div>
             <div className="bg-white pt-6 sm:pt-8 px-6 sm:px-8 pb-4 sm:pb-6 rounded-lg">
-              <h4 className="archivobold text-base sm:text-lg">How do you ensure driver quality?</h4>
+              <h4 className="archivobold text-base sm:text-lg">How will drivers know about available trips?</h4>
               <p className="interregular text-sm sm:text-base text-gray-700">
-                All drivers undergo comprehensive background checks, drug screening, CDL verification, and safety training. We also use RAP Back integration for continuous monitoring and maintain a rating system for quality assurance.
+               Drivers receive instant notifications when schools post new trips. They can review the trip details and submit proposals for the jobs that fit their schedule and availability.
               </p>
             </div>
-            {/* <div className="bg-white pt-6 sm:pt-8 px-6 sm:px-8 pb-4 sm:pb-6 rounded-lg">
-              <h4 className="archivobold text-base sm:text-lg">What if no drivers are available for my trip?</h4>
+            <div className="bg-white pt-6 sm:pt-8 px-6 sm:px-8 pb-4 sm:pb-6 rounded-lg">
+              <h4 className="archivobold text-base sm:text-lg">What safety measures are in place?</h4>
               <p className="interregular text-sm sm:text-base text-gray-700">
-                Our network is designed to provide reliable coverage, but if no drivers are available, we'll work with you to find alternatives or help you adjust your trip timing. We're committed to ensuring your students don't miss out.
+                Safety is our top priority. FieldTripLink ensures all drivers go through document verification, and schools have the final say in approving them. In addition, our platform provides real-time updates and communication features to keep everyone informed from start to finish.
               </p>
-            </div> */}
+            </div>
+            <div className="bg-white pt-6 sm:pt-8 px-6 sm:px-8 pb-4 sm:pb-6 rounded-lg">
+              <h4 className="archivobold text-base sm:text-lg">How do I get started?</h4>
+              <p className="interregular text-sm sm:text-base text-gray-700">
+              Simply sign up as a school or driver on our website, create your account, complete the verification process, and you’ll be ready to post trips (schools) or apply for trips (drivers) right away.
+              </p>
+            </div>
           </div>
         </div>
       </div>

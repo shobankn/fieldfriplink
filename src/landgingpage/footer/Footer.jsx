@@ -73,12 +73,12 @@ const Footer = () => {
           <ul className="space-y-2 text-sm text-gray-400">
             <li className="text-[#bbbbbb] interregular text-[14px]">
               <a href="mailto:info@fieldtriplink.com" className="hover:text-white cursor-pointer">
-                info@fieldtriplink.com
+                fieldtriplink2025@gmail.com
               </a>
             </li>
             <li className="text-[#bbbbbb] interregular text-[14px]">
               <a href="tel:+5551234567" className="hover:text-white cursor-pointer">
-                (555) 123-4567
+                330 780 1649
               </a>
             </li>
             <li className="text-[#bbbbbb] interregular text-[14px]">United States</li>

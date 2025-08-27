@@ -49,7 +49,7 @@ const Home = () => {
           <h1 className="archivobold text-3xl sm:text-4xl lg:text-[48px]">
             Connecting Schools to Drivers
           </h1>
-          <p className="mb-6 text-base sm:text-lg lg:text-[18px] leading-relaxed interregular">
+          <p className="mb-6 interregular text-lg sm:text-xl md:text-2xl leading-relaxed  ">
             Ensure students never miss out on enrichment opportunities due to transportation shortages. Our secure platform connects schools with certified bus drivers instantly.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start flex-wrap">

@@ -143,7 +143,7 @@ const DocumentSection = ({ driverData }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           <div>
-            <span className="text-sm inter-medium text-gray-700 block mb-2">CNIC Front</span>
+            <span className="text-sm inter-medium text-gray-700 block mb-2">State Driver License</span>
             <DocumentItem
               document={driverData.submittedDocuments.cnicFront}
               label="CNIC Front"
@@ -154,7 +154,7 @@ const DocumentSection = ({ driverData }) => {
           
 
           <div>
-            <span className="text-sm inter-medium text-gray-700 block mb-2">CNIC Back</span>
+            <span className="text-sm inter-medium text-gray-700 block mb-2">School Bus Driver Certification Card</span>
             <DocumentItem
               document={driverData.submittedDocuments.cnicBack}
               label="CNIC Back"
@@ -164,7 +164,7 @@ const DocumentSection = ({ driverData }) => {
           </div>
 
           <div>
-            <span className="text-sm inter-medium text-gray-700 block mb-2">Driving License</span>
+            <span className="text-sm inter-medium text-gray-700 block mb-2">BCI/FBI Background Check Verification</span>
             <DocumentItem
               document={driverData.submittedDocuments.drivingLicense}
               label="Driving License"
@@ -173,7 +173,7 @@ const DocumentSection = ({ driverData }) => {
             />
           </div>
 
-          <div>
+          {/* <div>
             <span className="text-sm inter-medium text-gray-700 block mb-2">Vehicle Registration</span>
             <DocumentItem
               document={driverData.submittedDocuments.vehicleRegistration}
@@ -181,7 +181,7 @@ const DocumentSection = ({ driverData }) => {
               onImageClick={handleImageClick}
               onDownloadClick={handleDownloadClick}
             />
-          </div>
+          </div> */}
         </div>
       </div>
 

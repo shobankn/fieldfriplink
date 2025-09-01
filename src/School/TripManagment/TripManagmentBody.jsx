@@ -833,8 +833,8 @@ const CompletedTripCard = ({ trip }) => {
    <div className="min-h-screen p-4 lg:px-6 py-0 overflow-x-hidden">
   <div className="">
     <div className="max-w-full mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-0">
-        <div>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-2 mb-0">
+        <div className='sm:px-0 py-1'>
           <h1 className="text-2xl md:text-3xl inter-bold text-gray-900">Trip Management</h1>
           <p className="text-gray-600 mt-2 text-sm md:text-base mb-2">
             Manage and monitor all your transportation requests.

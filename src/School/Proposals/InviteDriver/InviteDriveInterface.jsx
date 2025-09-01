@@ -47,7 +47,7 @@ useEffect(() => {
         return;
       }
 
-      const url = `${baseURL}/school/drivers?status=approved`;
+      const url = `${baseURL}/school/drivers?myDriversOnly=true&status=approved`;
       console.log("Fetching from:", url); // debug
 
       const res = await axios.get(url, {

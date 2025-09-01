@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
-import { MapPin, Phone, Mail, Globe, Edit2 } from 'lucide-react';
+import { MapPin, Phone, Mail, Globe, Edit2, School } from 'lucide-react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useNavigate } from 'react-router-dom';
+import dummyprofile from '../../images/profile/dummyprofile.png'
 
 const SchoolProfileView = () => {
   const [profileData, setProfileData] = useState({
@@ -122,20 +123,21 @@ const SchoolProfileView = () => {
                 <>
                   {/* School Logo */}
                   <div className="flex justify-start mb-8">
-                    <div className="w-24 h-24 sm:w-32 sm:h-32  rounded-lg flex items-center justify-center overflow-hidden shadow-sm">
-                      {profileData.schoolLogo ? (
-                        <img 
-                          src={profileData.schoolLogo} 
-                          alt="School Logo" 
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        // Default school bus icon
-                        <div className="text-4xl sm:text-5xl">
-                          
-                        </div>
-                      )}
-                    </div>
+<div className="w-24 h-24 sm:w-32 sm:h-32 rounded-lg flex items-center justify-center overflow-hidden shadow-sm">
+  {profileData?.schoolLogo ? (
+    <img
+      src={profileData.schoolLogo}
+      alt="School Logo"
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <div className="w-full h-full flex items-center justify-center bg-red-500">
+      <School className="w-24 h-24 text-white" />
+    </div>
+  )}
+</div>
+
+                    
                   </div>
 
                   {/* Profile Fields */}

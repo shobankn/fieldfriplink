@@ -345,7 +345,7 @@ const AvailableRides = () => {
           <div className="max-w-full mx-auto py-6">
             <div className="flex justify-between items-center flex-wrap gap-4 mb-6">
               <div className="w-[90%]">
-                <h1 className="text-[24px] archivobold mt-[18px]">Available Rides</h1>
+                <h1 className="text-[24px] archivobold mt-[18px]">Available Trips</h1>
                 <p className="text-gray-600 interregular">Browse and send proposals for school transportation routes</p>
               </div>
             </div>

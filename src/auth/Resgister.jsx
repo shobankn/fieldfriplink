@@ -557,13 +557,13 @@ const Register = () => {
                 </div>
                 <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                   <div className="flex-1">
-                    <label className="block text-sm lg:text-[14px] inter-semibold mb-1">CNIC Front</label>
+                    <label className="block text-sm lg:text-[14px] inter-semibold mb-1">State Drivers License </label>
                     <div
                       className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer overflow-hidden"
                       onClick={() => handleFileClick(cnicFrontRef)}
                     >
                       <span className={`flex-1 truncate ${formData.cnicFront ? 'text-black' : 'text-gray-400'}`}>
-                        {formData.cnicFront ? truncateFileName(formData.cnicFront.name) : 'Upload CNIC Front'}
+                        {formData.cnicFront ? truncateFileName(formData.cnicFront.name) : 'State Drivers License'}
                       </span>
                       <HiUpload className="text-gray-500" />
                     </div>
@@ -577,13 +577,14 @@ const Register = () => {
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="block text-sm lg:text-[14px] inter-semibold mb-1">CNIC Back</label>
+                    <label className="block text-sm lg:text-[14px] inter-semibold mb-1">
+School bus driver certification card </label>
                     <div
                       className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer overflow-hidden"
                       onClick={() => handleFileClick(cnicBackRef)}
                     >
                       <span className={`flex-1 truncate ${formData.cnicBack ? 'text-black' : 'text-gray-400'}`}>
-                        {formData.cnicBack ? truncateFileName(formData.cnicBack.name) : 'Upload CNIC Back'}
+                        {formData.cnicBack ? truncateFileName(formData.cnicBack.name) : 'School bus driver certification card '}
                       </span>
                       <HiUpload className="text-gray-500" />
                     </div>
@@ -598,13 +599,13 @@ const Register = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm lg:text-[14px] inter-semibold mb-1">Driver's License</label>
+                  <label className="block text-sm lg:text-[14px] inter-semibold mb-1">BCI/FBI Background check verification papers </label>
                   <div
                     className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer overflow-hidden"
                     onClick={() => handleFileClick(driversLicenseRef)}
                   >
                     <span className={`flex-1 truncate ${formData.driversLicense ? 'text-black' : 'text-gray-400'}`}>
-                      {formData.driversLicense ? truncateFileName(formData.driversLicense.name) : "Upload Driver's License"}
+                      {formData.driversLicense ? truncateFileName(formData.driversLicense.name) : "BCI/FBI Background check verification papers "}
                     </span>
                     <HiUpload className="text-gray-500" />
                   </div>
@@ -617,14 +618,14 @@ const Register = () => {
                     ref={driversLicenseRef}
                   />
                 </div>
-                <div>
-                  <label className="block text-sm lg:text-[14px] inter-semibold mb-1">Vehicle Registration Document</label>
+                {/* <div>
+                  <label className="block text-sm lg:text-[14px] inter-semibold mb-1">Photo of Driver</label>
                   <div
                     className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer overflow-hidden"
                     onClick={() => handleFileClick(vehicleRegistrationRef)}
                   >
                     <span className={`flex-1 truncate ${formData.vehicleRegistrationDocument ? 'text-black' : 'text-gray-400'}`}>
-                      {formData.vehicleRegistrationDocument ? truncateFileName(formData.vehicleRegistrationDocument.name) : 'Upload Vehicle Registration Document'}
+                      {formData.vehicleRegistrationDocument ? truncateFileName(formData.vehicleRegistrationDocument.name) : 'Photo of Driver'}
                     </span>
                     <HiUpload className="text-gray-500" />
                   </div>
@@ -636,7 +637,7 @@ const Register = () => {
                     className="hidden"
                     ref={vehicleRegistrationRef}
                   />
-                </div>
+                </div> */}
               </>
             )}
 

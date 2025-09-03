@@ -77,6 +77,7 @@ const DriverProfile = () => {
         });
 
         const { user, profile, schoolAssignments } = response.data;
+        console.log(response.data);
         
         // Get the assigned school name from schoolAssignments array
         let assignedSchool = '';
@@ -97,6 +98,7 @@ const DriverProfile = () => {
         
         setProfileData(updatedProfileData);
         setEditData(updatedProfileData);
+        
         
         // Also update localStorage with the correct school name
         if (assignedSchool) {

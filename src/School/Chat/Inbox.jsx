@@ -45,6 +45,9 @@ const InboxContent = () => {
     };
   }, []);
 
+
+
+
   useEffect(() => {
     if (locationState?.creatorId) {
       console.log("[Inbox] Setting receiverId from location.state:", locationState.creatorId);
@@ -55,6 +58,8 @@ const InboxContent = () => {
       localStorage.removeItem("receiverId");
     }
   }, [locationState]);
+
+
 
   useEffect(() => {
     if (!socket || !receiverId) {
@@ -67,45 +72,54 @@ const InboxContent = () => {
       user2Id: receiverId,
     });
 
-    const joinChatHandler = ({ chatId, messages, participants }) => {
-      console.log("[Inbox] JOIN_CHAT_SUCCESS received:", {
-        chatId,
-        messagesCount: messages?.length,
-        participants,
-      });
+const joinChatHandler = ({ chatId, messages, participants }) => {
+  console.log("[Inbox] JOIN_CHAT_SUCCESS received:", {
+    chatId,
+    messagesCount: messages?.length,
+    participants,
+  });
 
-      let chatReceiver = participants?.find((p) => p.userId !== socket.userId) || null;
+  // Find the receiver from participants (exclude self)
+  let chatReceiver = participants?.find((p) => p.userId !== socket.userId) || null;
 
-      // Enhanced fallback logic with better fullName handling
-      if (!chatReceiver && location.state?.creatorId === receiverId) {
-        chatReceiver = {
-          userId: location.state.creatorId,
-          profilePicture: location.state.creatorPic || location.state.profilePicture,
-          fullName: location.state.creatorName || 
-                   location.state.fullName || 
-                   location.state.name || 
-                   location.state.username || 
-                   "Unknown User",
-        };
-        console.log("[Inbox] Using fallback receiver from location.state:", chatReceiver);
-      }
-
-      // Additional check to ensure fullName exists
-      if (chatReceiver && !chatReceiver.fullName) {
-        chatReceiver.fullName = chatReceiver.name || 
-                               chatReceiver.username || 
-                               chatReceiver.displayName || 
-                               "Unknown User";
-      }
-
-      console.log("[Inbox] Resolved receiver:", chatReceiver);
-      setActiveChatId(chatId);
-      setChatMessages((prev) => ({
-        ...prev,
-        [chatId]: messages || []
-      }));
-      setReceiver(chatReceiver);
+  // If not found, try pulling from location.state
+  if (!chatReceiver && location.state?.creatorId === receiverId) {
+    chatReceiver = {
+      userId: location.state.creatorId,
+      profilePicture: location.state.creatorPic || location.state.profilePicture,
+      fullName:
+        location.state.creatorName ||
+        location.state.fullName ||
+        location.state.name ||
+        location.state.username ||
+        null, // don’t immediately fallback here
     };
+    console.log("[Inbox] Using fallback receiver from location.state:", chatReceiver);
+  }
+
+  // Normalize fields to ensure consistent receiver data
+  if (chatReceiver) {
+    chatReceiver = {
+      userId: chatReceiver.userId,
+      profilePicture: chatReceiver.profilePicture || chatReceiver.profileImage || null,
+      fullName:
+        chatReceiver.fullName ||
+        chatReceiver.name ||
+        chatReceiver.username ||
+        chatReceiver.displayName ||
+        "",
+    };
+  }
+
+  console.log("[Inbox] Resolved receiver:", chatReceiver);
+  setActiveChatId(chatId);
+  setChatMessages((prev) => ({
+    ...prev,
+    [chatId]: messages || [],
+  }));
+  setReceiver(chatReceiver);
+};
+
 
     socket.on("JOIN_CHAT_SUCCESS", joinChatHandler);
     socket.emit("JOIN_CHAT", {
@@ -216,6 +230,8 @@ useEffect(() => {
     });
   };
 
+  
+
   const handleSelectChat = ({ chatId, messages, receiverId, receiver }) => {
     console.log("[Inbox] Chat selected:", { chatId, receiverId, receiver });
     
@@ -226,7 +242,7 @@ useEffect(() => {
                receiver?.name || 
                receiver?.username || 
                receiver?.displayName || 
-               "Unknown User"
+               ""
     };
     
     setActiveChatId(chatId);
@@ -266,7 +282,7 @@ useEffect(() => {
 }, [socket?.userId]);
 
 
-
+// user status change
 useEffect(() => {
   if (!socket) return;
 
@@ -383,7 +399,8 @@ useEffect(() => {
       >
         <ChatSidebar 
          onSelectChat={handleSelectChat}
-        isOnline={userStatuses[receiverId]?.is_online || false}
+        // isOnline={userStatuses[receiverId]?.is_online || false}
+        userStatuses={userStatuses}
 
           />
       </div>

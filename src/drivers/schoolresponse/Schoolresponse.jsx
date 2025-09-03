@@ -192,7 +192,7 @@ const SchoolResponse = () => {
         <main className="flex-1 overflow-y-auto pt-16 px-4 sm:px-6 md:px-8 lg:px-[33px] bg-gray-50">
           <div className="max-w-full mx-auto py-4 sm:py-6">
             <h1 className="archivobold text-xl sm:text-2xl md:text-[24px] mt-4 sm:mt-[18px]">School Responses</h1>
-            <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">View responses to your ride proposals</p>
+            <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">View responses to your trip proposals</p>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -269,7 +269,7 @@ const SchoolResponse = () => {
                         <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-0">
                           {response.congratulations && (
                             <span className="bg-[#E8F5E9] text-[#4CAF50] px-2 sm:px-3 py-1 sm:py-2 rounded-[8px] text-xs sm:text-[12px] interregular text-center">
-                              Congratulations! <br />Ride Confirmed
+                              Congratulations! <br />Trip Confirmed
                             </span>
                           )}
                         </div>

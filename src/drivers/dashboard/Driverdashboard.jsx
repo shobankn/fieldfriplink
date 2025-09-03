@@ -307,7 +307,7 @@ const Driverdashboard = () => {
                 <div>
                   <p className="text-green-800 inter-semibold">Approved Driver</p>
                   <p className="text-green-700 inter-regular text-sm">
-                    You have been approved and can start accepting rides
+                    You have been approved and can start accepting Trips
                   </p>
                 </div>
               </div>
@@ -398,7 +398,7 @@ const Driverdashboard = () => {
                 ) : activeRide ? (
                   <div className="flex flex-col sm:flex-row justify-between items-center">
                     <div>
-                      <h3 className="text-lg inter-semibold mb-1">Active Ride</h3>
+                      <h3 className="text-lg inter-semibold mb-1">Active Trip</h3>
                       <p className="text-red-100 inter-regular mb-2">{activeRide.school}</p>
                       <p className="text-red-100 inter-regular text-sm">
                         Distance: {activeRide.distance} | Expected: {activeRide.expectedTime}
@@ -474,9 +474,9 @@ const Driverdashboard = () => {
                 ) : invitations.length > 0 ? (
                   <>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-700">New Ride Offers</h3>
+                      <h3 className="text-lg font-semibold text-gray-700">New Trip Offers</h3>
                       <p className="text-gray-600 text-sm">
-                        {invitations.length} new ride offer{invitations.length !== 1 ? 's' : ''} available in your area
+                        {invitations.length} new trip offer{invitations.length !== 1 ? 's' : ''} available in your area
                       </p>
                       <p className="text-gray-600 text-sm">Send proposals now to secure these routes</p>
                     </div>

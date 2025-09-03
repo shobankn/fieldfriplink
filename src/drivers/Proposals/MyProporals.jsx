@@ -269,7 +269,7 @@ const MyProposals = () => {
           <div className="max-w-full mx-auto py-6">
             <div className="mb-6">
               <h1 className="archivobold text-[24px] mt-[18px]">My Proposals</h1>
-              <p className="text-gray-500">Track your sent ride proposals</p>
+              <p className="text-gray-500">Track your sent trip proposals</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -457,9 +457,9 @@ const MyProposals = () => {
                   <FaEnvelope className="text-gray-400 text-4xl" />
                 </div>
                 <h2 className="text-lg font-medium mb-2">No proposals sent yet</h2>
-                <p className="text-sm text-gray-500 mb-4">Start sending proposals for available rides</p>
+                <p className="text-sm text-gray-500 mb-4">Start sending proposals for available trips</p>
                 <button className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg text-sm">
-                  Browse Available Rides
+                  Browse Available Trips
                 </button>
               </div>
             )}

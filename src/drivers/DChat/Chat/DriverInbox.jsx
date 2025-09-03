@@ -263,7 +263,7 @@ useEffect(() => {
 }, [socket?.userId]);
 
 
-
+// user status change
 useEffect(() => {
   if (!socket) return;
 
@@ -282,6 +282,7 @@ useEffect(() => {
   socket.on("USER_STATUS_CHANGE", handleUserStatusChange);
   return () => socket.off("USER_STATUS_CHANGE", handleUserStatusChange);
 }, [socket]);
+
 
 
 

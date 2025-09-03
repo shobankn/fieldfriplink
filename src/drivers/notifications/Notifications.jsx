@@ -200,7 +200,7 @@ const Notifications = () => {
               <div>
                 <h1 className="archivobold text-[24px] mt-[18px]">Notifications</h1>
                 <p className="text-xs sm:text-sm lg:text-[16px] interregular text-[#64748B]">
-                  Stay updated with your ride activities
+                  Stay updated with your trip activities
                 </p>
               </div>
               <div className="flex gap-2 items-center mt-4 sm:mt-0">

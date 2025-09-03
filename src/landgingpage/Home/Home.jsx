@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiShield } from "react-icons/fi";
 import { LuUsers } from "react-icons/lu";
 import { FaRegClock } from "react-icons/fa6";
+import PricingSection from './PriceSection';
 
 // Check authentication and user type from localStorage
 const isAuthenticated = !!localStorage.getItem('token');
@@ -49,7 +50,7 @@ const Home = () => {
           <h1 className="archivobold text-3xl sm:text-4xl lg:text-[48px]">
             Connecting Schools to Drivers
           </h1>
-          <p className="mb-6 text-base sm:text-lg lg:text-[18px] leading-relaxed interregular">
+          <p className="mb-6 interregular text-lg sm:text-xl md:text-2xl leading-relaxed  ">
             Ensure students never miss out on enrichment opportunities due to transportation shortages. Our secure platform connects schools with certified bus drivers instantly.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start flex-wrap">
@@ -122,12 +123,12 @@ const Home = () => {
       </section>
 
       {/* Why Choose FieldTripLink */}
-      <section className="p-4 sm:p-6 lg:p-[80px] flex flex-col lg:flex-row justify-between bg-gray-50 gap-8">
-        <div className="w-full lg:w-1/2 animate-move-in-left">
+      <section className="p-4 sm:p-6 lg:p-[80px] flex flex-col lg:flex-row justify-between align-center bg-gray-50 gap-8">
+        <div className="w-full lg:w-1/2 animate-move-in-left flex flex-col align-center justify-center">
           <h2 className="archivobold text-2xl sm:text-3xl lg:text-[36px] mb-6 sm:mb-8">
             Why Choose FieldTripLink?
           </h2>
-          <div>
+          {/* <div>
             <div className="flex items-start gap-2 mb-4 sm:mb-[23px]">
               <FiShield style={{ fontSize: '24px', color: '#E83E3E' }} className="mt-1" />
               <div>
@@ -149,7 +150,11 @@ const Home = () => {
                 <p className="interregular text-sm sm:text-[14px] text-[#555555]">Reduce delays and ensure every student gets to participate in enrichment activities.</p>
               </div>
             </div>
-          </div>
+          </div> */}
+<p className='archivoreuglar text-[#555555] ' >
+          At FieldTripLink, we believe every student deserves the chance to experience the world beyond the classroom. Field trips, extracurriculars, and special programs are essential to learning but too often, they’re canceled or scaled back because of driver shortages. We exist to change that.
+
+</p>
         </div>
         <div className="text-center mt-6 sm:mt-8 lg:mt-10 w-full lg:w-1/2 animate-move-in-right">
           <h1 className="archivobold text-2xl sm:text-3xl lg:text-[36px] mb-6">Ready to Get Started?</h1>
@@ -170,6 +175,10 @@ const Home = () => {
           </button>
         </div>
       </section>
+
+      <PricingSection/>
+
+
 
       {/* What Our Users Say */}
       <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-20 bg-gray-100 animate-move-in-bottom">

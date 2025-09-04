@@ -282,7 +282,7 @@ useEffect(() => {
 }, [socket?.userId]);
 
 
-// user status change
+// user status change (side bar are now used this)
 useEffect(() => {
   if (!socket) return;
 
@@ -301,9 +301,6 @@ useEffect(() => {
   socket.on("USER_STATUS_CHANGE", handleUserStatusChange);
   return () => socket.off("USER_STATUS_CHANGE", handleUserStatusChange);
 }, [socket]);
-
-
-
 
 useEffect(() => {
   if (!socket?.userId || !activeChatId) return;
@@ -376,9 +373,43 @@ useEffect(() => {
 
 
 
+// get user name profileImage and status
+useEffect(() => {
+  if (receiverId && socket) {
+    socket.emit("GET_USER_STATUS", { userId: receiverId });
+  }
+}, [receiverId, socket]);
 
 
+useEffect(() => {
+  if (!socket) return;
 
+  const handleUserStatus = (data) => {
+    console.log("User status update:", data);
+    setUserStatuses((prev) => ({
+      ...prev,
+      [data.userId]: {
+        is_online: data.is_online,
+        last_seen: data.last_seen,
+        name: data.name,
+        profileImage: data.profileImage
+      }
+    }));
+  };
+
+  socket.on("GET_USER_STATUS_SUCCESS", handleUserStatus);
+  socket.on("USER_STATUS_CHANGE", handleUserStatus);
+
+  socket.on("GET_USER_STATUS_ERROR", (err) => {
+    console.error("Status error:", err.message);
+  });
+
+  return () => {
+    socket.off("GET_USER_STATUS_SUCCESS", handleUserStatus);
+    socket.off("USER_STATUS_CHANGE", handleUserStatus);
+    socket.off("GET_USER_STATUS_ERROR");
+  };
+}, [socket]);
 
 
   return (
@@ -401,6 +432,8 @@ useEffect(() => {
          onSelectChat={handleSelectChat}
         // isOnline={userStatuses[receiverId]?.is_online || false}
         userStatuses={userStatuses}
+         socketName={userStatuses[receiverId]?.name}
+        socketProfile={userStatuses[receiverId]?.profileImage}
 
           />
       </div>
@@ -419,7 +452,7 @@ useEffect(() => {
               <div className="flex items-center ml-4 space-x-3">
                 <div className="relative">
                   <img
-                    src={receiver?.profilePicture}
+                    src={receiver?.profilePicture || userStatuses[receiverId]?.profileImage}
                     alt="Avatar"
                     className="w-8 h-8 rounded-full object-cover ring-2 ring-gray-100"
                     onError={(e) => { e.target.src = "/default-avatar.png"; }}
@@ -433,7 +466,7 @@ useEffect(() => {
                          </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 text-sm">
-                    {getDisplayName()}
+                    { userStatuses[receiverId]?.name}
                   </h3>
                    {userStatuses[receiverId]?.is_online ? (
                       <p className="text-xs text-green-500 font-medium">Online</p>
@@ -453,6 +486,8 @@ useEffect(() => {
               receiverId={receiverId}
               isOnline={userStatuses[receiverId]?.is_online || false}
               lastSeen={userStatuses[receiverId]?.last_seen}
+              socketName={userStatuses[receiverId]?.name}
+              socketProfile={userStatuses[receiverId]?.profileImage}
                  />
             </div>
 

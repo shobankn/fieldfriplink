@@ -4,7 +4,7 @@ import customer from '../../images/customer.png';
 import DeleteChatModal from './DeleteChatModel';
 import { MoreVertical, Trash2 } from "lucide-react";
 
-const ChatSidebar = ({ onSelectChat, className, userStatuses }) => {
+const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketProfile }) => {
   const socket = useSocketContext();
   const [chats, setChats] = useState([]);
   const chatsRef = useRef(chats); // Keep a ref to current chats
@@ -272,15 +272,15 @@ const ChatSidebar = ({ onSelectChat, className, userStatuses }) => {
                 >
                   <div className="relative">
                     <img
-                      src={participant.profileImage || customer}
+                      src={participant.profileImage || customer || socketProfile}
                       className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-red-200 transition-all duration-200"
-                      alt={`${participant.name}'s avatar`}
+                      alt={`${participant.name || socketName}'s avatar`}
                     />
                     <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white ${isOnline ? "bg-green-500" : "bg-gray-400"}`}></div>
                   </div>
                   <div className="ml-4 flex-1 min-w-0">
                     <p className={`text-sm font-semibold truncate group-hover:text-red-600 transition-colors duration-200 ${activeChatId === chat.chatId ? 'text-red-600' : 'text-gray-900'}`}>
-                      {participant.name}
+                      {participant.name || socketName}
                     </p>
                     <p className={`text-xs truncate mt-1 ${activeChatId === chat.chatId ? 'text-red-600' : 'text-gray-500'}`}>
                       {chat.lastMessage ? (

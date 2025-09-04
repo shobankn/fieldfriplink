@@ -22,7 +22,7 @@ const PricingSection = () => {
     "bg-gradient-to-br from-red-50 to-pink-50 border-red-300 shadow-xl -translate-y-2";
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-12">

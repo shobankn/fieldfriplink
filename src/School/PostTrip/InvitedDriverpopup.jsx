@@ -10,6 +10,7 @@ const InviteDriverPopup = ({ isOpen, onClose, tripId, onPublish }) => {
   const [selectedDrivers, setSelectedDrivers] = useState([]); // ✅ multiple
   const [inviting, setInviting] = useState(false);
   const [loading, setLoading] = useState(false);
+   const [publishing, setPublishing] = useState(false);
   const [note, setNote] = useState('Please accept the invitation');
   const baseURL = 'https://fieldtriplinkbackend-production.up.railway.app/api';
   const navigate = useNavigate();
@@ -96,6 +97,8 @@ const InviteDriverPopup = ({ isOpen, onClose, tripId, onPublish }) => {
   };
 
   const handlePublish = async () => {
+     if (publishing) return;
+
     const token = localStorage.getItem('token');
     if (!token) {
       toast.error('Authentication required. Please log in.', { autoClose: 3000 });
@@ -103,6 +106,7 @@ const InviteDriverPopup = ({ isOpen, onClose, tripId, onPublish }) => {
     }
 
     try {
+       setPublishing(true);
       await axios.patch(
         `${baseURL}/school/trip/${tripId}/publish`,
         {},
@@ -118,7 +122,9 @@ const InviteDriverPopup = ({ isOpen, onClose, tripId, onPublish }) => {
     } catch (error) {
       console.error('Publish error:', error);
       toast.error('Failed to publish trip', { autoClose: 3000 });
-    }
+    } finally {
+    setPublishing(false); // ✅ stop loading
+  }
   };
 
   if (!isOpen) return null;
@@ -200,14 +206,14 @@ const InviteDriverPopup = ({ isOpen, onClose, tripId, onPublish }) => {
         <div className="flex flex-col sm:flex-row justify-end p-4 border-t border-gray-200 space-y-3 sm:space-y-0 sm:space-x-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100"
+            className=" cursor-pointer px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100"
           >
             Cancel
           </button>
           <button
             onClick={handleSendJobPost}
             disabled={inviting || selectedDrivers.length === 0}
-            className={`px-4 py-2 flex items-center justify-center rounded-lg text-white ${
+            className={` cursor-pointer px-4 py-2 flex items-center justify-center rounded-lg text-white ${
               inviting || selectedDrivers.length === 0
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-red-500 hover:bg-red-600'
@@ -216,12 +222,47 @@ const InviteDriverPopup = ({ isOpen, onClose, tripId, onPublish }) => {
             <Send className="w-4 h-4 mr-2" />
             {inviting ? 'Sending...' : 'Send Invitations'}
           </button>
-          <button
-            onClick={handlePublish}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-          >
-            Publish Now
-          </button>
+
+         <button
+  onClick={handlePublish}
+  disabled={publishing}
+  className={`cursor-pointer px-4 py-2 rounded-lg text-white flex items-center justify-center ${
+    publishing
+      ? 'bg-gray-400 cursor-not-allowed'
+      : 'bg-red-500 hover:bg-red-600'
+  }`}
+>
+  {publishing ? (
+    <>
+      <svg
+        className="animate-spin h-4 w-4 mr-2 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        />
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+        />
+      </svg>
+      Publishing...
+    </>
+  ) : (
+    'Publish Now'
+  )}
+</button>
+
+
+
         </div>
       </motion.div>
     </motion.div>

@@ -6,6 +6,7 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useNavigate } from 'react-router-dom';
 import dummyprofile from '../../images/profile/dummyprofile.png'
+import PremiumBanner from './PriemumBanner';
 
 const SchoolProfileView = () => {
   const [profileData, setProfileData] = useState({
@@ -79,10 +80,14 @@ const SchoolProfileView = () => {
   return (
     <>
       <ToastContainer position="top-right" />
+           
       <div className="min-h-screen bg-gray-50 p-4 sm:px-6 py-2 ">
+      
         <div className="max-w-full mx-auto">
+       
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+           
             <div>
               <h1 className="text-2xl md:text-3xl inter-bold text-gray-900 mb-1">
                 School Information
@@ -91,7 +96,15 @@ const SchoolProfileView = () => {
                 Manage your school profile, users, and system preferences.
               </p>
             </div>
-            {!loading && (
+           
+          </div>
+
+          {/* Main Profile Container */}
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            
+            <div className="p-4 sm:p-6 md:p-8">
+              <div className='justify-end items-end content-end flex'>
+                    {!loading && (
               <button
                 onClick={() => navigate('/setting/update-profile')}
                 className="mt-4 sm:mt-0 inline-flex items-center cursor-pointer  justify-center content-center px-4 py-2 bg-red-500 text-white text-sm inter-medium rounded-lg hover:bg-red-600 transition-colors duration-200"
@@ -100,11 +113,9 @@ const SchoolProfileView = () => {
                 Edit
               </button>
             )}
-          </div>
 
-          {/* Main Profile Container */}
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            <div className="p-4 sm:p-6 md:p-8">
+              </div>
+           
               {loading ? (
                 <div className="space-y-8">
                   {/* Logo Skeleton */}

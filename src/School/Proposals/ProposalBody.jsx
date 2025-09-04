@@ -102,26 +102,40 @@ const statusColors = {
 
 
 const fetchTrips = async (pageNumber = 1) => {
-  const toastId = 'fetchTripsError';
+  const toastId = "fetchTripsError";
 
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       if (!toast.isActive(toastId)) {
-        toast.error('Token not found. Please log in.', { toastId });
+        toast.error("Token not found. Please log in.", { toastId });
       }
       return;
     }
 
     setLoading(true);
-    const res = await axios.get(`${BaseUrl}/school/my-trips?page=${pageNumber}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await axios.get(
+      `${BaseUrl}/school/my-trips?page=${pageNumber}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
     const newTrips = res.data.trips || [];
 
-    setTrips((prev) => [...prev, ...newTrips]); // ✅ append new trips
-    setHasMore(newTrips.length > 0); // if no new trips, stop loading more
+    setTrips((prev) => {
+      if (pageNumber === 1) {
+        // ✅ Reset state on first page
+        return newTrips;
+      }
+
+      // ✅ Append unique trips only
+      const existingIds = new Set(prev.map((t) => t._id));
+      const uniqueTrips = newTrips.filter((t) => !existingIds.has(t._id));
+      return [...prev, ...uniqueTrips];
+    });
+
+    setHasMore(newTrips.length > 0);
   } catch (err) {
     const errorMessage = err.response?.data?.error || err.message;
     if (!toast.isActive(toastId)) {
@@ -131,6 +145,7 @@ const fetchTrips = async (pageNumber = 1) => {
     setLoading(false);
   }
 };
+
 
 
 useEffect(() => {
@@ -286,11 +301,15 @@ const handleDeleteTrip = async (id) => {
                             ? trip.tripName.slice(0, 50) + "..."
                             : trip.tripName}
                         </h3>
+
                          <div className="hidden lg:flex">
-                    <span className={`px-3 py-1 capitalize justify-center items-center text-center content-center rounded-full text-sm inter-medium  ${statusColors[trip.tripStatus]}`}>
+                    <span 
+                    className={`px-3 py-1 capitalize justify-center items-center text-center content-center rounded-full text-sm inter-medium  ${statusColors[trip.tripStatus]}`}
+                    >
                       {trip.tripStatus}
                     </span>
                   </div>
+
                   </div>
                       <div>
                         
@@ -304,7 +323,9 @@ const handleDeleteTrip = async (id) => {
                       </div>
                     </div>
                     <div className="flex lg:hidden">
-                      <span className={`px-3 py-1  rounded-full text-sm inter-medium `}>
+                      <span
+                    className={`px-3 py-1 capitalize justify-center items-center text-center content-center rounded-full text-sm inter-medium  ${statusColors[trip.tripStatus]}`}
+                       >
                         {trip.tripStatus}
                       </span>
                     </div>

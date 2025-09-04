@@ -39,6 +39,8 @@ const Login = () => {
     }
   }, [token, storedUserType, navigate]);
 
+  
+
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
   //   setLoading(true);
@@ -98,40 +100,37 @@ const Login = () => {
     const redirectUserType = userType === 'Driver' ? 'Driver' : 'School';
 
     if (user.role === expectedRole) {
-      if (expectedRole === 'driver') {
-        // ✅ Driver flow
-        localStorage.setItem('token', newToken);
-        localStorage.setItem('userType', redirectUserType);
-        toast.success('Driver login successful!');
-        navigate('/driverdashboard');
-      } else {
-        // ✅ School flow → check subscription status
-        try {
-          const statusRes = await axios.get(
-            'https://fieldtriplinkbackend-production.up.railway.app/api/school/subscription/status',
-            {
-              headers: {
-                Authorization: `Bearer ${newToken}`,
-              },
-            }
-          );
+if (expectedRole === 'driver') {
+  // ✅ Driver flow
+  localStorage.setItem('token', newToken);
+  localStorage.setItem('userType', redirectUserType);
+  toast.success('Driver login successful!');
+  navigate('/driverdashboard');
+} else {
+  // ❌ Do NOT save token yet for School
+  try {
+    const statusRes = await axios.get(
+      'https://fieldtriplinkbackend-production.up.railway.app/api/school/subscription/status',
+      { headers: { Authorization: `Bearer ${newToken}` } }
+    );
 
-          if (statusRes.data?.active) {
-            // ✅ Active subscription → save token & go to dashboard
-            localStorage.setItem('token', newToken);
-            localStorage.setItem('userType', redirectUserType);
-            toast.success('School Admin login successful!');
-            navigate('/dashboard');
-          } else {
-            // ❌ Not active → show payment popup
-            setAuthData({ token: newToken, userType: redirectUserType });
-            setShowPaymentPopup(true);
-          }
-        } catch (statusError) {
-          console.error('Subscription status error:', statusError);
-          toast.error('Unable to verify subscription status. Please try again.');
-        }
-      }
+    if (statusRes.data?.active) {
+      // ✅ Active subscription → save token
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('userType', redirectUserType);
+      toast.success('School Admin login successful!');
+      navigate('/dashboard');
+    } else {
+      // ❌ Not active → keep token only in state
+      setAuthData({ token: newToken, userType: redirectUserType });
+      setShowPaymentPopup(true);
+    }
+  } catch (statusError) {
+    console.error('Subscription status error:', statusError);
+    toast.error('Unable to verify subscription status. Please try again.');
+  }
+}
+
     } else {
       toast.error('User role does not match the selected type.');
     }
@@ -175,6 +174,42 @@ const Login = () => {
       navigate('/dashboard');
     }
   };
+
+  useEffect(() => {
+  const checkAccess = async () => {
+    if (token && storedUserType) {
+      if (storedUserType === 'Driver') {
+        navigate('/driverdashboard');
+      } else if (storedUserType === 'School') {
+        try {
+          const statusRes = await axios.get(
+            'https://fieldtriplinkbackend-production.up.railway.app/api/school/subscription/status',
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          if (statusRes.data?.active) {
+            navigate('/dashboard');
+          } else {
+            // ❌ Kick user back to login
+            localStorage.removeItem('token');
+            localStorage.removeItem('userType');
+            toast.error('Please complete your payment to access the dashboard.');
+            navigate('/');
+          }
+        } catch (err) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('userType');
+          navigate('/');
+        }
+      }
+    }
+  };
+  checkAccess();
+}, [token, storedUserType, navigate]);
+
+
+
+
 
   const handlePaymentClose = () => {
     setShowPaymentPopup(false);

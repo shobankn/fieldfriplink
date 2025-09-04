@@ -102,14 +102,14 @@ const handlePaymentSubmit = async (plan) => {
         {/* --- Top --- */}
         <div className="flex flex-col sm:flex-row justify-between items-start mb-8">
           <div className="mb-4 sm:mb-0">
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Basic Plan</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Monthly Plan</h3>
             <p className="text-gray-600 leading-relaxed">
-              Unlimited access and posting $50 per completed trip (Plus driver wage)
+              Unlimited access and 50$ fee only on completed trip (Plus driver wage)
             </p>
           </div>
           <div className="flex items-baseline">
-            <span className="text-4xl md:text-5xl font-bold text-gray-900">$75.00</span>
-            <span className="text-gray-600 ml-2">/Monthly</span>
+            <span className="text-4xl md:text-4xl font-bold text-gray-900">$105.00</span>
+            <span className="text-gray-600 ml-2">/month</span>
           </div>
         </div>
 
@@ -178,9 +178,9 @@ const handlePaymentSubmit = async (plan) => {
       >
         {/* --- Top --- */}
         <div className="flex flex-col sm:flex-row justify-between items-start mb-8">
-          <div className="mb-4 sm:mb-0">
+          <div className="mb-4 sm:mb-0 w-[55%]">
             <div className="flex whitespace-nowrap items-center justify-start mb-2">
-              <h3 className="text-2xl font-bold text-gray-900">Yearly Plan</h3>
+              <h3 className="text-2xl font-bold text-gray-900"> Pilot Annual Offer</h3>
                {/* Badge with dynamic bg */}
               {/* <span
                 className={`ml-2 text-red-800 text-xs font-semibold px-3 py-1 rounded-full transition-colors duration-200 
@@ -190,12 +190,12 @@ const handlePaymentSubmit = async (plan) => {
               </span> */}
             </div>
             <p className="text-gray-600 leading-relaxed">
-              Unlimited access and posting Zero trip fees (Plus driver wage)
+              It will be 4200$ from next year
             </p>
           </div>
           <div className="flex items-baseline">
-            <span className="text-4xl md:text-5xl font-bold text-gray-900">$4200</span>
-            <span className="text-gray-600 ml-2">/year</span>
+            <span className="text-4xl md:text-4xl font-bold text-gray-900">$4200</span>
+            <span className="text-gray-600 ml-2">/for first year</span>
           </div>
         </div>
 
@@ -208,7 +208,7 @@ const handlePaymentSubmit = async (plan) => {
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               </div>
-              <span className="ml-3 text-gray-700">Early access to new features</span>
+              <span className="ml-3 text-gray-700">Get discount on first year</span>
             </div>
             <div className="flex items-start">
               <div className="flex-shrink-0 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mt-0.5">
@@ -216,7 +216,15 @@ const handlePaymentSubmit = async (plan) => {
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               </div>
-              <span className="ml-3 text-gray-700">Unlimited trip postings (no $50 fee)</span>
+              <span className="ml-3 text-gray-700">Unlimited access and posting</span>
+            </div>
+            <div className="flex items-start">
+              <div className="flex-shrink-0 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mt-0.5">
+                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <span className="ml-3 text-gray-700">Zero trip fees</span>
             </div>
           </div>
 

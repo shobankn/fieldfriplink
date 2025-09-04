@@ -14,10 +14,11 @@ function Trip() {
   const [loading, setLoading] = useState(true);
   const [pendingTrips, setPendingTrips] = useState(null);
   const [pendingCost, setPendingCost] = useState(null);
-  const { id } = useParams(); // ✅ detect if editing
+  const [costPerTrip, setCostPerTrip] = useState(50); // Default to 50
+  const { id } = useParams(); // Detect if editing
 
   useEffect(() => {
-    // ✅ If editing, skip credits check
+    // If editing, skip credits check
     if (id) {
       setUnlocked(true);
       setLoading(false);
@@ -47,30 +48,31 @@ function Trip() {
             availableTrips,
             canCreateNewTrip,
             pendingTrips,
-            pendingCost,
+            totalPendingAmount,
+            costPerTrip: apiCostPerTrip, // Get costPerTrip from API
           } = res.data;
 
           console.log("Trip Credits API:", res.data);
 
-          // save for popup use later
+          // Save for popup use later
           setPendingTrips(pendingTrips);
-          setPendingCost(pendingCost);
+          setPendingCost(totalPendingAmount); // Set totalPendingAmount
+          setCostPerTrip(apiCostPerTrip || 50); // Use API value or fallback to 50
 
-            if (
-              subscriptionType === "yearly" &&
-              String(availableTrips).toLowerCase() === "unlimited"
-            ) {
-              setUnlocked(true); // ✅ yearly with unlimited trips
-            } else if (subscriptionType === "monthly") {
-              if (String(canCreateNewTrip).toLowerCase() === "true") {
-                setUnlocked(true); // ✅ monthly user with permission
-              } else {
-                setUnlocked(false); // ❌ no permission
-              }
+          if (
+            subscriptionType === "yearly" &&
+            String(availableTrips).toLowerCase() === "unlimited"
+          ) {
+            setUnlocked(true); // Yearly with unlimited trips
+          } else if (subscriptionType === "monthly") {
+            if (String(canCreateNewTrip).toLowerCase() === "true") {
+              setUnlocked(true); // Monthly user with permission
             } else {
-              setUnlocked(false); // fallback
+              setUnlocked(false); // No permission
             }
-
+          } else {
+            setUnlocked(false); // Fallback
+          }
         } else {
           toast.error("Failed to fetch trip credits.");
         }
@@ -112,7 +114,7 @@ function Trip() {
   }
 
   return (
-    <div className="flex bg-gray-50 min-h-screen">
+    <div class className="flex bg-gray-50 min-h-screen">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col min-h-screen lg:ml-58">
@@ -125,9 +127,10 @@ function Trip() {
           {!unlocked ? (
             <PremiumTrip
               onConfirm={() => setUnlocked(true)}
-              onClose={() => window.history.back()} // go back if closed
-              pendingTrips={pendingTrips} // 🔥 pass new data
-              pendingCost={pendingCost}
+              onClose={() => window.history.back()} // Go back if closed
+              pendingTrips={pendingTrips}
+              pendingCost={pendingCost} // Pass totalPendingAmount
+              costPerTrip={costPerTrip} // Pass dynamic costPerTrip
             />
           ) : (
             <PostTripForm />

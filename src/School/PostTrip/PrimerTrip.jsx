@@ -42,6 +42,9 @@ const PremiumTrip = ({ onConfirm, onClose, pendingTrips, pendingCost }) => {
     }
   };
 
+  // Fallback to 50 if pendingCost is not provided
+  const displayCost = pendingCost !== null && pendingCost !== undefined ? pendingCost : 50;
+
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
       <div className="bg-white rounded-2xl shadow-lg max-w-lg w-full p-6 relative">
@@ -52,25 +55,6 @@ const PremiumTrip = ({ onConfirm, onClose, pendingTrips, pendingCost }) => {
         >
           ✕
         </button>
-
-        {/* 🔥 If pending amount exists, show warning */}
-        {pendingCost > 0 && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-            <h4 className="text-lg font-semibold mb-2">Payment Required</h4>
-            <p className="text-sm">
-              Please pay your pending amount of{" "}
-              <span className="font-bold">${pendingCost}</span> before posting
-              new trips.
-            </p>
-
-            {Array.isArray(pendingTrips) && pendingTrips.length > 0 && (
-              <p className="text-sm mt-2">
-                Total Pending Trips:{" "}
-                <span className="font-bold">{pendingTrips.length}</span>
-              </p>
-            )}
-          </div>
-        )}
 
         {/* Pricing Card */}
         <div
@@ -85,15 +69,14 @@ const PremiumTrip = ({ onConfirm, onClose, pendingTrips, pendingCost }) => {
           <div className="flex flex-col sm:flex-row justify-between items-start mb-8">
             <div className="mb-4 sm:mb-0">
               <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                Premium Trip Posting
+                Pending Payment Required
               </h3>
               <p className="text-gray-600 leading-relaxed">
-                Unlock posting with just $50 per trip.
+                Unlock posting with just ${displayCost}.
               </p>
             </div>
             <div className="flex items-baseline">
-              <span className="text-4xl font-bold text-gray-900">$50</span>
-              <span className="text-gray-600 ml-2">/per trip</span>
+              <span className="text-4xl font-bold text-gray-900">${displayCost}</span>
             </div>
           </div>
 
@@ -112,7 +95,7 @@ const PremiumTrip = ({ onConfirm, onClose, pendingTrips, pendingCost }) => {
                 <span className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
                   ✓
                 </span>
-                <span className="ml-2 text-gray-700">$50 per completed trip</span>
+                <span className="ml-2 text-gray-700">${displayCost} per completed trip</span>
               </li>
             </ul>
 
@@ -128,8 +111,8 @@ const PremiumTrip = ({ onConfirm, onClose, pendingTrips, pendingCost }) => {
               className={`cursor-pointer w-full py-2 px-4 rounded-lg transition-all duration-200 transform ${
                 selectedPlan === "basic"
                   ? "bg-[#E83E3E] text-white hover:scale-[1.02] active:scale-[0.98]"
-                  : "bg-gray-300 text-gray-700 hover:bg-[#E83E3E] hover:text-white hover:scale-[1.02]"}
-              `}
+                  : "bg-gray-300 text-gray-700 hover:bg-[#E83E3E] hover:text-white hover:scale-[1.02]"
+              }`}
             >
               {loading
                 ? "Processing..."

@@ -15,7 +15,7 @@ const PricingSection = () => {
 
   // 🔥 Common hover/active styles
   const baseCardClasses =
-    "cursor-pointer bg-white rounded-xl border p-4 sm:p-8 transition-all duration-300 transform";
+    "cursor-pointer bg-white rounded-xl border p-4 sm:p-6 transition-all duration-300 transform";
   const hoverClasses =
     "hover:bg-gradient-to-br hover:from-red-50 hover:to-pink-50 hover:border-red-300 hover:shadow-xl hover:-translate-y-2";
   const activeClasses =
@@ -52,17 +52,17 @@ const PricingSection = () => {
    <div className="flex flex-col sm:flex-row justify-between items-start  mb-8">
   {/* Left side: Title + description */}
   <div className="mb-4 sm:mb-0">
-    <h3 className="text-2xl font-bold text-gray-900 mb-2">Basic Plan</h3>
+    <h3 className="text-2xl font-bold text-gray-900 mb-2">Monthly Plan</h3>
     <p className="text-gray-600 leading-relaxed">
-      Unlimited access and posting $50 per completed trip (Plus driver wage)
+      Unlimited access and 50$ fee only on completed trip (Plus driver wage)
     </p>
   </div>
 
   {/* Right side: Pricing */}
   <div className="flex items-baseline">
-    <span className="text-4xl md:text-5xl font-bold text-gray-900">$75.00</span>
+    <span className="text-4xl md:text-4xl font-bold text-gray-900">$105.00</span>
     <span className="text-gray-600 ml-2">
-      {billingType === 'monthly' ? '/Monthly Plan' : '/year'}
+      {billingType === 'monthly' ? '/month' : '/year'}
     </span>
   </div>
 </div>
@@ -125,22 +125,20 @@ const PricingSection = () => {
   <div>
   <div className="flex flex-col sm:flex-row justify-between items-start  mb-8">
     {/* Left: Title + Badge + Description */}
-    <div className="mb-4 sm:mb-0">
+    <div className="mb-4 sm:mb-0 w-[60%]">
       <div className="flex whitespace-nowrap items-center justify-start mb-2">
-        <h3 className="text-2xl font-bold text-gray-900">Yearly plan</h3>
-        <span className="bg-red-100 ml-2 text-red-800 text-xs font-semibold px-3 py-1 rounded-full">
-          Annual Plan
-        </span>
+        <h3 className="text-2xl font-bold text-gray-900">Pilot Annual Offer</h3>
+        
       </div>
       <p className="text-gray-600 leading-relaxed">
-        Unlimited access and posting Zero trip fees (Plus driver wage)
+        It will be 4200$ from next year
       </p>
     </div>
 
     {/* Right: Price */}
     <div className="flex items-baseline ml-0 ">
-      <span className="text-4xl md:text-5xl font-bold text-gray-900">$4200</span>
-      <span className="text-gray-600 ml-2">/year</span>
+      <span className="text-4xl md:text-3xl font-bold text-gray-900">$3750</span>
+      <span className="text-gray-600 ml-2">/for first year</span>
     </div>
   </div>
 </div>
@@ -149,6 +147,18 @@ const PricingSection = () => {
     {/* --- Bottom content (features + button) --- */}
     <div>
       <div className="space-y-4 mb-6">
+         <div className="flex items-start">
+          <div className="flex-shrink-0 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mt-0.5">
+            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <span className="ml-3 text-gray-700">Get discount on first year</span>
+        </div>
         <div className="flex items-start">
           <div className="flex-shrink-0 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mt-0.5">
             <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -172,7 +182,7 @@ const PricingSection = () => {
               />
             </svg>
           </div>
-          <span className="ml-3 text-gray-700">Zero trip fees (plus driver wage)</span>
+          <span className="ml-3 text-gray-700">Zero trip fees </span>
         </div>
       </div>
 

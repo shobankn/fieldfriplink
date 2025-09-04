@@ -130,7 +130,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     setProfileData(null);
     setShowConfirmModal(false);
     toggleSidebar();
-    navigate('/login');
+    navigate('/'); // Redirect to default route
   };
 
   // Cancel logout

@@ -33,15 +33,7 @@ const MyProposals = () => {
     }
   };
 
-  // Function to handle chat navigation
-  const handleChat = (schoolId) => {
-    if (schoolId && schoolId !== 'N/A') {
-      console.log(`Navigating to chat with school ID: ${schoolId}`); // Debugging log
-      navigate(`/chat`, { state: { schoolId } });
-    } else {
-      console.warn('No valid school ID provided for chat');
-    }
-  };
+
 
   useEffect(() => {
     const fetchProposals = async () => {
@@ -162,6 +154,7 @@ const MyProposals = () => {
             id: proposal._id,
             school: trip.schoolId?.schoolName || 'Unknown School',
             schoolId: trip.schoolId?._id || 'N/A', // Added schoolId for chat navigation
+            schoolObj: trip.schoolId || {}, 
             job: trip.tripName || 'Unknown Trip',
             pickup: trip.pickupPoints?.[0]?.address || 'N/A',
             drop: trip.destination?.address || 'N/A',
@@ -346,6 +339,7 @@ const MyProposals = () => {
                             </span>
                             {proposal.status.toLowerCase() === 'accepted' && (
                               <div className="flex gap-2 sm:gap-3">
+
                                 <button 
                                   onClick={() => handleCall(proposal.phoneNumber)}
                                   className="bg-yellow-400 hover:bg-yellow-500 hover:cursor-pointer text-black font-semibold flex items-center justify-center interregular px-3 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm"
@@ -356,28 +350,29 @@ const MyProposals = () => {
                                 </button>
 
 
-<button
-  onClick={() => {
-    const school = proposal.schoolObj; // ✅ full school object
-    console.log("creatorId =", school?._id);  // ✅ 68adb0eb954e6b4e13250b61
-    console.log("creatorName =", school?.schoolName);
-    console.log("creatorPhone =", school?.phoneNumber);
-    console.log("full school data =", school);
 
-    navigate("/chat", {
-      state: {
-        creatorId: school?._id,                 // ✅ schoolId
-        creatorPic: school?.logo || school?.profileImage || null, // ✅ optional
-        creatorName: school?.schoolName,        // ✅ (optional: show in chat header)
-      },
-    });
-  }}
-  className="bg-red-500 hover:bg-red-600 hover:cursor-pointer text-white font-semibold px-3 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm flex items-center justify-center"
-  disabled={!proposal.schoolObj?._id}
->
-  <IoChatbubbleOutline className="me-1" />
-  Chat
-</button>
+            <button
+              onClick={() => {
+                const school = proposal.schoolObj; // ✅ full school object
+                console.log("creatorId =", school?._id);  // ✅ 68adb0eb954e6b4e13250b61
+                console.log("creatorName =", school?.schoolName);
+                console.log("creatorPhone =", school?.phoneNumber);
+                console.log("full school data =", school);
+
+                navigate("/chat", {
+                  state: {
+                    creatorId: school?._id,                 // ✅ schoolId
+                    creatorPic: school?.logo || school?.profileImage || null, // ✅ optional
+                    creatorName: school?.schoolName,        // ✅ (optional: show in chat header)
+                  },
+                });
+              }}
+              className="bg-red-500 hover:bg-red-600 hover:cursor-pointer text-white font-semibold px-3 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm flex items-center justify-center"
+              disabled={!proposal.schoolObj?._id}
+            >
+              <IoChatbubbleOutline className="me-1" />
+              Chat
+            </button>
 
 
 

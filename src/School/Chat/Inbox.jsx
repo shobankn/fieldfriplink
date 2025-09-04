@@ -385,7 +385,7 @@ useEffect(() => {
   if (!socket) return;
 
   const handleUserStatus = (data) => {
-    console.log("User status update:", data);
+    console.log("User status  witn user data from backend:", data);
     setUserStatuses((prev) => ({
       ...prev,
       [data.userId]: {
@@ -423,7 +423,7 @@ useEffect(() => {
 
       <div
         className={`
-          fixed left-0 lg:left-70     w-80 h-screen bg-white border-r border-gray-200 z-50 shadow-lg transition-transform duration-300 ease-in-out
+          fixed left-0 lg:left-70  w-80 h-screen bg-white border-r border-gray-200 z-50 shadow-lg transition-transform duration-300 ease-in-out
           md:translate-x-0 md:z-30
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         `}
@@ -497,6 +497,8 @@ useEffect(() => {
               receiver={receiver}
               receiverId={receiverId}
               onDeleteMessage={handleDeleteMessage}
+               socketName={userStatuses[receiverId]?.name}
+              socketProfile={userStatuses[receiverId]?.profileImage}
             />
 
             <MessageInput
@@ -508,7 +510,7 @@ useEffect(() => {
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center relative">
-            <div className="md:hidden fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-200 z-40 h-16 flex items-center px-4">
+            <div className="md:hidden fixed top-17 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-200 z-40 h-16 flex items-center px-4">
               <button
                 onClick={toggleSidebar}
                 className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all duration-200"

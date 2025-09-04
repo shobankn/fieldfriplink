@@ -3,49 +3,44 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const PremiumTrip = ({ onConfirm, onClose }) => {
+const PremiumTrip = ({ onConfirm, onClose, pendingTrips, pendingCost }) => {
   const [selectedPlan, setSelectedPlan] = useState(null);
-    const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  const handlePayment = async () => {
+    if (!selectedPlan) return;
 
-const handlePayment = async () => {
-  if (!selectedPlan) return;
+    try {
+      setLoading(true);
 
-  try {
-    setLoading(true);
-
-    // 1. Get token
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("You must be logged in.");
-      return;
-    }
-
-    // 2. Call payment API
-    const res = await axios.post(
-      "https://fieldtriplinkbackend-production.up.railway.app/api/school/trip/payment",
-      { plan: selectedPlan }, // body payload if needed
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // ✅ Bearer token
-          "Content-Type": "application/json",
-        },
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("You must be logged in.");
+        return;
       }
-    );
 
-    // 3. Redirect to Stripe checkout URL
-    if (res.data?.url) {
-      window.location.href = res.data.url; // 🔀 redirect
-    } else {
-      toast.error("Payment session could not be created.");
+      const res = await axios.post(
+        "https://fieldtriplinkbackend-production.up.railway.app/api/school/trip/payment",
+        { plan: selectedPlan },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (res.data?.url) {
+        window.location.href = res.data.url;
+      } else {
+        toast.error("Payment session could not be created.");
+      }
+    } catch (err) {
+      console.error("Payment failed:", err.response?.data || err.message);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Payment failed:", err.response?.data || err.message);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
@@ -53,12 +48,31 @@ const handlePayment = async () => {
         {/* Close button */}
         <button
           onClick={onClose}
-          className=" cursor-pointer absolute top-3 right-2 text-gray-500 hover:text-gray-700"
+          className="cursor-pointer absolute top-3 right-2 text-gray-500 hover:text-gray-700"
         >
           ✕
         </button>
 
-        {/* Card */}
+        {/* 🔥 If pending amount exists, show warning */}
+        {pendingCost > 0 && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+            <h4 className="text-lg font-semibold mb-2">Payment Required</h4>
+            <p className="text-sm">
+              Please pay your pending amount of{" "}
+              <span className="font-bold">${pendingCost}</span> before posting
+              new trips.
+            </p>
+
+            {Array.isArray(pendingTrips) && pendingTrips.length > 0 && (
+              <p className="text-sm mt-2">
+                Total Pending Trips:{" "}
+                <span className="font-bold">{pendingTrips.length}</span>
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Pricing Card */}
         <div
           onClick={() => setSelectedPlan("basic")}
           className={`relative flex flex-col justify-between cursor-pointer transition-all duration-200 rounded-lg border p-6 ${
@@ -98,38 +112,31 @@ const handlePayment = async () => {
                 <span className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
                   ✓
                 </span>
-                <span className="ml-2 text-gray-700">
-                  $50 per completed trip
-                </span>
+                <span className="ml-2 text-gray-700">$50 per completed trip</span>
               </li>
             </ul>
 
-<button
-  onClick={() => {
-    if (selectedPlan === "basic") {
-      // Second click → proceed to payment
-      handlePayment();
-    } else {
-      // First click → just select the plan
-      setSelectedPlan("basic");
-    }
-  }}
-  disabled={loading}
-  className={`cursor-pointer w-full py-2 px-4 rounded-lg transition-all duration-200 transform ${
-    selectedPlan === "basic"
-      ? "bg-[#E83E3E] text-white hover:scale-[1.02] active:scale-[0.98]"
-      : "bg-gray-300 text-gray-700 hover:bg-[#E83E3E] hover:text-white hover:scale-[1.02]"
-  }`}
->
-  {loading
-    ? "Processing..."
-    : selectedPlan === "basic"
-    ? "Proceed to Payment"
-    : "Get Plan"}
-</button>
-
-
-
+            <button
+              onClick={() => {
+                if (selectedPlan === "basic") {
+                  handlePayment();
+                } else {
+                  setSelectedPlan("basic");
+                }
+              }}
+              disabled={loading}
+              className={`cursor-pointer w-full py-2 px-4 rounded-lg transition-all duration-200 transform ${
+                selectedPlan === "basic"
+                  ? "bg-[#E83E3E] text-white hover:scale-[1.02] active:scale-[0.98]"
+                  : "bg-gray-300 text-gray-700 hover:bg-[#E83E3E] hover:text-white hover:scale-[1.02]"}
+              `}
+            >
+              {loading
+                ? "Processing..."
+                : selectedPlan === "basic"
+                ? "Proceed to Payment"
+                : "Get Plan"}
+            </button>
           </div>
         </div>
       </div>

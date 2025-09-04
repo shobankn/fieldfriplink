@@ -134,19 +134,19 @@ const SchoolProfileView = () => {
                 <>
                   {/* School Logo */}
                   <div className="flex justify-start mb-8">
-<div className="w-24 h-24 sm:w-32 sm:h-32 rounded-lg flex items-center justify-center overflow-hidden shadow-sm">
-  {profileData?.schoolLogo ? (
-    <img
-      src={profileData.schoolLogo}
-      alt="School Logo"
-      className="w-full h-full object-cover"
-    />
-  ) : (
-    <div className="w-full h-full flex items-center justify-center bg-red-500">
-      <School className="w-24 h-24 text-white" />
-    </div>
-  )}
-</div>
+            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-lg flex items-center justify-center overflow-hidden shadow-sm">
+              {profileData?.schoolLogo ? (
+                <img
+                  src={profileData.schoolLogo}
+                  alt="School Logo"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-red-500">
+                  <School className="w-24 h-24 text-white" />
+                </div>
+              )}
+            </div>
 
                     
                   </div>

@@ -120,6 +120,7 @@ const MessageInput = ({ chatId, receiverId, onOptimisticSend, className }) => {
                 ×
               </button>
             </div>
+
             <div className="flex-1 min-w-0">
               <p className="text-xs text-gray-500 mb-1">Photo</p>
               <p className="text-sm text-gray-700 truncate">
@@ -129,6 +130,8 @@ const MessageInput = ({ chatId, receiverId, onOptimisticSend, className }) => {
                 {selectedImage?.size ? `${(selectedImage.size / 1024 / 1024).toFixed(2)} MB` : ''}
               </p>
             </div>
+
+            
           </div>
         </div>
       )}
@@ -145,7 +148,7 @@ const MessageInput = ({ chatId, receiverId, onOptimisticSend, className }) => {
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             />
             <span
-              className="ml-3 p-1.5 text-gray-500 hover:text-blue-500 transition-colors duration-200 cursor-pointer rounded-full hover:bg-gray-100"
+              className="ml-3 p-1.5 text-gray-500 hover:text-red-500 transition-colors duration-200 cursor-pointer rounded-full hover:bg-gray-100"
               onClick={handleImageClick}
             >
               <svg
@@ -189,7 +192,7 @@ const MessageInput = ({ chatId, receiverId, onOptimisticSend, className }) => {
           <button
             onClick={sendMessage}
             disabled={!message && !selectedImage}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+            className={`w-12 h-12 cursor-pointer rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
               (message || selectedImage)
                 ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'

@@ -303,7 +303,7 @@ const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketPr
                     )}
                     <button
                       onClick={(e) => openDeleteModal(chat, e)}
-                      className="text-gray-400 hover:text-red-600 transition-colors duration-200"
+                      className=" cursor-pointer text-gray-400 hover:text-red-600 transition-colors duration-200"
                     >
                       <MoreVertical size={16} />
                     </button>
@@ -318,6 +318,8 @@ const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketPr
         isOpen={showDeleteModal}
         chat={chatToDelete}
         onClose={closeDeleteModal}
+        socketName={socketName}
+        socketProfile={socketProfile}
         onDeleted={(chatId) =>
           setChats((prev) => prev.filter((c) => c.chatId !== chatId))
         }

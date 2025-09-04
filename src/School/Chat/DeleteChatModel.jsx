@@ -8,7 +8,7 @@ import { useSocketContext } from "./SocketContext";
 
 const BASE_URL = "https://fieldtriplinkbackend-production.up.railway.app/api";
 
-const DeleteChatModal = ({ isOpen, chat, onClose, onDeleted }) => {
+const DeleteChatModal = ({ isOpen, chat, onClose, onDeleted,socketName,socketProfile }) => {
   const socket = useSocketContext();
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [isVisible, setIsVisible] = React.useState(false);
@@ -116,7 +116,7 @@ const DeleteChatModal = ({ isOpen, chat, onClose, onDeleted }) => {
                 disabled={isDeleting}
                 className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
               >
-                <X className="w-5 h-5 transition-transform duration-200 group-hover:rotate-90" />
+                <X className=" cursor-pointer w-5 h-5 transition-transform duration-200 group-hover:rotate-90" />
               </button>
             </div>
           </div>
@@ -143,9 +143,9 @@ const DeleteChatModal = ({ isOpen, chat, onClose, onDeleted }) => {
                   <div className="flex items-center gap-4">
                     <div className="relative group">
                       <img
-                        src={participantUser.profilePicture || customer}
+                        src={participantUser.profilePicture || participantUser.profileImage || socketProfile ||  customer}
                         className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-lg transition-transform duration-200 group-hover:scale-105"
-                        alt={participantUser.fullName || "User"}
+                        alt={participantUser.fullName ||participantUser.name || socketName }
                         onError={(e) => {
                           e.target.src = customer;
                         }}
@@ -156,7 +156,7 @@ const DeleteChatModal = ({ isOpen, chat, onClose, onDeleted }) => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-slate-900 truncate text-base">
-                        {participantUser.fullName || "Unknown User"}
+                        {participantUser.fullName || participantUser.name || socketName }
                       </h4>
                       <p className="text-sm text-slate-500 mt-0.5">
                         Chat conversation
@@ -176,14 +176,14 @@ const DeleteChatModal = ({ isOpen, chat, onClose, onDeleted }) => {
               <button
                 onClick={handleClose}
                 disabled={isDeleting}
-                className="flex-1 sm:flex-none px-6 py-3 rounded-xl font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-slate-200 hover:border-slate-300"
+                className=" cursor-pointer flex-1 sm:flex-none px-6 py-3 rounded-xl font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-slate-200 hover:border-slate-300"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteChat}
                 disabled={isDeleting}
-                className="flex-1 sm:flex-none px-6 py-3 rounded-xl font-medium text-white bg-red-500 hover:bg-red-600 disabled:bg-red-400 transition-all duration-200 shadow-lg shadow-red-500/20 hover:shadow-red-500/30 flex items-center justify-center gap-2.5 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100"
+                className=" cursor-pointer flex-1 sm:flex-none px-6 py-3 rounded-xl font-medium text-white bg-red-500 hover:bg-red-600 disabled:bg-red-400 transition-all duration-200 shadow-lg shadow-red-500/20 hover:shadow-red-500/30 flex items-center justify-center gap-2.5 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100"
               >
                 {isDeleting ? (
                   <>

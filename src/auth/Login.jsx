@@ -39,7 +39,7 @@ const Login = () => {
     }
   }, [token, storedUserType, navigate]);
 
-  
+
 
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
@@ -193,7 +193,7 @@ if (expectedRole === 'driver') {
             // ❌ Kick user back to login
             localStorage.removeItem('token');
             localStorage.removeItem('userType');
-            toast.error('Please complete your payment to access the dashboard.');
+            // toast.error('Please complete your payment to access the dashboard.');
             navigate('/');
           }
         } catch (err) {

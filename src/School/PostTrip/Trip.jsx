@@ -6,13 +6,28 @@ import PostTripForm from "./PostTripForm";
 import Sidebar from "../Sidebar";
 import HeaderTopBar from "../HeaderTopbar";
 import PremiumTrip from "./PrimerTrip";
+import { useParams } from "react-router-dom";
 
 function Trip() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
   const [loading, setLoading] = useState(true);
+   const { id } = useParams(); // ✅ detect if editing
+
+
+
+
+
 
   useEffect(() => {
+
+     // ✅ If editing, skip credits check
+    if (id) {
+      setUnlocked(true);
+      setLoading(false);
+      return;
+    }
+
     const checkAvailableTrips = async () => {
       try {
         const token = localStorage.getItem("token");

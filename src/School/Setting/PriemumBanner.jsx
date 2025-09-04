@@ -44,8 +44,8 @@ const PremiumBanner = () => {
   }, []);
 
   const formattedDate = subscription
-    ? new Date(subscription.expiryDate).toLocaleDateString()
-    : null;
+  ? subscription.expiryDate.split("T")[0]
+  : null;
 
   return (
     <div className="w-full bg-[#FFAE00] px-4 sm:px-6 md:px-14 py-4 flex flex-col md:flex-row md:items-center md:justify-between shadow-lg gap-1 md:gap-0">

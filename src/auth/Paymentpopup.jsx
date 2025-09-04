@@ -16,12 +16,15 @@ const PaymentPopup = ({ onSuccess, onClose,token }) => {
     setSelectedPlan(plan);
   };
 
-const handlePaymentSubmit = async (e) => {
-  e.preventDefault();
-
-  if (!selectedPlan) {
-    toast.error('Please select a plan.');
+const handlePaymentSubmit = async (plan) => {
+ if (!plan) {
+    toast.error("Please select a plan first.");
     return;
+  }
+
+  // Ensure selectedPlan is updated
+  if (selectedPlan !== plan) {
+    setSelectedPlan(plan);
   }
 
   if (!token || !validateToken(token)) {
@@ -55,9 +58,6 @@ const handlePaymentSubmit = async (e) => {
 
     // ✅ Check if backend returned a URL and redirect
     if (data?.url) {
-
-  localStorage.setItem("token", token);
-  localStorage.setItem("userType", "School"); // or redirectUserType if you have it
       window.location.href = data.url; 
     } else {
       toast.success('Payment successful!');
@@ -109,7 +109,7 @@ const handlePaymentSubmit = async (e) => {
           </div>
           <div className="flex items-baseline">
             <span className="text-4xl md:text-5xl font-bold text-gray-900">$75.00</span>
-            <span className="text-gray-600 ml-2">/Monthly Plan</span>
+            <span className="text-gray-600 ml-2">/Monthly</span>
           </div>
         </div>
 
@@ -122,7 +122,7 @@ const handlePaymentSubmit = async (e) => {
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               </div>
-              <span className="ml-3 text-gray-700">Unlimited access and posting</span>
+              <span className="ml-3 text-gray-700">Unlimited platform access</span>
             </div>
             <div className="flex items-start">
               <div className="flex-shrink-0 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mt-0.5">
@@ -134,20 +134,37 @@ const handlePaymentSubmit = async (e) => {
             </div>
           </div>
 
-          <button
-            onClick={handlePaymentSubmit}
-            disabled={paymentLoading || selectedPlan !== 'basic'}
-            className={`w-full cursor-pointer inter-semibold py-2 px-4 rounded-lg transition-all duration-200 transform 
-              ${selectedPlan === 'basic'
-                ? 'bg-[#E83E3E] text-white'
-                : 'bg-[#CCCCCC] text-black group-hover:bg-[#E83E3E] group-hover:text-white group-hover:scale-[1.02] active:scale-[0.98]'}`}
-          >
-            {paymentLoading && selectedPlan === 'basic'
-              ? 'Processing...'
-              : selectedPlan === 'basic'
-              ? 'Proceed to Payment'
-              : 'Choose Plan'}
-          </button>
+          
+
+  {/* Basic Plan Button */}
+<button
+  onClick={() => {
+    if (selectedPlan === "basic") {
+      // If already selected → process payment
+      handlePaymentSubmit("basic");
+    } else {
+      // First click → just select plan
+      handleCardClick("basic");
+    }
+  }}
+  disabled={paymentLoading}
+  className={`w-full cursor-pointer inter-semibold py-2 px-4 rounded-lg transition-all duration-200 transform 
+    ${selectedPlan === "basic"
+      ? "bg-[#E83E3E] text-white"
+      : "bg-[#CCCCCC] text-black group-hover:bg-[#E83E3E] group-hover:text-white group-hover:scale-[1.02] active:scale-[0.98]"}`}
+>
+  {paymentLoading && selectedPlan === "basic"
+    ? "Processing..."
+    : selectedPlan === "basic"
+    ? "Proceed to Payment"
+    : "Choose Plan"}
+</button>
+
+
+
+
+
+
         </div>
       </div>
 
@@ -165,12 +182,12 @@ const handlePaymentSubmit = async (e) => {
             <div className="flex whitespace-nowrap items-center justify-start mb-2">
               <h3 className="text-2xl font-bold text-gray-900">Yearly Plan</h3>
                {/* Badge with dynamic bg */}
-              <span
+              {/* <span
                 className={`ml-2 text-red-800 text-xs font-semibold px-3 py-1 rounded-full transition-colors duration-200 
                   ${selectedPlan === 'yearly' ? 'bg-red-50' : 'bg-red-100 group-hover:bg-red-50'}`}
               >
                 Annual Plan
-              </span>
+              </span> */}
             </div>
             <p className="text-gray-600 leading-relaxed">
               Unlimited access and posting Zero trip fees (Plus driver wage)
@@ -191,7 +208,7 @@ const handlePaymentSubmit = async (e) => {
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               </div>
-              <span className="ml-3 text-gray-700">Unlimited access and posting</span>
+              <span className="ml-3 text-gray-700">Early access to new features</span>
             </div>
             <div className="flex items-start">
               <div className="flex-shrink-0 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mt-0.5">
@@ -199,24 +216,39 @@ const handlePaymentSubmit = async (e) => {
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               </div>
-              <span className="ml-3 text-gray-700">Zero trip fees (plus driver wage)</span>
+              <span className="ml-3 text-gray-700">Unlimited trip postings (no $50 fee)</span>
             </div>
           </div>
 
-          <button
-            onClick={handlePaymentSubmit}
-            disabled={paymentLoading || selectedPlan !== 'yearly'}
-            className={`w-full cursor-pointer  inter-semibold py-2 px-4 rounded-lg transition-all duration-200 transform 
-              ${selectedPlan === 'yearly'
-                ? 'bg-[#E83E3E] text-white'
-                : 'bg-[#CCCCCC] text-black group-hover:bg-[#E83E3E] group-hover:text-white group-hover:scale-[1.02] active:scale-[0.98]'}`}
-          >
-            {paymentLoading && selectedPlan === 'yearly'
-              ? 'Processing...'
-              : selectedPlan === 'yearly'
-              ? 'Proceed to Payment'
-              : 'Choose Plan'}
-          </button>
+
+
+<button
+  onClick={() => {
+    if (selectedPlan === "yearly") {
+      // Already selected → process payment
+      handlePaymentSubmit("yearly");
+    } else {
+      // First click → just select plan
+      handleCardClick("yearly");
+    }
+  }}
+  disabled={paymentLoading}
+  className={`w-full cursor-pointer inter-semibold py-2 px-4 rounded-lg transition-all duration-200 transform 
+    ${selectedPlan === "yearly"
+      ? "bg-[#E83E3E] text-white"
+      : "bg-[#CCCCCC] text-black group-hover:bg-[#E83E3E] group-hover:text-white group-hover:scale-[1.02] active:scale-[0.98]"}`}
+>
+  {paymentLoading && selectedPlan === "yearly"
+    ? "Processing..."
+    : selectedPlan === "yearly"
+    ? "Proceed to Payment"
+    : "Choose Plan"}
+</button>
+
+
+
+
+
         </div>
       </div>
     </div>

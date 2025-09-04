@@ -91,7 +91,7 @@ const handlePayment = async () => {
                   ✓
                 </span>
                 <span className="ml-2 text-gray-700">
-                  Unlimited access & posting
+                  Flexible for schools posting fewer trips
                 </span>
               </li>
               <li className="flex items-center">
@@ -104,21 +104,30 @@ const handlePayment = async () => {
               </li>
             </ul>
 
-            <button
-              onClick={handlePayment}
-              disabled={selectedPlan !== "basic" || loading}
-              className={` cursor-pointer w-full py-2 px-4 rounded-lg transition-all duration-200 transform ${
-                selectedPlan === "basic"
-                  ? "bg-[#E83E3E] text-white hover:scale-[1.02] active:scale-[0.98]"
-                  : "bg-gray-300 text-gray-700 cursor-not-allowed"
-              }`}
-            >
-              {loading
-                ? "Processing..."
-                : selectedPlan === "basic"
-                ? "Proceed to Payment"
-                : "Get Plan"}
-            </button>
+<button
+  onClick={() => {
+    if (selectedPlan === "basic") {
+      // Second click → proceed to payment
+      handlePayment();
+    } else {
+      // First click → just select the plan
+      setSelectedPlan("basic");
+    }
+  }}
+  disabled={loading}
+  className={`cursor-pointer w-full py-2 px-4 rounded-lg transition-all duration-200 transform ${
+    selectedPlan === "basic"
+      ? "bg-[#E83E3E] text-white hover:scale-[1.02] active:scale-[0.98]"
+      : "bg-gray-300 text-gray-700 hover:bg-[#E83E3E] hover:text-white hover:scale-[1.02]"
+  }`}
+>
+  {loading
+    ? "Processing..."
+    : selectedPlan === "basic"
+    ? "Proceed to Payment"
+    : "Get Plan"}
+</button>
+
 
 
           </div>

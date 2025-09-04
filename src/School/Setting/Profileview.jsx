@@ -4,6 +4,7 @@ import Sidebar from '../Sidebar';
 import HeaderTopBar from '../HeaderTopbar';
 import SchoolSettingsForm from './SettingForm'
 import SchoolProfileView from './ProfileViwPage';
+import PremiumBanner from './PriemumBanner';
 function Profileview() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
@@ -12,6 +13,7 @@ function Profileview() {
       
       <div className="flex-1 flex flex-col min-h-screen lg:ml-58">
         <HeaderTopBar onMenuClick={() => setSidebarOpen(true)} className="lg:ml-58" />
+           <PremiumBanner/>
         
         <main className="flex-1  lg:p-6 overflow-y-auto">
           <SchoolProfileView/>

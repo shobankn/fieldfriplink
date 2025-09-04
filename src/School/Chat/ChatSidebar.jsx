@@ -4,7 +4,7 @@ import customer from '../../images/customer.png';
 import DeleteChatModal from './DeleteChatModel';
 import { MoreVertical, Trash2 } from "lucide-react";
 
-const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
+const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketProfile }) => {
   const socket = useSocketContext();
   const [chats, setChats] = useState([]);
   const chatsRef = useRef(chats); // Keep a ref to current chats
@@ -35,6 +35,26 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
     chatsRef.current = chats;
   }, [chats]);
 
+
+
+  const calculateUnreadCount = (chat, messageChatId, actualMessage, socket, activeChatIdRef) => {
+  const senderId = actualMessage.sender?._id || actualMessage.sender || actualMessage.senderId || actualMessage.from;
+
+  // Case 1: message is from me → no unread count
+  if (senderId === socket.userId) {
+    return 0;
+  }
+
+  // Case 2: message is from someone else but I'm in that chat → no unread count
+  if (messageChatId === activeChatIdRef.current) {
+    return 0;
+  }
+
+  // Case 3: message is from someone else in another chat → increment
+  return (chat.unreadCount || 0) + 1;
+};
+
+
   useEffect(() => {
     if (!socket || !socket.userId) return;
 
@@ -50,6 +70,7 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
       console.warn("No chats yet. Waiting for messages...");
       setIsLoading(false); // Stop loading on error
     };
+    
 
     const handleReceiveMessage = (data) => {
       console.log("[ChatSidebar] RECEIVE_MESSAGE fired:", data);
@@ -82,10 +103,9 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
                     sender: actualMessage.sender || actualMessage.senderId || actualMessage.from || data.sender || data.senderId || data.from
                   },
                   updatedAt: actualMessage.timestamp || actualMessage.createdAt || data.timestamp || data.createdAt || new Date().toISOString(),
-                  unreadCount:
-                    messageChatId === activeChatIdRef.current
-                      ? 0
-                      : (chat.unreadCount || 0) + 1,
+                  // unreadcount
+                 unreadCount: calculateUnreadCount(chat, messageChatId, actualMessage, socket, activeChatIdRef),
+
                   _updateKey: Date.now()
                 }
               : chat
@@ -128,10 +148,9 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
                     sender: actualMessage.sender || actualMessage.senderId || actualMessage.from || data.sender || data.senderId || data.from
                   },
                   updatedAt: actualMessage.timestamp || actualMessage.createdAt || data.timestamp || data.createdAt || new Date().toISOString(),
-                  unreadCount:
-                    messageChatId === activeChatIdRef.current
-                      ? 0
-                      : (chat.unreadCount || 0) + 1,
+                  // unread Count
+                 unreadCount: calculateUnreadCount(chat, messageChatId, actualMessage, socket, activeChatIdRef),
+
                   _updateKey: Date.now()
                 }
               : chat
@@ -195,12 +214,14 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
     hours = hours % 12 || 12;
     return `${hours}:${minutes} ${ampm}`;
   };
+  
 
   const sortedChats = [...chats].sort((a, b) => {
     const aTime = new Date(a.updatedAt || a.lastMessage?.timestamp || 0);
     const bTime = new Date(b.updatedAt || b.lastMessage?.timestamp || 0);
     return bTime - aTime;
   });
+  
 
   return (
     <>
@@ -224,9 +245,9 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
               ))}
             </div>
           ) : sortedChats.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 px-6">
-              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-3">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-gray-400">
+            <div className="flex flex-col items-center justify-center py-12 bg-white px-6">
+              <div className="w-16 h-16 bg-red-200 rounded-full flex items-center justify-center mb-3">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-red-400">
                   <path d="M21 11.5C21.0034 12.8199 20.6951 14.1219 20.1 15.3C19.3944 16.7118 18.3098 17.8992 16.9674 18.7293C15.6251 19.5594 14.0782 19.9994 12.5 20C11.1801 20.0035 9.87812 19.6951 8.7 19.1L3 21L4.9 15.3C4.30493 14.1219 3.99656 12.8199 4 11.5C4.00061 9.92179 4.44061 8.37488 5.27072 7.03258C6.10083 5.69028 7.28825 4.60571 8.7 3.90003C9.87812 3.30496 11.1801 2.99659 12.5 3.00003H13C15.0843 3.11502 17.053 3.99479 18.5291 5.47086C20.0052 6.94694 20.885 8.91568 21 11V11.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
@@ -236,6 +257,8 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
           ) : (
             sortedChats.map((chat) => {
               const participant = chat.participants.find(p => p._id !== socket.userId);
+              const isOnline = userStatuses?.[participant._id]?.is_online || false;
+
               if (!participant) return null;
               console.log(participant);
 
@@ -249,15 +272,15 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
                 >
                   <div className="relative">
                     <img
-                      src={participant.profileImage || customer}
+                      src={participant.profileImage || customer || socketProfile}
                       className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-red-200 transition-all duration-200"
-                      alt={`${participant.name}'s avatar`}
+                      alt={`${participant.name || socketName}'s avatar`}
                     />
                     <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white ${isOnline ? "bg-green-500" : "bg-gray-400"}`}></div>
                   </div>
                   <div className="ml-4 flex-1 min-w-0">
                     <p className={`text-sm font-semibold truncate group-hover:text-red-600 transition-colors duration-200 ${activeChatId === chat.chatId ? 'text-red-600' : 'text-gray-900'}`}>
-                      {participant.name}
+                      {participant.name || socketName}
                     </p>
                     <p className={`text-xs truncate mt-1 ${activeChatId === chat.chatId ? 'text-red-600' : 'text-gray-500'}`}>
                       {chat.lastMessage ? (

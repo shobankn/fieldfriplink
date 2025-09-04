@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
-import { MapPin, Phone, Mail, Globe, Edit2 } from 'lucide-react';
+import { MapPin, Phone, Mail, Globe, Edit2, School } from 'lucide-react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useNavigate } from 'react-router-dom';
+import dummyprofile from '../../images/profile/dummyprofile.png'
+import PremiumBanner from './PriemumBanner';
 
 const SchoolProfileView = () => {
   const [profileData, setProfileData] = useState({
@@ -78,10 +80,14 @@ const SchoolProfileView = () => {
   return (
     <>
       <ToastContainer position="top-right" />
+           
       <div className="min-h-screen bg-gray-50 p-4 sm:px-6 py-2 ">
+      
         <div className="max-w-full mx-auto">
+       
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+           
             <div>
               <h1 className="text-2xl md:text-3xl inter-bold text-gray-900 mb-1">
                 School Information
@@ -90,7 +96,15 @@ const SchoolProfileView = () => {
                 Manage your school profile, users, and system preferences.
               </p>
             </div>
-            {!loading && (
+           
+          </div>
+
+          {/* Main Profile Container */}
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            
+            <div className="p-4 sm:p-6 md:p-8">
+              <div className='justify-end items-end content-end flex'>
+                    {!loading && (
               <button
                 onClick={() => navigate('/setting/update-profile')}
                 className="mt-4 sm:mt-0 inline-flex items-center cursor-pointer  justify-center content-center px-4 py-2 bg-red-500 text-white text-sm inter-medium rounded-lg hover:bg-red-600 transition-colors duration-200"
@@ -99,11 +113,9 @@ const SchoolProfileView = () => {
                 Edit
               </button>
             )}
-          </div>
 
-          {/* Main Profile Container */}
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            <div className="p-4 sm:p-6 md:p-8">
+              </div>
+           
               {loading ? (
                 <div className="space-y-8">
                   {/* Logo Skeleton */}
@@ -122,20 +134,21 @@ const SchoolProfileView = () => {
                 <>
                   {/* School Logo */}
                   <div className="flex justify-start mb-8">
-                    <div className="w-24 h-24 sm:w-32 sm:h-32  rounded-lg flex items-center justify-center overflow-hidden shadow-sm">
-                      {profileData.schoolLogo ? (
-                        <img 
-                          src={profileData.schoolLogo} 
-                          alt="School Logo" 
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        // Default school bus icon
-                        <div className="text-4xl sm:text-5xl">
-                          
-                        </div>
-                      )}
-                    </div>
+<div className="w-24 h-24 sm:w-32 sm:h-32 rounded-lg flex items-center justify-center overflow-hidden shadow-sm">
+  {profileData?.schoolLogo ? (
+    <img
+      src={profileData.schoolLogo}
+      alt="School Logo"
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <div className="w-full h-full flex items-center justify-center bg-red-500">
+      <School className="w-24 h-24 text-white" />
+    </div>
+  )}
+</div>
+
+                    
                   </div>
 
                   {/* Profile Fields */}

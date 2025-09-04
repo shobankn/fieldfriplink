@@ -21,6 +21,12 @@ const mapContainerStyle = {
   height: '400px',
 };
 
+
+
+
+
+
+
 const GOOGLE_MAPS_API_KEY = 'AIzaSyCFPBHuJfrROgkSCPySDf7c3uCETWpQGfU';
 
 const LiveGPSTracking = () => {
@@ -34,10 +40,54 @@ const LiveGPSTracking = () => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const socketRef = useRef(null);
+    const [buttonLoading, setButtonLoading] = useState({});
+  
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
 
+  const handleEndRide = async (tripId) => {
+  setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: true }));
+
+  try {
+    const token = localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const response = await fetch(
+      `https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips/${tripId}/status`,
+      {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ status: 'completed' }),
+      }
+    );
+
+    if (!response.ok) throw new Error('Failed to end ride');
+
+    setRideDataState((prev) => {
+      const rideToEnd = prev.Active.find((ride) => ride.id === tripId);
+      if (!rideToEnd) return prev;
+      return {
+        ...prev,
+        Active: prev.Active.filter((ride) => ride.id !== tripId),
+        Completed: [...prev.Completed, rideToEnd],
+      };
+    });
+
+    // ✅ Stop tracking completely
+    stopTracking();
+
+    toast.success('Ride ended successfully!');
+    setActiveTab('Completed');
+
+  } catch (error) {
+    console.error('Error ending ride:', error);
+    toast.error('Failed to end ride. Please try again.');
+  } finally {
+    setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: false }));
+  }
+};
   
 useEffect(() => {
   const token = localStorage.getItem("token");
@@ -205,13 +255,13 @@ socket.on("UPDATE_LOCATION_FAILED", (error) => {
               </div>
             )}
 
-            {/* <button
-              onClick={stopTracking}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
-            >
-              <Square className="w-4 h-4" />
-              STOP RIDE
-            </button> */}
+           {/* <button
+  onClick={() => handleEndRide(tripId)}
+  className="flex items-center justify-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
+>
+  <Square className="w-4 h-4" />
+  STOP RIDE
+</button> */}
           </div>
         </div>
       </div>

@@ -128,7 +128,7 @@ const DriverActions = ({ driverId }) => {
               disabled={loading}
               whileHover={{ scale: loading ? 1 : 1.05 }}
               whileTap={{ scale: loading ? 1 : 0.95 }}
-              className={`flex text-[14px] sm:text-[16px] px-3 py-2 sm:px-4 sm:py-2 text-white bg-green-400 rounded-[10px] inter-medium transition-colors ${
+              className={` cursor-pointer flex text-[14px] sm:text-[16px] px-3 py-2 sm:px-4 sm:py-2 text-white bg-green-400 rounded-[10px] inter-medium transition-colors ${
                 loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-green-500'
               }`}
             >
@@ -153,7 +153,7 @@ const DriverActions = ({ driverId }) => {
                 </>
               ) : (
                 <>
-                  <Check className="w-4 h-4 sm:w-5 sm:h-5 mr-1 my-auto" />
+                  <Check className=" cursor-pointer w-4 h-4 sm:w-5 sm:h-5 mr-1 my-auto" />
                   Verify Driver
                 </>
               )}
@@ -165,7 +165,7 @@ const DriverActions = ({ driverId }) => {
               disabled={loading}
               whileHover={{ scale: loading ? 1 : 1.05 }}
               whileTap={{ scale: loading ? 1 : 0.95 }}
-              className={`flex text-[14px] sm:text-[16px] px-3 py-2 sm:px-4 sm:py-2 text-white bg-red-500 rounded-[10px] inter-medium transition-colors ${
+              className={` cursor-pointer flex text-[14px] sm:text-[16px] px-3 py-2 sm:px-4 sm:py-2 text-white bg-red-500 rounded-[10px] inter-medium transition-colors ${
                 loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-red-600'
               }`}
             >
@@ -197,7 +197,7 @@ const DriverActions = ({ driverId }) => {
             </motion.button>
 
             {/* Suspend button */}
-            <motion.button
+            {/* <motion.button
               onClick={handleSuspendDriver}
               disabled={loading}
               whileHover={{ scale: loading ? 1 : 1.05 }}
@@ -231,7 +231,7 @@ const DriverActions = ({ driverId }) => {
                   Suspend
                 </>
               )}
-            </motion.button>
+            </motion.button> */}
           </>
         )}
 

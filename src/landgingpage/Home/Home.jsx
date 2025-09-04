@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiShield } from "react-icons/fi";
 import { LuUsers } from "react-icons/lu";
 import { FaRegClock } from "react-icons/fa6";
+import PricingSection from './PriceSection';
 
 // Check authentication and user type from localStorage
 const isAuthenticated = !!localStorage.getItem('token');
@@ -174,6 +175,10 @@ const Home = () => {
           </button>
         </div>
       </section>
+
+      <PricingSection/>
+
+
 
       {/* What Our Users Say */}
       <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-20 bg-gray-100 animate-move-in-bottom">

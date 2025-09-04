@@ -96,6 +96,11 @@ const MyProposals = () => {
         const acceptedData = await acceptedResponse.json();
         const rejectedData = await rejectedResponse.json();
 
+             // ✅ Console the backend raw responses
+      console.log("📩 Applied Proposals Response:", appliedData);
+      console.log("📩 Accepted Proposals Response:", acceptedData);
+      console.log("📩 Rejected Proposals Response:", rejectedData);
+
         // Combine all proposals
         const allProposals = [
           ...appliedData.proposals,
@@ -349,14 +354,38 @@ const MyProposals = () => {
                                   <IoCallOutline className='me-1 text-base sm:text-lg' />
                                   Call
                                 </button>
-                                <button 
-                                  onClick={() => handleChat(proposal.schoolId)} // Updated to handle chat navigation
-                                  className="bg-red-500 hover:bg-red-600 hover:cursor-pointer text-white font-semibold px-3 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm flex items-center justify-center"
-                                  disabled={proposal.schoolId === 'N/A'}
-                                >
-                                  <IoChatbubbleOutline className='me-1' />
-                                  Chat
-                                </button>
+
+
+<button
+  onClick={() => {
+    const school = proposal.schoolObj; // ✅ full school object
+    console.log("creatorId =", school?._id);  // ✅ 68adb0eb954e6b4e13250b61
+    console.log("creatorName =", school?.schoolName);
+    console.log("creatorPhone =", school?.phoneNumber);
+    console.log("full school data =", school);
+
+    navigate("/chat", {
+      state: {
+        creatorId: school?._id,                 // ✅ schoolId
+        creatorPic: school?.logo || school?.profileImage || null, // ✅ optional
+        creatorName: school?.schoolName,        // ✅ (optional: show in chat header)
+      },
+    });
+  }}
+  className="bg-red-500 hover:bg-red-600 hover:cursor-pointer text-white font-semibold px-3 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm flex items-center justify-center"
+  disabled={!proposal.schoolObj?._id}
+>
+  <IoChatbubbleOutline className="me-1" />
+  Chat
+</button>
+
+
+
+
+
+
+
+
                               </div>
                             )}
                           </div>

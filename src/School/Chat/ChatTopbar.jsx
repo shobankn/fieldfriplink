@@ -1,9 +1,11 @@
 import customer from '../../images/customer.png';
 import formatLastSeen from './FormatedLastSeen'
 
-const ChatTopBar = ({ receiver, receiverId, className,isOnline, lastSeen }) => {
-  const displayName = receiver?.fullName || receiver?.name || "Unknown";
-  const avatar = receiver?.profilePicture || receiver?.profileImage || customer;
+const ChatTopBar = ({ receiver,isOnline, lastSeen,socketName,socketProfile }) => {
+const displayName = receiver?.fullName || receiver?.name || receiver?.username ||socketName;
+const avatar = receiver?.profilePicture || receiver?.profileImage || customer || socketProfile;
+console.log("Receiver info:", receiver);
+
 
 
 

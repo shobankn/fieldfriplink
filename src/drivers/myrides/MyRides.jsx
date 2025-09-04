@@ -182,12 +182,12 @@ const handleEndRide = async (tripId) => {
     // ✅ Stop tracking completely
     stopTracking();
 
-    toast.success('Trip ended successfully!');
+    toast.success('Ride ended successfully!');
     setActiveTab('Completed');
 
   } catch (error) {
-    console.error('Error ending trip:', error);
-    toast.error('Failed to end trip. Please try again.');
+    console.error('Error ending ride:', error);
+    toast.error('Failed to end ride. Please try again.');
   } finally {
     setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: false }));
   }
@@ -297,7 +297,7 @@ const handleViewLive = (tripId, schoolId) => {
         );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch scheduled trip');
+          throw new Error('Failed to fetch scheduled rides');
         }
 
         const data = await response.json();
@@ -336,8 +336,8 @@ const handleViewLive = (tripId, schoolId) => {
         setRideDataState((prev) => ({ ...prev, Scheduled: mappedScheduledRides }));
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching scheduled trip:', error);
-        toast.error('Failed to fetch scheduled trip. Please try again.');
+        console.error('Error fetching scheduled rides:', error);
+        toast.error('Failed to fetch scheduled rides. Please try again.');
         setLoading(false);
       }
     };
@@ -365,7 +365,7 @@ const handleViewLive = (tripId, schoolId) => {
         );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch active trip');
+          throw new Error('Failed to fetch active rides');
         }
 
         const data = await response.json();
@@ -404,8 +404,8 @@ console.log(data);
         setRideDataState((prev) => ({ ...prev, Active: mappedActiveRides }));
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching active trips:', error);
-        toast.error('Failed to fetch active trips. Please try again.');
+        console.error('Error fetching active rides:', error);
+        toast.error('Failed to fetch active rides. Please try again.');
         setLoading(false);
       }
     };
@@ -475,8 +475,8 @@ console.log(data);
         setRideDataState((prev) => ({ ...prev, Completed: mappedCompletedRides }));
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching completed trips:', error);
-        toast.error('Failed to fetch completed trips. Please try again.');
+        console.error('Error fetching completed rides:', error);
+        toast.error('Failed to fetch completed rides. Please try again.');
         setLoading(false);
       }
     };
@@ -544,8 +544,8 @@ console.log(data);
 
         <main className="flex-1 overflow-y-auto pt-16 px-[33px] bg-gray-50">
           <div className="max-w-full mx-auto py-6">
-            <h1 className="archivobold text-[24px] mt-[18px] mb-1">My Trips</h1>
-            <p className="text-gray-600 mb-6">Manage your scheduled, active, and completed trips</p>
+            <h1 className="archivobold text-[24px] mt-[18px] mb-1">My Rides</h1>
+            <p className="text-gray-600 mb-6">Manage your scheduled, active, and completed rides</p>
 
             <div className="overflow-x-auto whitespace-nowrap scrollbar-hide border-b mb-6">
               <div className="flex gap-6">
@@ -682,7 +682,7 @@ console.log(data);
                         ) : (
                           <RxCrossCircled />
                         )}
-                        End Trip
+                        End Ride
                       </button>
 
 
@@ -766,13 +766,13 @@ console.log(data);
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                       ) : null}
-                      Start Trip
+                      Start Ride
                     </button>
                   )}
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-center py-10">No {activeTab.toLowerCase()} trips found.</p>
+              <p className="text-gray-500 text-center py-10">No {activeTab.toLowerCase()} rides found.</p>
             )}
           </div>
           <ToastContainer />

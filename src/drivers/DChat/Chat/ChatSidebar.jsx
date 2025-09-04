@@ -52,6 +52,25 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
       setIsLoading(false);
     };
 
+      const calculateUnreadCount = (chat, messageChatId, actualMessage, socket, activeChatIdRef) => {
+  const senderId = actualMessage.sender?._id || actualMessage.sender || actualMessage.senderId || actualMessage.from;
+
+  // Case 1: message is from me → no unread count
+  if (senderId === socket.userId) {
+    return 0;
+  }
+
+  // Case 2: message is from someone else but I'm in that chat → no unread count
+  if (messageChatId === activeChatIdRef.current) {
+    return 0;
+  }
+
+  // Case 3: message is from someone else in another chat → increment
+  return (chat.unreadCount || 0) + 1;
+};
+
+
+
     const handleReceiveMessage = (data) => {
       console.log("[ChatSidebar] RECEIVE_MESSAGE fired:", data);
       
@@ -81,10 +100,8 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
                     sender: actualMessage.sender || actualMessage.senderId || actualMessage.from || data.sender || data.senderId || data.from
                   },
                   updatedAt: actualMessage.timestamp || actualMessage.createdAt || data.timestamp || data.createdAt || new Date().toISOString(),
-                  unreadCount:
-                    messageChatId === activeChatIdRef.current
-                      ? 0
-                      : (chat.unreadCount || 0) + 1,
+                   unreadCount: calculateUnreadCount(chat, messageChatId, actualMessage, socket, activeChatIdRef),
+
                   _updateKey: Date.now()
                 }
               : chat
@@ -125,10 +142,8 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
                     sender: actualMessage.sender || actualMessage.senderId || actualMessage.from || data.sender || data.senderId || data.from
                   },
                   updatedAt: actualMessage.timestamp || actualMessage.createdAt || data.timestamp || data.createdAt || new Date().toISOString(),
-                  unreadCount:
-                    messageChatId === activeChatIdRef.current
-                      ? 0
-                      : (chat.unreadCount || 0) + 1,
+                  unreadCount: calculateUnreadCount(chat, messageChatId, actualMessage, socket, activeChatIdRef),
+
                   _updateKey: Date.now()
                 }
               : chat
@@ -250,11 +265,13 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
                       className={`w-12 h-12 rounded-full object-cover ring-2 ${isActive ? 'ring-[#ea4444]' : 'ring-gray-100 group-hover:ring-[#ea4444]'} transition-all duration-200`}
                       alt={`${participant.name}'s avatar`}
                     />
+                    
                     <div
                       className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white ${
                         isOnline ? "bg-green-500" : "bg-gray-400"
                       }`}
                     ></div>
+
                   </div>
                   <div className="ml-4 flex-1 min-w-0">
                     <p className={`text-sm font-semibold truncate ${isActive ? 'text-[#ea4444]' : 'text-gray-900 group-hover:text-[#ea4444]'} transition-colors duration-200`}>

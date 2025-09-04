@@ -141,8 +141,9 @@ const DocumentSection = ({ driverData }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
           <div>
-            <span className="text-sm inter-medium text-gray-700 block mb-2">CNIC Front</span>
+            <span className="text-sm inter-medium text-gray-700 block mb-2">State Driver License</span>
             <DocumentItem
               document={driverData.submittedDocuments.cnicFront}
               label="CNIC Front"
@@ -150,9 +151,10 @@ const DocumentSection = ({ driverData }) => {
               onDownloadClick={handleDownloadClick}
             />
           </div>
+          
 
           <div>
-            <span className="text-sm inter-medium text-gray-700 block mb-2">CNIC Back</span>
+            <span className="text-sm inter-medium text-gray-700 block mb-2">School Bus Driver Certification Card</span>
             <DocumentItem
               document={driverData.submittedDocuments.cnicBack}
               label="CNIC Back"
@@ -162,7 +164,7 @@ const DocumentSection = ({ driverData }) => {
           </div>
 
           <div>
-            <span className="text-sm inter-medium text-gray-700 block mb-2">Driving License</span>
+            <span className="text-sm inter-medium text-gray-700 block mb-2">BCI/FBI Background Check Verification</span>
             <DocumentItem
               document={driverData.submittedDocuments.drivingLicense}
               label="Driving License"
@@ -171,7 +173,7 @@ const DocumentSection = ({ driverData }) => {
             />
           </div>
 
-          <div>
+          {/* <div>
             <span className="text-sm inter-medium text-gray-700 block mb-2">Vehicle Registration</span>
             <DocumentItem
               document={driverData.submittedDocuments.vehicleRegistration}
@@ -179,7 +181,7 @@ const DocumentSection = ({ driverData }) => {
               onImageClick={handleImageClick}
               onDownloadClick={handleDownloadClick}
             />
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -257,203 +259,3 @@ export default DocumentSection;
 
 
 
-// const DocumentSection = ({ driverData }) => {
-//   const [selectedImage, setSelectedImage] = useState(null);
-//   const [imageLoading, setImageLoading] = useState(false);
-//   const [modalOpen, setModalOpen] = useState(false);
-//   const [zoomLevel, setZoomLevel] = useState(1);
-
-//   const handleImageClick = (imageUrl) => {
-//     if (!imageUrl) {
-//       toast.error("No image available for this document.");
-//       return;
-//     }
-//     setSelectedImage(imageUrl);
-//     setImageLoading(true);
-//     setZoomLevel(1);
-//     setModalOpen(true);
-//   };
-
-//   const handleDownloadClick = async (imageUrl, label) => {
-//     try {
-//       const response = await fetch(imageUrl);
-//       const blob = await response.blob();
-//       const url = window.URL.createObjectURL(blob);
-//       const link = document.createElement("a");
-//       link.href = url;
-//       link.download = `${label.replace(/\s+/g, "_").toLowerCase()}.jpg`;
-//       document.body.appendChild(link);
-//       link.click();
-//       document.body.removeChild(link);
-//       window.URL.revokeObjectURL(url);
-//       toast.success(`Downloaded ${label}`);
-//     } catch (error) {
-//       toast.error(`Failed to download ${label}`);
-//     }
-//   };
-
-//   const closeModal = (e) => {
-//     if (e) e.stopPropagation();
-//     setModalOpen(false);
-//     setSelectedImage(null);
-//     setImageLoading(false);
-//     setZoomLevel(1);
-//   };
-
-//   const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 0.2, 3));
-//   const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 0.2, 0.5));
-
-//   // ✅ Check if any document exists
-//   const hasAnyDoc =
-//     driverData?.cnicFrontImage ||
-//     driverData?.cnicBackImage ||
-//     driverData?.drivingLicenseImage ||
-//     driverData?.vehicleRegistrationImage;
-
-//   return (
-//     <>
-//       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-//         <div className="flex items-center gap-2 mb-6">
-//           <FileText className="w-5 h-5 text-red-500" />
-//           <h3 className="text-lg inter-semibold text-gray-900">
-//             Submitted Documents
-//           </h3>
-//         </div>
-
-//         {!hasAnyDoc ? (
-//           // ✅ Show single message if no documents
-//           <div className="bg-gray-50 rounded-lg p-6 text-gray-500 text-center border border-dashed border-gray-300">
-//             No verification documents uploaded
-//           </div>
-//         ) : (
-//           // ✅ Show grid only if docs exist
-//           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//             {driverData?.cnicFrontImage && (
-//               <div>
-//                 <span className="text-sm inter-medium text-gray-700 block mb-2">
-//                   CNIC Front
-//                 </span>
-//                 <DocumentItem
-//                   document={{ url: driverData.cnicFrontImage }}
-//                   label="CNIC Front"
-//                   onImageClick={handleImageClick}
-//                   onDownloadClick={handleDownloadClick}
-//                 />
-//               </div>
-//             )}
-
-//             {driverData?.cnicBackImage && (
-//               <div>
-//                 <span className="text-sm inter-medium text-gray-700 block mb-2">
-//                   CNIC Back
-//                 </span>
-//                 <DocumentItem
-//                   document={{ url: driverData.cnicBackImage }}
-//                   label="CNIC Back"
-//                   onImageClick={handleImageClick}
-//                   onDownloadClick={handleDownloadClick}
-//                 />
-//               </div>
-//             )}
-
-//             {driverData?.drivingLicenseImage && (
-//               <div>
-//                 <span className="text-sm inter-medium text-gray-700 block mb-2">
-//                   Driving License
-//                 </span>
-//                 <DocumentItem
-//                   document={{ url: driverData.drivingLicenseImage }}
-//                   label="Driving License"
-//                   onImageClick={handleImageClick}
-//                   onDownloadClick={handleDownloadClick}
-//                 />
-//               </div>
-//             )}
-
-//             {driverData?.vehicleRegistrationImage && (
-//               <div>
-//                 <span className="text-sm inter-medium text-gray-700 block mb-2">
-//                   Vehicle Registration
-//                 </span>
-//                 <DocumentItem
-//                   document={{ url: driverData.vehicleRegistrationImage }}
-//                   label="Vehicle Registration"
-//                   onImageClick={handleImageClick}
-//                   onDownloadClick={handleDownloadClick}
-//                 />
-//               </div>
-//             )}
-//           </div>
-//         )}
-//       </div>
-
-//       {/* Modal stays same */}
-//       {modalOpen && (
-//         <div
-//           className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4"
-//           onClick={closeModal}
-//         >
-//           <div
-//             className="bg-white rounded-xl p-4 sm:p-6 max-w-[90vw] max-h-[90vh] w-full sm:max-w-4xl relative shadow-2xl"
-//             onClick={(e) => e.stopPropagation()}
-//           >
-//             {/* Close */}
-//             <button
-//               onClick={closeModal}
-//               className="absolute top-4 z-20 cursor-pointer  right-4 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
-//               aria-label="Close modal"
-//             >
-//               <X className="w-6 h-6 " />
-//             </button>
-
-//             {/* Image */}
-//             <div className="flex flex-col items-center gap-4">
-//               <div className="relative w-full h-[60vh] sm:h-[70vh] overflow-auto">
-//                 {selectedImage && (
-//                   <img
-//                     src={selectedImage}
-//                     alt="Document"
-//                     className="w-full h-full object-contain"
-//                     style={{
-//                       transform: `scale(${zoomLevel})`,
-//                       transition: "transform 0.2s ease-in-out",
-//                     }}
-//                     onLoad={() => setImageLoading(false)}
-//                     onError={() => setImageLoading(false)}
-//                   />
-//                 )}
-//               </div>
-
-//               {/* Controls */}
-//               <div className="flex items-center gap-4">
-//                 <button
-//                   onClick={handleZoomOut}
-//                   className="p-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-full"
-//                   aria-label="Zoom out"
-//                 >
-//                   <ZoomOut className="w-5 h-5" />
-//                 </button>
-//                 <span className="text-sm text-gray-600">
-//                   {Math.round(zoomLevel * 100)}%
-//                 </span>
-//                 <button
-//                   onClick={handleZoomIn}
-//                   className="p-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-full"
-//                   aria-label="Zoom in"
-//                 >
-//                   <ZoomIn className="w-5 h-5" />
-//                 </button>
-//                 <button
-//                   onClick={() => handleDownloadClick(selectedImage, "Document")}
-//                   className="px-4 py-2 text-sm text-white bg-red-500 hover:bg-red-600 rounded-lg flex items-center gap-2"
-//                 >
-//                   <Download className="w-4 h-4" /> Download
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </>
-//   );
-// };

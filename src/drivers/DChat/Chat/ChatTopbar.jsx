@@ -2,7 +2,7 @@ import customer from '../../../images/customer.png';
 import formatLastSeen from './FormatedLastSeen';
 
 const ChatTopBar = ({ receiver, receiverId, className, isOnline, lastSeen }) => {
-  const displayName = receiver?.fullName || receiver?.name || "Unknown";
+  const displayName = receiver?.fullName || receiver?.name ;
   const avatar = receiver?.profilePicture || receiver?.profileImage || customer;
 
   return (

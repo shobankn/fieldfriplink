@@ -17,7 +17,7 @@ const Register = () => {
     schoolName: '',
     location: '',
     city: '',
-    cnicNumber: '',
+    // cnicNumber: '',
     schoolId: '',
     cnicFront: null,
     cnicBack: null,
@@ -94,15 +94,15 @@ const Register = () => {
     }
   };
 
-  const handleCnicChange = (e) => {
-    const { name, value } = e.target;
-    // Allow only numbers and hyphens, and enforce CNIC format (xxxxx-xxxxxxx-x)
-    const cnicValue = value.replace(/[^0-9-]/g, '');
-    setFormData({
-      ...formData,
-      [name]: cnicValue
-    });
-  };
+  // const handleCnicChange = (e) => {
+  //   const { name, value } = e.target;
+  //   // Allow only numbers and hyphens, and enforce CNIC format (xxxxx-xxxxxxx-x)
+  //   const cnicValue = value.replace(/[^0-9-]/g, '');
+  //   setFormData({
+  //     ...formData,
+      // [name]: cnicValue
+  //   });
+  // };
 
   const handleSchoolSelect = (school) => {
     setFormData({
@@ -141,10 +141,10 @@ const Register = () => {
     return re.test(phone);
   };
 
-  const validateCNIC = (cnic) => {
-    const re = /^\d{5}-\d{7}-\d{1}$/;
-    return re.test(cnic);
-  };
+  // const validateCNIC = (cnic) => {
+  //   const re = /^\d{5}-\d{7}-\d{1}$/;
+  //   return re.test(cnic);
+  // };
 
   const validatePassword = (password) => {
     if (password.length < 8) {
@@ -165,7 +165,7 @@ const Register = () => {
         { key: 'email', label: 'Email' },
         { key: 'phone', label: 'Phone' },
         { key: 'password', label: 'Password' },
-        { key: 'cnicNumber', label: 'CNIC Number' },
+        // { key: 'cnicNumber', label: 'CNIC Number' },
         { key: 'city', label: 'City' },
         { key: 'schoolId', label: 'School' }
       ];
@@ -193,12 +193,12 @@ const Register = () => {
         return;
       }
 
-      if (!validateCNIC(formData.cnicNumber)) {
-        setError('Please enter a valid CNIC number (xxxxx-xxxxxxx-x)');
-        toast.error('Please enter a valid CNIC number (xxxxx-xxxxxxx-x)', { toastId: 'cnic-error' });
-        setLoading(false);
-        return;
-      }
+      // if (!validateCNIC(formData.cnicNumber)) {
+      //   setError('Please enter a valid CNIC number (xxxxx-xxxxxxx-x)');
+      //   toast.error('Please enter a valid CNIC number (xxxxx-xxxxxxx-x)', { toastId: 'cnic-error' });
+      //   setLoading(false);
+      //   return;
+      // }
 
       if (!validatePassword(formData.password)) {
         setError('Password must be at least 8 characters long');
@@ -229,7 +229,7 @@ const Register = () => {
       formDataToSend.append('email', formData.email);
       formDataToSend.append('phone', formData.phone);
       formDataToSend.append('password', formData.password);
-      formDataToSend.append('cnicNumber', formData.cnicNumber);
+      // formDataToSend.append('cnicNumber', formData.cnicNumber);
       formDataToSend.append('city', formData.city);
       formDataToSend.append('schoolId', formData.schoolId);
       if (formData.driversLicense) formDataToSend.append('drivingLicenseImage', formData.driversLicense);
@@ -487,9 +487,10 @@ const Register = () => {
               </>
             )}
 
+
             {activeTab === 'Driver' && (
               <>
-                <div>
+                {/* <div>
                   <label className="block text-sm lg:text-[14px] inter-semibold mb-1">CNIC Number</label>
                   <input
                     type="text"
@@ -499,7 +500,9 @@ const Register = () => {
                     placeholder="Enter your CNIC number (e.g., 35202-1234567-1)"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-black"
                   />
-                </div>
+                </div> */}
+
+
                 <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                   <div className="flex-1">
                     <label className="block text-sm lg:text-[14px] inter-semibold mb-1">School</label>

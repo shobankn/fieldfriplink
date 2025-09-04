@@ -3,13 +3,18 @@ import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import logo from '../images/logo.png';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import PaymentPopup from './Paymentpopup';
 
 const Login = () => {
   const [userType, setUserType] = useState('Driver');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // State for password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPaymentPopup, setShowPaymentPopup] = useState(false);
+  const [authData, setAuthData] = useState(null);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -26,7 +31,6 @@ const Login = () => {
   const storedUserType = localStorage.getItem('userType');
   useEffect(() => {
     if (token && storedUserType) {
-      // Redirect to the dashboard matching the stored userType
       if (storedUserType === 'Driver') {
         navigate('/driverdashboard');
       } else if (storedUserType === 'School') {
@@ -35,69 +39,184 @@ const Login = () => {
     }
   }, [token, storedUserType, navigate]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  
 
-    try {
-      const response = await axios.post('https://fieldtriplinkbackend-production.up.railway.app/api/auth/login', {
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+
+  //   try {
+  //     const response = await axios.post('https://fieldtriplinkbackend-production.up.railway.app/api/auth/login', {
+  //       email,
+  //       password,
+  //     });
+
+  //     const { token: newToken, user } = response.data;
+
+  //     const expectedRole = userType === 'Driver' ? 'driver' : 'school_admin';
+  //     const redirectUserType = userType === 'Driver' ? 'Driver' : 'School';
+
+  //     if (user.role === expectedRole) {
+  //       if (expectedRole === 'driver') {
+  //         localStorage.setItem('token', newToken);
+  //         localStorage.setItem('userType', redirectUserType);
+  //         toast.success('Driver login successful!');
+  //         navigate('/driverdashboard');
+  //       } else {
+  //         // toast.success('School Admin login successful!');
+  //         setAuthData({ token: newToken, userType: redirectUserType });
+  //         setShowPaymentPopup(true);
+  //       }
+  //     } else {
+  //       toast.error('User role does not match the selected type.');
+  //     }
+  //   } catch (error) {
+  //     const msg =
+  //       error.response?.data?.message || 'Login failed. Please check your credentials.';
+  //     toast.error(msg);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
+  
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+    const response = await axios.post(
+      'https://fieldtriplinkbackend-production.up.railway.app/api/auth/login',
+      {
         email,
         password,
-      });
-
-      const { token: newToken, user } = response.data;
-
-      const expectedRole = userType === 'Driver' ? 'driver' : 'school_admin';
-      const redirectUserType = userType === 'Driver' ? 'Driver' : 'School';
-
-      if (user.role === expectedRole) {
-        // Save token and userType to localStorage
-        localStorage.setItem('token', newToken);
-        localStorage.setItem('userType', redirectUserType);
-
-        // Redirect logic based on role
-        if (expectedRole === 'driver') {
-          toast.success('Driver login successful!');
-          navigate('/driverdashboard');
-        } else {
-          toast.success('School Admin login successful!');
-          navigate('/dashboard');
-        }
-      } else {
-        toast.error('User role does not match the selected type.');
       }
-    } catch (error) {
-      const msg =
-        error.response?.data?.message || 'Login failed. Please check your credentials.';
-      toast.error(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
+    );
 
-  // Handler for Forgot Password link
+    const { token: newToken, user } = response.data;
+
+    const expectedRole = userType === 'Driver' ? 'driver' : 'school_admin';
+    const redirectUserType = userType === 'Driver' ? 'Driver' : 'School';
+
+    if (user.role === expectedRole) {
+if (expectedRole === 'driver') {
+  // ✅ Driver flow
+  localStorage.setItem('token', newToken);
+  localStorage.setItem('userType', redirectUserType);
+  toast.success('Driver login successful!');
+  navigate('/driverdashboard');
+} else {
+  // ❌ Do NOT save token yet for School
+  try {
+    const statusRes = await axios.get(
+      'https://fieldtriplinkbackend-production.up.railway.app/api/school/subscription/status',
+      { headers: { Authorization: `Bearer ${newToken}` } }
+    );
+
+    if (statusRes.data?.active) {
+      // ✅ Active subscription → save token
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('userType', redirectUserType);
+      toast.success('School Admin login successful!');
+      navigate('/dashboard');
+    } else {
+      // ❌ Not active → keep token only in state
+      setAuthData({ token: newToken, userType: redirectUserType });
+      setShowPaymentPopup(true);
+    }
+  } catch (statusError) {
+    console.error('Subscription status error:', statusError);
+    toast.error('Unable to verify subscription status. Please try again.');
+  }
+}
+
+    } else {
+      toast.error('User role does not match the selected type.');
+    }
+  } catch (error) {
+    const msg =
+      error.response?.data?.message ||
+      'Login failed. Please check your credentials.';
+    toast.error(msg);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+
   const handleForgotPassword = (e) => {
     e.preventDefault();
     navigate('/emailvarification', { state: { userType } });
   };
 
-  // Handler for Sign Up link
   const handleSignUp = (e) => {
     e.preventDefault();
     navigate('/register');
   };
 
-  // Handle logo click to navigate to home page
   const handleLogoClick = () => {
     navigate('/');
   };
 
-  // Toggle password visibility
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  // If token exists and userType is set, redirect immediately
+  const handlePaymentSuccess = () => {
+    if (authData) {
+      localStorage.setItem('token', authData.token);
+      localStorage.setItem('userType', authData.userType);
+      setShowPaymentPopup(false);
+      navigate('/dashboard');
+    }
+  };
+
+  useEffect(() => {
+  const checkAccess = async () => {
+    if (token && storedUserType) {
+      if (storedUserType === 'Driver') {
+        navigate('/driverdashboard');
+      } else if (storedUserType === 'School') {
+        try {
+          const statusRes = await axios.get(
+            'https://fieldtriplinkbackend-production.up.railway.app/api/school/subscription/status',
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          if (statusRes.data?.active) {
+            navigate('/dashboard');
+          } else {
+            // ❌ Kick user back to login
+            localStorage.removeItem('token');
+            localStorage.removeItem('userType');
+            toast.error('Please complete your payment to access the dashboard.');
+            navigate('/');
+          }
+        } catch (err) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('userType');
+          navigate('/');
+        }
+      }
+    }
+  };
+  checkAccess();
+}, [token, storedUserType, navigate]);
+
+
+
+
+
+  const handlePaymentClose = () => {
+    setShowPaymentPopup(false);
+    setAuthData(null);
+    toast.info('Please complete payment to proceed.');
+  };
+
   if (token && storedUserType) {
     return <Navigate to={storedUserType === 'Driver' ? '/driverdashboard' : '/dashboard'} replace />;
   }
@@ -228,6 +347,10 @@ const Login = () => {
           </button>
         </p>
       </div>
+
+      {showPaymentPopup && (
+        <PaymentPopup onSuccess={handlePaymentSuccess} onClose={handlePaymentClose}  token={authData?.token} />
+      )}
       <ToastContainer />
     </div>
   );

@@ -27,7 +27,7 @@ const DriverProfile = () => {
     fullName: '',
     email: '',
     city: '',
-    cnic: '',
+    // cnic: '',
     phone: '',
     partnerSchool: '',
     profileImage: '',
@@ -77,6 +77,7 @@ const DriverProfile = () => {
         });
 
         const { user, profile, schoolAssignments } = response.data;
+        console.log(response.data);
         
         // Get the assigned school name from schoolAssignments array
         let assignedSchool = '';
@@ -89,7 +90,7 @@ const DriverProfile = () => {
           fullName: user.name || '',
           email: user.email || '',
           city: profile.address || '',
-          cnic: profile.cnicNumber || '',
+          // cnic: profile.cnicNumber || '',
           phone: user.phone || user.phoneNumber || '',
           partnerSchool: assignedSchool,
           profileImage: user.profileImage || '',
@@ -97,6 +98,7 @@ const DriverProfile = () => {
         
         setProfileData(updatedProfileData);
         setEditData(updatedProfileData);
+        
         
         // Also update localStorage with the correct school name
         if (assignedSchool) {
@@ -205,7 +207,7 @@ const DriverProfile = () => {
       formData.append('email', editData.email);
       formData.append('phone', editData.phone);
       formData.append('address', editData.city);
-      formData.append('cnicNumber', editData.cnic);
+      // formData.append('cnicNumber', editData.cnic);
 
       if (selectedImage) {
         formData.append('profileImage', selectedImage);
@@ -387,6 +389,7 @@ const DriverProfile = () => {
                         </p>
                       )}
                     </div>
+{/* 
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">CNIC</label>
                       {isLoading ? (
@@ -396,7 +399,8 @@ const DriverProfile = () => {
                           {profileData.cnic || 'Not Available'}
                         </p>
                       )}
-                    </div>
+                    </div> */}
+
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
                       {isLoading ? (
@@ -549,7 +553,9 @@ const DriverProfile = () => {
                           required
                         />
                       </div>
-                      <div>
+
+                      {/* <div>
+
                         <label className="block text-sm font-medium text-gray-700 mb-2">CNIC</label>
                         <input
                           type="text"
@@ -558,7 +564,8 @@ const DriverProfile = () => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           placeholder="Enter CNIC"
                         />
-                      </div>
+                      </div> */}
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                         <input

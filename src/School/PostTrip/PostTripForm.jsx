@@ -308,7 +308,7 @@ const PostTripForm = () => {
   return (
     <div className="min-h-screen">
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
-      <div className='px-5 py-1'>
+      <div className='sm:px-5 py-1'>
         <h1 className="text-2xl md:text-3xl inter-bold text-gray-900">Post New Trip</h1>
         <p className="text-gray-600 mt-2 text-sm md:text-base">Create a new transportation request and find the best drivers.</p>
       </div>

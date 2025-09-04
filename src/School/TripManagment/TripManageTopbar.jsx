@@ -14,7 +14,7 @@ const TripManageTopBar = ({ onMenuClick }) => {
             <Menu className="w-5 h-5" />
           </button>
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Trip Managment </h2>
+            <h2 className="text-xl font-semibold text-gray-900 ">Trip Managment </h2>
             <p className="text-sm text-gray-500">Manage and monitor all your transportation requests.</p>
           </div>
         </div>

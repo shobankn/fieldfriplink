@@ -125,7 +125,7 @@ if (profile.vehicleRegistrationImage) {
           //     url: profile.vehicleRegistrationImage || ''
           //   }
           // },
-          verificationNotes: schoolDriver.notes || 'No verification notes provided.',
+          verificationNotes: schoolDriver.notes?.trim() || null,
           submissionDetails: {
             submitted: profile.createdAt
               ? `Submitted ${Math.floor((new Date() - new Date(profile.createdAt)) / (1000 * 60 * 60 * 24))} days ago`
@@ -282,22 +282,7 @@ const DocumentItem = ({ document, label, onImageClick }) => (
             </div>
           </div>
           
-          {/* <div className="flex gap-3">
-            <button 
-              onClick={() => handleStatusChange('Suspended')}
-              className="flex text-[14px] sm:text-[16px] px-3 py-2 sm:px-4 sm:py-2 text-white bg-green-400 rounded-[10px] inter-medium transition-colors"
-            >
-              <Check className="w-4 h-4 sm:w-5 sm:h-5 mr-1 my-auto"/>
-              Verify Driver
-            </button>
-            <button 
-              onClick={() => handleStatusChange('Declined')}
-              className="content-center flex text-[14px] sm:text-[16px] px-3 py-2 sm:px-4 sm:py-2 text-white bg-red-500 rounded-[10px] inter-medium transition-colors"
-            >
-              <X className="w-4 h-4 sm:w-5 sm:h-5 mr-1 my-auto"/>
-              Reject
-            </button>
-          </div> */}
+       
 
           <DriverStatusButtons loading={loading} driverId={id} />
 
@@ -393,10 +378,10 @@ const DocumentItem = ({ document, label, onImageClick }) => (
 
                   {/* Additional Details */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6 pt-6 border-t border-gray-100">
-                    <div>
+                    {/* <div>
                       <span className="text-sm inter-regular text-gray-500 block mb-1">CNIC Number</span>
                       <span className="font-semibold text-gray-900">{driverData.personalInfo.cnicNumber}</span>
-                    </div>
+                    </div> */}
                     <div className="">
                       <span className="text-sm inter-regular text-gray-500 block">Joined Date</span>
                       <span className="inter-semibold text-gray-900">{driverData.personalInfo.joinedDate}</span>
@@ -414,50 +399,6 @@ const DocumentItem = ({ document, label, onImageClick }) => (
 
 
                 {/* Submitted Documents */}
-          {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-  <div className="flex items-center gap-2 mb-6">
-    <FileText className="w-5 h-5 text-red-500" />
-    <h3 className="text-lg inter-semibold text-gray-900">Submitted Documents</h3>
-  </div>
-  
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <span className="text-sm inter-medium text-gray-700 block mb-2">CNIC Front</span>
-      <DocumentItem 
-        document={driverData.submittedDocuments.cnicFront}
-        label="CNIC Front"
-        onImageClick={handleImageClick}
-      />
-    </div>
-
-    <div>
-      <span className="text-sm inter-medium text-gray-700 block mb-2">CNIC Back</span>
-      <DocumentItem 
-        document={driverData.submittedDocuments.cnicBack}
-        label="CNIC Back"
-        onImageClick={handleImageClick}
-      />
-    </div>
-
-    <div>
-      <span className="text-sm inter-medium text-gray-700 block mb-2">Driving License</span>
-      <DocumentItem 
-        document={driverData.submittedDocuments.drivingLicense}
-        label="Driving License"
-        onImageClick={handleImageClick}
-      />
-    </div>
-
-    <div>
-      <span className="text-sm inter-medium text-gray-700 block mb-2">Vehicle Registration</span>
-      <DocumentItem 
-        document={driverData.submittedDocuments.vehicleRegistration}
-        label="Vehicle Registration"
-        onImageClick={handleImageClick}
-      />
-    </div>
-  </div>
-            </div> */}
 
             <DocumentSection driverData={driverData} />
 
@@ -480,15 +421,18 @@ const DocumentItem = ({ document, label, onImageClick }) => (
                   </div>
                 </div>
 
-                {/* Verification Notes */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-lg inter-semibold text-gray-900 mb-4">Verification Notes</h3>
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <p className="text-gray-800 text-sm leading-relaxed">
-                      {/* {driverData.verificationNotes} */}
-                    </p>
+               {/* Verification Notes */}
+                {driverData.verificationNotes && (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h3 className="text-lg inter-semibold text-gray-900 mb-4">Verification Notes</h3>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <p className="text-gray-800 text-sm leading-relaxed">
+                        {driverData.verificationNotes}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
+
 
                 {/* Submission Details */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

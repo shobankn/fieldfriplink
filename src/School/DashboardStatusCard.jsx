@@ -27,6 +27,7 @@ const DashboardStats = () => {
         );
 
         setStats(response.data);
+        console.log(response.data);
       } catch (error) {
         toast.error('Failed to load dashboard statistics');
       } finally {

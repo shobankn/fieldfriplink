@@ -209,7 +209,7 @@ const TripManagementBody = () => {
       'Active': 'bg-green-100 text-green-800',
       'Scheduled': 'bg-blue-100 text-blue-800',
       'Pending': 'bg-yellow-100 text-yellow-800',
-      'Completed': 'bg-gray-100 text-gray-800'
+      'Completed': 'bg-[#EEF3FE] text-[#4C82F7]'
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
@@ -313,13 +313,18 @@ const TripManagementBody = () => {
             <p className="text-xs text-[#808080] inter-regular">{drv.address}</p>
           </div>
 
-          <div className="flex items-center space-x-1">
-            <span className="ml-0 sm:ml-6 text-sm text-[#808080] inter-regular">
-              Overall Rating
-            </span>
-            <Star className="w-4 h-4 ml-1 text-yellow-400 fill-current" />
-            <span className="text-sm font-medium text-gray-900">{drv.rating}</span>
-          </div>
+          {drv.rating !== null && drv.rating !== undefined && drv.rating !== "" && (
+            <div className="flex items-center space-x-1">
+              <span className="ml-0 sm:ml-6 text-sm text-[#808080] inter-regular">
+                Overall Rating
+              </span>
+              <Star className="w-4 h-4 ml-1 text-yellow-400 fill-current" />
+              <span className="text-sm font-medium text-gray-900">{drv.rating}</span>
+            </div>
+          )}
+
+
+
         </div>
       ))}
     </div>
@@ -828,8 +833,8 @@ const CompletedTripCard = ({ trip }) => {
    <div className="min-h-screen p-4 lg:px-6 py-0 overflow-x-hidden">
   <div className="">
     <div className="max-w-full mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-0">
-        <div>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-2 mb-0">
+        <div className='sm:px-0 py-1'>
           <h1 className="text-2xl md:text-3xl inter-bold text-gray-900">Trip Management</h1>
           <p className="text-gray-600 mt-2 text-sm md:text-base mb-2">
             Manage and monitor all your transportation requests.

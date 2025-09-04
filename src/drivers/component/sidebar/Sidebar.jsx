@@ -130,7 +130,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     setProfileData(null);
     setShowConfirmModal(false);
     toggleSidebar();
-    navigate('/'); // Redirect to default route
+    navigate('/'); // Redirect to home route
   };
 
   // Cancel logout
@@ -309,7 +309,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           </div>
 
           {/* Menu Items */}
-          <nav className=" space-y-1 flex flex-col flex-1 px-4">
+          <nav className="space-y-1 flex flex-col flex-1 px-4">
             <div className="flex-1">
               {menuItems.map((item, index) => {
                 const Icon = item.icon;
@@ -332,14 +332,13 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 );
               })}
             </div>
-            <div className="flex-shrink-0 pb-4 ">
-                <hr className='text-[#E5E7EB]' />
+            <div className="flex-shrink-0 pb-4">
+              <hr className='text-[#E5E7EB]' />
               <button
                 onClick={handleLogoutClick}
                 className="flex cursor-pointer items-center content-center mx-auto justify-start space-x-3 px-4 py-4 rounded-lg text-sm font-medium transition-all duration-200 bg-white hover:bg-gray-50 group w-full text-left"
               >
                 <div className="flex flex-row ml-3">
-                
                   <LogOut className="w-5 h-5 mr-2 text-red-500 group-hover:text-red-700 transition-colors duration-200" />
                   <span className="text-[14px] inter-semibold text-red-600 flex items-center">
                     Logout

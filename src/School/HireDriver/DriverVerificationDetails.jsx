@@ -91,7 +91,7 @@ if (profile.vehicleRegistrationImage) {
             name: user.name,
             email: user.email,
             phone: user.phone,
-            profilePhoto: user.profileImage || profilepic, // Fallback to default profile image
+            profilePhoto: user.profileImage || null, // Fallback to default profile image
             cnicNumber: profile.cnicNumber || 'N/A',
             joinedDate: profile.joinedDate
               ? new Date(profile.joinedDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
@@ -353,11 +353,19 @@ const DocumentItem = ({ document, label, onImageClick }) => (
                   <div className="flex flex-col sm:flex-row gap-6">
                     {/* Profile Section */}
                     <div className="flex items-start gap-4">
-                      <img
-                        src={driverData.personalInfo.profilePhoto}
-                        alt="Profile"
-                        className="w-14 h-14 rounded-full object-cover border-2 border-gray-200 flex-shrink-0"
-                      />
+
+                      {driverData.personalInfo.profilePhoto ? (
+                        <img
+                          src={driverData.personalInfo.profilePhoto}
+                          alt="Profile"
+                          className="w-14 h-14 rounded-full object-cover border-2 border-gray-200 flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 rounded-full border-2 border-gray-200 flex-shrink-0 flex items-center justify-center bg-red-500">
+                          <User className="text-white w-7 h-7" />
+                        </div>
+                      )}
+
                       <div>
                         <h4 className="text-xl inter-semibold text-gray-900 mb-1">
                           {driverData.personalInfo.name}
@@ -412,13 +420,17 @@ const DocumentItem = ({ document, label, onImageClick }) => (
                 {/* Profile Photo */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                   <h3 className="text-lg inter-semibold text-gray-900 mb-4">Profile Photo</h3>
-                  <div className="bg-gray-100 rounded-lg aspect-square overflow-hidden">
-                    <img
-                      src={driverData.personalInfo.profilePhoto}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                 <div className="bg-gray-100 rounded-lg aspect-square overflow-hidden flex items-center justify-center">
+                        {driverData.personalInfo.profilePhoto ? (
+                          <img
+                            src={driverData.personalInfo.profilePhoto}
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <User className="text-red-500 w-full h-full" />
+                        )}
+                      </div>
                 </div>
 
                {/* Verification Notes */}

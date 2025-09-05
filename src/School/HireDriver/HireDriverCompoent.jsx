@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Download, MapPin, Calendar, Mail, Phone, Eye, Clock, CheckCircle, AlertTriangle, XCircle, CircleCheck } from 'lucide-react';
+import { Search, Filter, Download, MapPin, Calendar, Mail, Phone, Eye, Clock, CheckCircle, AlertTriangle, XCircle, CircleCheck, User } from 'lucide-react';
 import profile from '../../images/profile/profile4.jpeg';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
@@ -49,7 +49,7 @@ const DriverVerificationInterface = () => {
         const transformedData = response.data.drivers.map(driver => ({
           id: driver._id,
           name: driver.name,
-          profileImage: driver.profileImage || profile, // Fallback to default profile image
+          profileImage: driver.profileImage || null, // Fallback to default profile image
           email: driver.email,
           phone: driver.phone,
           // cnic: driver.cnicNumber || 'N/A', 
@@ -352,11 +352,19 @@ const DriverVerificationInterface = () => {
                 <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-center gap-4 flex-1 text-center sm:text-left">
                     <div className="flex justify-center sm:justify-start">
-                      <img
-                        src={driver.profileImage}
-                        alt={driver.name}
-                        className="w-14 h-14 md:w-14 md:h-14 rounded-full object-cover border-2 border-gray-200 flex-shrink-0"
-                      />
+
+                      {driver.profileImage ? (
+                        <img
+                          src={driver.profileImage}
+                          alt={driver.name}
+                          className="w-14 h-14 md:w-14 md:h-14 rounded-full object-cover border-2 border-gray-200 flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 md:w-14 md:h-14 rounded-full border-2 border-gray-200 flex-shrink-0 flex items-center justify-center bg-red-500">
+                          <User className="text-white w-7 h-7" />
+                        </div>
+                      )}
+
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">

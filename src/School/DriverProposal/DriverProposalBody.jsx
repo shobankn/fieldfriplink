@@ -10,7 +10,8 @@ import {
   Users,
   X,
   Briefcase,
-  Check
+  Check,
+  User2
 } from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -122,8 +123,7 @@ useEffect(() => {
             status: proposal.status,
             proposalMessage: proposal.driverNote,
             avatar:
-              proposal.driverId.profileImage ||
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+              proposal.driverId.profileImage || null,
             phone: proposal.driverId.phone,
             tripDate: displayDateOrDays,
             startTime: formatExactUTCTime(trip.startTime),
@@ -271,20 +271,25 @@ useEffect(() => {
               <div key={driver.id} className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 w-full max-w-full">
                 <div className="flex flex-col sm:flex-row items-start justify-between mb-4">
                   <div className="flex items-start space-x-4 w-full">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                      <img 
-                        src={driver.avatar} 
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 flex items-center justify-center">
+                    {driver.avatar ? (
+                      <img
+                        src={driver.avatar}
                         alt={driver.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'flex';
+                          e.currentTarget.style.display = "none"; // hide broken image
+                          e.currentTarget.parentNode.innerHTML =
+                            '<div class="w-full h-full flex items-center justify-center bg-red-500"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A8.966 8.966 0 0112 15c2.21 0 4.21.802 5.879 2.121M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg></div>';
                         }}
                       />
-                      <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-600 font-medium text-sm" style={{display: 'none'}}>
-                        <User className="w-6 h-6" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-red-500">
+                        <User className="w-6 h-6 text-white" />
                       </div>
-                    </div>
+                    )}
+                  </div>
+
                     <div className="flex-1">
                       <h3 className="text-lg inter-semibold text-gray-900 mb-1 break-words">{driver.name}</h3>
                       <div className="flex flex-wrap items-center space-x-3 text-sm text-gray-600">
@@ -442,13 +447,22 @@ useEffect(() => {
                     <div className="md:col-span-2 border-l-2 border-[#E5E7EB] p-4 sm:p-6 flex flex-col h-full md:border-l-2 w-full">
                       <h4 className="inter-semibold text-gray-900 mb-4">Driver Summary</h4>
                       <div className="flex items-start space-x-4 mb-4">
-                        <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                          <img 
-                            src={selectedDriver.avatar} 
+
+
+                      <div className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center bg-gray-200 flex-shrink-0">
+                        {selectedDriver.avatar ? (
+                          <img
+                            src={selectedDriver.avatar}
                             alt={selectedDriver.name}
                             className="w-full h-full object-cover"
                           />
-                        </div>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-red-500">
+                            <User2 className="text-white w-7 h-7" />
+                          </div>
+                        )}
+                      </div>
+
                         <div className="flex-1">
                           <h5 className="font-semibold text-gray-900 text-lg break-words">{selectedDriver.name}</h5>
                           <div className="flex items-center space-x-1 mb-1">
@@ -472,12 +486,18 @@ useEffect(() => {
                     ) : driverDetails ? (
                       <>
                         <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 pb-4">
-                          <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                            <img 
-                              src={driverDetails.user.profileImage || selectedDriver.avatar} 
-                              alt={driverDetails.user.name}
-                              className="w-full h-full object-cover"
-                            />
+                          <div className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center bg-gray-200 flex-shrink-0">
+                            {driverDetails.user.profileImage || selectedDriver.avatar ? (
+                              <img
+                                src={driverDetails.user.profileImage }
+                                alt={driverDetails.user.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-red-500">
+                                <User2 className="text-white w-10 h-10" />
+                              </div>
+                            )}
                           </div>
                           <div>
                             <h3 className="text-xl inter-semibold text-gray-900 break-words">{driverDetails.user.name}</h3>

@@ -56,14 +56,25 @@ const handlePaymentSubmit = async (plan) => {
 
     const data = await response.json();
 
+
     // ✅ Check if backend returned a URL and redirect
+    // if (data?.url) {
+    //   window.location.href = data.url; 
+    // } else {
+    //   toast.success('Payment successful!');
+    //   onSuccess(data);
+    //   onClose();
+    // }
+
     if (data?.url) {
-      window.location.href = data.url; 
-    } else {
-      toast.success('Payment successful!');
-      onSuccess(data);
-      onClose();
-    }
+ // ✅ Save temp token in localStorage so we can check subscription after redirect
+  localStorage.setItem("pendingToken", token);
+  localStorage.setItem("pendingUserType", "School");
+ window.location.href = data.url;
+}
+
+
+
   } catch (error) {
     console.error('Payment error:', error);
     toast.error('Payment failed. Please try again.');

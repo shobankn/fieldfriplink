@@ -13,6 +13,29 @@ import { ImStopwatch } from "react-icons/im";
 import { LuShieldPlus } from "react-icons/lu";
 import { initTrackingOnLoad, startTracking, stopTracking } from './StartRide';
 
+// Debounce function to limit rapid toast triggers
+const debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
+
+// Toast function with unique ID and strict single-toast enforcement
+const showToast = debounce((message, type = 'error', toastId) => {
+  // Ensure no duplicate toasts by checking if toastId exists
+  if (!toast.isActive(toastId)) {
+    toast.dismiss(); // Clear all existing toasts
+    toast(message, {
+      toastId, // Unique ID to prevent duplicates
+      type,
+      autoClose: 2000, // Close after 2 seconds
+      closeOnClick: true,
+      pauseOnHover: false,
+    });
+  }
+}, 500); // Increased debounce to 500ms for stricter control
 
 const rideData = {
   Scheduled: [],
@@ -38,8 +61,6 @@ const MyRides = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-
-
 
   // Map for recurring days
   const dayMap = {
@@ -85,128 +106,115 @@ const MyRides = () => {
         Invitations: prev.Invitations.filter((inv) => inv.id !== invitationId),
       }));
 
-      toast.success(`Invitation ${action} successfully!`);
+      showToast(`Invitation ${action} successfully!`, 'success', `${invitationId}-${action}-success`);
       if (action === 'accepted') {
         setActiveTab('Scheduled');
       }
     } catch (error) {
       console.error(`Error ${action} invitation:`, error);
-      toast.error(`Failed to ${action} invitation. Please try again.`);
+      showToast(`Failed to ${action} invitation. Please try again.`, 'error', `${invitationId}-${action}-error`);
     } finally {
       setButtonLoading((prev) => ({ ...prev, [invitationId + action]: false }));
     }
   };
 
   // Function to handle start ride
-// Function to handle start ride
-const handleStartRide = async (tripId, schoolId) => {
-  setButtonLoading((prev) => ({ ...prev, [tripId + 'start']: true }));
+  const handleStartRide = async (tripId, schoolId) => {
+    setButtonLoading((prev) => ({ ...prev, [tripId + 'start']: true }));
 
-  try {
-    const token = localStorage.getItem('token');
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    try {
+      const token = localStorage.getItem('token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const response = await fetch(
-      `https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips/${tripId}/status`,
-      {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify({ status: 'active' }),
-      }
-    );
+      const response = await fetch(
+        `https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips/${tripId}/status`,
+        {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({ status: 'active' }),
+        }
+      );
 
-    if (!response.ok) throw new Error('Failed to start ride');
+      if (!response.ok) throw new Error('Failed to start ride');
 
-    const responseData = await response.json();
-    console.log(responseData);
+      const responseData = await response.json();
+      console.log(responseData);
 
-    setRideDataState((prev) => {
-      const rideToStart = prev.Scheduled.find((r) => r.id === tripId);
-      if (!rideToStart) return prev;
-      return {
-        ...prev,
-        Scheduled: prev.Scheduled.filter((r) => r.id !== tripId),
-        Active: [...prev.Active, rideToStart],
-      };
-    });
+      setRideDataState((prev) => {
+        const rideToStart = prev.Scheduled.find((r) => r.id === tripId);
+        if (!rideToStart) return prev;
+        return {
+          ...prev,
+          Scheduled: prev.Scheduled.filter((r) => r.id !== tripId),
+          Active: [...prev.Active, rideToStart],
+        };
+      });
 
-    // ✅ Start tracking and ensure it persists across refresh
-    startTracking(tripId, schoolId);
+      // Start tracking and ensure it persists across refresh
+      startTracking(tripId, schoolId);
 
-    toast.success('Ride started successfully!');
-    setActiveTab('Active');
+      showToast('Ride started successfully!', 'success', `${tripId}-start-success`);
+      setActiveTab('Active');
+    } catch (error) {
+      console.error('Error starting ride:', error);
+      showToast('Failed to start ride. Please try again.', 'error', `${tripId}-start-error`);
+    } finally {
+      setButtonLoading((prev) => ({ ...prev, [tripId + 'start']: false }));
+    }
+  };
 
-  } catch (error) {
-    console.error('Error starting ride:', error);
-    toast.error('Failed to start ride. Please try again.');
-  } finally {
-    setButtonLoading((prev) => ({ ...prev, [tripId + 'start']: false }));
-  }
-};
+  useEffect(() => {
+    initTrackingOnLoad();
+  }, []);
 
-useEffect(() => {
-  initTrackingOnLoad();
-}, []);
+  // Function to handle end ride
+  const handleEndRide = async (tripId) => {
+    setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: true }));
 
-// Function to handle end ride
-const handleEndRide = async (tripId) => {
-  setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: true }));
+    try {
+      const token = localStorage.getItem('token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  try {
-    const token = localStorage.getItem('token');
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+      const response = await fetch(
+        `https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips/${tripId}/status`,
+        {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({ status: 'completed' }),
+        }
+      );
 
-    const response = await fetch(
-      `https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips/${tripId}/status`,
-      {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify({ status: 'completed' }),
-      }
-    );
+      if (!response.ok) throw new Error('Failed to end ride');
 
-    if (!response.ok) throw new Error('Failed to end ride');
+      setRideDataState((prev) => {
+        const rideToEnd = prev.Active.find((ride) => ride.id === tripId);
+        if (!rideToEnd) return prev;
+        return {
+          ...prev,
+          Active: prev.Active.filter((ride) => ride.id !== tripId),
+          Completed: [...prev.Completed, rideToEnd],
+        };
+      });
 
-    setRideDataState((prev) => {
-      const rideToEnd = prev.Active.find((ride) => ride.id === tripId);
-      if (!rideToEnd) return prev;
-      return {
-        ...prev,
-        Active: prev.Active.filter((ride) => ride.id !== tripId),
-        Completed: [...prev.Completed, rideToEnd],
-      };
-    });
+      // Stop tracking completely
+      stopTracking();
 
-    // ✅ Stop tracking completely
-    stopTracking();
-
-    toast.success('Ride ended successfully!');
-    setActiveTab('Completed');
-
-  } catch (error) {
-    console.error('Error ending ride:', error);
-    toast.error('Failed to end ride. Please try again.');
-  } finally {
-    setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: false }));
-  }
-};
-
+      showToast('Ride ended successfully!', 'success', `${tripId}-end-success`);
+      setActiveTab('Completed');
+    } catch (error) {
+      console.error('Error ending ride:', error);
+      showToast('Failed to end ride. Please try again.', 'error', `${tripId}-end-error`);
+    } finally {
+      setButtonLoading((prev) => ({ ...prev, [tripId + 'end']: false }));
+    }
+  };
 
   // Function to handle view live navigation
-  // const handleViewLive = (tripId) => {
-  //   setButtonLoading((prev) => ({ ...prev, [tripId + 'view']: true }));
-  //   navigate('/driver-live-tracking', { state: { activeTab: activeTab } });
-  //   setTimeout(() => {
-  //     setButtonLoading((prev) => ({ ...prev, [tripId + 'view']: false }));
-  //   }, 1000);
-  // };
-
-  
-const handleViewLive = (tripId, schoolId) => {
-  navigate('/driver-live-tracking', { state: { tripId, schoolId } });
-};
+  const handleViewLive = (tripId, schoolId) => {
+    navigate('/driver-live-tracking', { state: { tripId, schoolId } });
+  };
 
   // Fetch Invitations
   useEffect(() => {
@@ -269,7 +277,7 @@ const handleViewLive = (tripId, schoolId) => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching invitations:', error);
-        toast.error('Failed to fetch invitations. Please try again.');
+        showToast('Failed to fetch invitations. Please try again.', 'error', 'fetch-invitations-error');
         setLoading(false);
       }
     };
@@ -337,7 +345,7 @@ const handleViewLive = (tripId, schoolId) => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching scheduled rides:', error);
-        toast.error('Failed to fetch scheduled rides. Please try again.');
+        showToast('Failed to fetch scheduled rides. Please try again.', 'error', 'fetch-scheduled-error');
         setLoading(false);
       }
     };
@@ -377,7 +385,7 @@ const handleViewLive = (tripId, schoolId) => {
             : startDate.toISOString().split('T')[0];
           const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
           const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
-console.log(data);
+
           return {
             id: trip._id,
             school: trip.tripName,
@@ -405,15 +413,13 @@ console.log(data);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching active rides:', error);
-        toast.error('Failed to fetch active rides. Please try again.');
+        showToast('Failed to fetch active rides. Please try again.', 'error', 'fetch-active-error');
         setLoading(false);
       }
     };
 
     fetchActiveRides();
   }, []);
-
-
 
   // Fetch Completed Rides
   useEffect(() => {
@@ -476,7 +482,7 @@ console.log(data);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching completed rides:', error);
-        toast.error('Failed to fetch completed rides. Please try again.');
+        showToast('Failed to fetch completed rides. Please try again.', 'error', 'fetch-completed-error');
         setLoading(false);
       }
     };
@@ -684,27 +690,21 @@ console.log(data);
                         )}
                         End Ride
                       </button>
-
-
                       <button
-  onClick={() => handleViewLive(ride.id, ride.schoolId)}
-  className="bg-red-500 text-white flex items-center gap-1 px-4 py-1.5 rounded-md text-sm hover:bg-red-600"
-  disabled={buttonLoading[ride.id + 'view']}
->
-  {buttonLoading[ride.id + 'view'] ? (
-    <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    </svg>
-  ) : (
-    <LuPlane />
-  )}
-  View Live
-</button>
-
-
-
-
+                        onClick={() => handleViewLive(ride.id, ride.schoolId)}
+                        className="bg-red-500 text-white flex items-center gap-1 px-4 py-1.5 rounded-md text-sm hover:bg-red-600"
+                        disabled={buttonLoading[ride.id + 'view']}
+                      >
+                        {buttonLoading[ride.id + 'view'] ? (
+                          <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : (
+                          <LuPlane />
+                        )}
+                        View Live
+                      </button>
                     </div>
                   )}
 
@@ -732,18 +732,18 @@ console.log(data);
                       >
                         {buttonLoading[ride.id + 'accepted'] ? (
                           <svg
-  className="animate-spin h-5 w-5 mr-2 text-[#0A4D20]"
-  xmlns="http://www.w3.org/2000/svg"
-  fill="none"
-  viewBox="0 0 24 24"
->
-  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-  <path
-    className="opacity-75"
-    fill="currentColor"
-    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-  ></path>
-</svg>
+                            className="animate-spin h-5 w-5 mr-2 text-[#0A4D20]"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
                         ) : (
                           <FaCheck />
                         )}
@@ -753,9 +753,7 @@ console.log(data);
                   )}
 
                   {activeTab === "Scheduled" && (
-                    
                     <button
-                      // onClick={() => handleStartRide(ride.id)}
                       onClick={() => handleStartRide(ride.id, ride.schoolId)}
                       className="mt-4 bg-yellow-400 text-black font-semibold px-4 py-1.5 rounded-md hover:bg-yellow-500 ml-auto flex items-center gap-1"
                       disabled={buttonLoading[ride.id + 'start']}
@@ -775,7 +773,18 @@ console.log(data);
               <p className="text-gray-500 text-center py-10">No {activeTab.toLowerCase()} rides found.</p>
             )}
           </div>
-          <ToastContainer />
+          <ToastContainer
+            position="top-right"
+            autoClose={2000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover={false}
+            limit={1}
+          />
         </main>
       </div>
     </div>

@@ -17,7 +17,6 @@ const Register = () => {
     schoolName: '',
     location: '',
     city: '',
-    // cnicNumber: '',
     schoolId: '',
     cnicFront: null,
     cnicBack: null,
@@ -94,16 +93,6 @@ const Register = () => {
     }
   };
 
-  // const handleCnicChange = (e) => {
-  //   const { name, value } = e.target;
-  //   // Allow only numbers and hyphens, and enforce CNIC format (xxxxx-xxxxxxx-x)
-  //   const cnicValue = value.replace(/[^0-9-]/g, '');
-  //   setFormData({
-  //     ...formData,
-      // [name]: cnicValue
-  //   });
-  // };
-
   const handleSchoolSelect = (school) => {
     setFormData({
       ...formData,
@@ -141,11 +130,6 @@ const Register = () => {
     return re.test(phone);
   };
 
-  // const validateCNIC = (cnic) => {
-  //   const re = /^\d{5}-\d{7}-\d{1}$/;
-  //   return re.test(cnic);
-  // };
-
   const validatePassword = (password) => {
     if (password.length < 8) {
       return false;
@@ -165,9 +149,7 @@ const Register = () => {
         { key: 'email', label: 'Email' },
         { key: 'phone', label: 'Phone' },
         { key: 'password', label: 'Password' },
-        // { key: 'cnicNumber', label: 'CNIC Number' },
-        { key: 'city', label: 'City' },
-        { key: 'schoolId', label: 'School' }
+        { key: 'city', label: 'City' }
       ];
 
       for (const field of requiredFields) {
@@ -192,13 +174,6 @@ const Register = () => {
         setLoading(false);
         return;
       }
-
-      // if (!validateCNIC(formData.cnicNumber)) {
-      //   setError('Please enter a valid CNIC number (xxxxx-xxxxxxx-x)');
-      //   toast.error('Please enter a valid CNIC number (xxxxx-xxxxxxx-x)', { toastId: 'cnic-error' });
-      //   setLoading(false);
-      //   return;
-      // }
 
       if (!validatePassword(formData.password)) {
         setError('Password must be at least 8 characters long');
@@ -229,9 +204,8 @@ const Register = () => {
       formDataToSend.append('email', formData.email);
       formDataToSend.append('phone', formData.phone);
       formDataToSend.append('password', formData.password);
-      // formDataToSend.append('cnicNumber', formData.cnicNumber);
       formDataToSend.append('city', formData.city);
-      formDataToSend.append('schoolId', formData.schoolId);
+      if (formData.schoolId) formDataToSend.append('schoolId', formData.schoolId);
       if (formData.driversLicense) formDataToSend.append('drivingLicenseImage', formData.driversLicense);
       if (formData.cnicFront) formDataToSend.append('cnicFrontImage', formData.cnicFront);
       if (formData.cnicBack) formDataToSend.append('cnicBackImage', formData.cnicBack);
@@ -253,9 +227,9 @@ const Register = () => {
             navigate('/login', { state: { userType: 'Driver' } });
           }, 2000);
         } else {
-          if (data.error) {
-            setError(data.error);
-            toast.error(data.error, { toastId: 'driver-error' });
+          if (data.message) {
+            setError(data.message);
+            toast.error(data.message, { toastId: 'driver-error' });
           } else {
             setError('Unknown server error');
             toast.error('Unknown server error', { toastId: 'driver-error' });
@@ -487,25 +461,11 @@ const Register = () => {
               </>
             )}
 
-
             {activeTab === 'Driver' && (
               <>
-                {/* <div>
-                  <label className="block text-sm lg:text-[14px] inter-semibold mb-1">CNIC Number</label>
-                  <input
-                    type="text"
-                    name="cnicNumber"
-                    value={formData.cnicNumber}
-                    onChange={handleCnicChange}
-                    placeholder="Enter your CNIC number (e.g., 35202-1234567-1)"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-black"
-                  />
-                </div> */}
-
-
                 <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                   <div className="flex-1">
-                    <label className="block text-sm lg:text-[14px] inter-semibold mb-1">School</label>
+                    <label className="block text-sm lg:text-[14px] inter-semibold mb-1">School (Optional)</label>
                     <div className="relative" ref={dropdownRef}>
                       <div
                         className={`w-full px-3 py-2 border border-gray-300 rounded-md outline-none text-sm lg:text-base flex items-center cursor-pointer ${
@@ -514,7 +474,7 @@ const Register = () => {
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                       >
                         <span className={`flex-1 truncate ${formData.schoolName ? 'text-black' : 'text-gray-400'}`}>
-                          {formData.schoolName || 'Select a school'}
+                          {formData.schoolName || 'Select a school (optional)'}
                         </span>
                         <IoChevronDown
                           className={`text-gray-500 transform transition-transform duration-200 ${
@@ -557,7 +517,7 @@ const Register = () => {
                 </div>
                 <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                   <div className="flex-1">
-                    <label className="block text-sm lg:text-[14px] inter-semibold mb-1">State Drivers License </label>
+                    <label className="block text-sm lg:text-[14px] inter-semibold mb-1">State Drivers License</label>
                     <div
                       className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer overflow-hidden"
                       onClick={() => handleFileClick(cnicFrontRef)}
@@ -577,14 +537,13 @@ const Register = () => {
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="block text-sm lg:text-[14px] inter-semibold mb-1">
-School bus driver certification card </label>
+                    <label className="block text-sm lg:text-[14px] inter-semibold mb-1">School bus driver certification card</label>
                     <div
                       className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer overflow-hidden"
                       onClick={() => handleFileClick(cnicBackRef)}
                     >
                       <span className={`flex-1 truncate ${formData.cnicBack ? 'text-black' : 'text-gray-400'}`}>
-                        {formData.cnicBack ? truncateFileName(formData.cnicBack.name) : 'School bus driver certification card '}
+                        {formData.cnicBack ? truncateFileName(formData.cnicBack.name) : 'School bus driver certification card'}
                       </span>
                       <HiUpload className="text-gray-500" />
                     </div>
@@ -599,13 +558,13 @@ School bus driver certification card </label>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm lg:text-[14px] inter-semibold mb-1">BCI/FBI Background check verification papers </label>
+                  <label className="block text-sm lg:text-[14px] inter-semibold mb-1">BCI/FBI Background check verification papers</label>
                   <div
                     className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer overflow-hidden"
                     onClick={() => handleFileClick(driversLicenseRef)}
                   >
                     <span className={`flex-1 truncate ${formData.driversLicense ? 'text-black' : 'text-gray-400'}`}>
-                      {formData.driversLicense ? truncateFileName(formData.driversLicense.name) : "BCI/FBI Background check verification papers "}
+                      {formData.driversLicense ? truncateFileName(formData.driversLicense.name) : "BCI/FBI Background check verification papers"}
                     </span>
                     <HiUpload className="text-gray-500" />
                   </div>
@@ -618,26 +577,6 @@ School bus driver certification card </label>
                     ref={driversLicenseRef}
                   />
                 </div>
-                {/* <div>
-                  <label className="block text-sm lg:text-[14px] inter-semibold mb-1">Photo of Driver</label>
-                  <div
-                    className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent flex items-center cursor-pointer overflow-hidden"
-                    onClick={() => handleFileClick(vehicleRegistrationRef)}
-                  >
-                    <span className={`flex-1 truncate ${formData.vehicleRegistrationDocument ? 'text-black' : 'text-gray-400'}`}>
-                      {formData.vehicleRegistrationDocument ? truncateFileName(formData.vehicleRegistrationDocument.name) : 'Photo of Driver'}
-                    </span>
-                    <HiUpload className="text-gray-500" />
-                  </div>
-                  <input
-                    type="file"
-                    name="vehicleRegistrationDocument"
-                    accept="image/jpeg,image/png"
-                    onChange={handleInputChange}
-                    className="hidden"
-                    ref={vehicleRegistrationRef}
-                  />
-                </div> */}
               </>
             )}
 

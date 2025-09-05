@@ -166,46 +166,140 @@ if (expectedRole === 'driver') {
     setShowPassword(!showPassword);
   };
 
-  const handlePaymentSuccess = () => {
-    if (authData) {
-      localStorage.setItem('token', authData.token);
-      localStorage.setItem('userType', authData.userType);
-      setShowPaymentPopup(false);
-      navigate('/dashboard');
-    }
-  };
+  // const handlePaymentSuccess = () => {
+  //   if (authData) {
+  //     localStorage.setItem('token', authData.token);
+  //     localStorage.setItem('userType', authData.userType);
+  //     setShowPaymentPopup(false);
+  //     navigate('/dashboard');
+  //   }
+  // };
 
-  useEffect(() => {
+  const handlePaymentSuccess = async () => {
+  if (authData) {
+    try {
+      const statusRes = await axios.get(
+        "https://fieldtriplinkbackend-production.up.railway.app/api/school/subscription/status",
+        { headers: { Authorization: `Bearer ${authData.token}` } }
+      );
+
+      if (statusRes.data?.active) {
+        localStorage.setItem("token", authData.token);
+        localStorage.setItem("userType", authData.userType);
+        setShowPaymentPopup(false);
+        navigate("/dashboard");
+      } else {
+        toast.error("Payment not completed. Please try again.");
+      }
+    } catch (err) {
+      toast.error("Error verifying payment. Please try again.");
+    }
+  }
+};
+
+
+//   useEffect(() => {
+//   const checkAccess = async () => {
+//     if (token && storedUserType) {
+//       if (storedUserType === 'Driver') {
+//         navigate('/driverdashboard');
+//       } else if (storedUserType === 'School') {
+//         try {
+//           const statusRes = await axios.get(
+//             'https://fieldtriplinkbackend-production.up.railway.app/api/school/subscription/status',
+//             { headers: { Authorization: `Bearer ${token}` } }
+//           );
+
+//           if (statusRes.data?.active) {
+//             navigate('/dashboard');
+//           } else {
+//             // ❌ Kick user back to login
+//             localStorage.removeItem('token');
+//             localStorage.removeItem('userType');
+//             // toast.error('Please complete your payment to access the dashboard.');
+//             navigate('/');
+//           }
+//         } catch (err) {
+//           localStorage.removeItem('token');
+//           localStorage.removeItem('userType');
+//           navigate('/');
+//         }
+//       }
+//     }
+//   };
+//   checkAccess();
+// }, [token, storedUserType, navigate]);
+
+
+
+useEffect(() => {
   const checkAccess = async () => {
+    const pendingToken = localStorage.getItem("pendingToken");
+    const pendingUserType = localStorage.getItem("pendingUserType");
+
+    // ✅ Case 1: Returning from Stripe with pendingToken
+    if (pendingToken && pendingUserType === "School") {
+      try {
+        const statusRes = await axios.get(
+          "https://fieldtriplinkbackend-production.up.railway.app/api/school/subscription/status",
+          { headers: { Authorization: `Bearer ${pendingToken}` } }
+        );
+
+        if (statusRes.data?.active) {
+          // ✅ Promote pending token to permanent
+          localStorage.setItem("token", pendingToken);
+          localStorage.setItem("userType", pendingUserType);
+          localStorage.removeItem("pendingToken");
+          localStorage.removeItem("pendingUserType");
+          navigate("/dashboard");
+          return;
+        } else {
+          // ❌ Payment not done
+          localStorage.removeItem("pendingToken");
+          localStorage.removeItem("pendingUserType");
+          navigate("/");
+          return;
+        }
+      } catch (err) {
+        localStorage.removeItem("pendingToken");
+        localStorage.removeItem("pendingUserType");
+        navigate("/");
+        return;
+      }
+    }
+
+    // ✅ Case 2: Normal login flow with saved token
     if (token && storedUserType) {
-      if (storedUserType === 'Driver') {
-        navigate('/driverdashboard');
-      } else if (storedUserType === 'School') {
+      if (storedUserType === "Driver") {
+        navigate("/driverdashboard");
+      } else if (storedUserType === "School") {
         try {
           const statusRes = await axios.get(
-            'https://fieldtriplinkbackend-production.up.railway.app/api/school/subscription/status',
+            "https://fieldtriplinkbackend-production.up.railway.app/api/school/subscription/status",
             { headers: { Authorization: `Bearer ${token}` } }
           );
 
           if (statusRes.data?.active) {
-            navigate('/dashboard');
+            navigate("/dashboard");
           } else {
-            // ❌ Kick user back to login
-            localStorage.removeItem('token');
-            localStorage.removeItem('userType');
-            // toast.error('Please complete your payment to access the dashboard.');
-            navigate('/');
+            // ❌ Kick unpaid school back
+            localStorage.removeItem("token");
+            localStorage.removeItem("userType");
+            navigate("/");
           }
         } catch (err) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('userType');
-          navigate('/');
+          localStorage.removeItem("token");
+          localStorage.removeItem("userType");
+          navigate("/");
         }
       }
     }
   };
+
   checkAccess();
 }, [token, storedUserType, navigate]);
+
+
 
 
 
@@ -222,7 +316,9 @@ if (expectedRole === 'driver') {
   }
 
   return (
+    
     <div className="min-h-screen flex flex-col lg:flex-row">
+      
       {/* Left Section */}
       <div className="w-full lg:w-[45%] bg-white flex items-center justify-center px-6 lg:px-[35px] py-6 lg:py-0">
         <div onClick={handleLogoClick} className="cursor-pointer">

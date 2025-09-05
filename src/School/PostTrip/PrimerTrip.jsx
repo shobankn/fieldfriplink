@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const PremiumTrip = ({ onConfirm, onClose, pendingTrips, pendingCost }) => {
+const PremiumTrip = ({ onConfirm, onClose, pendingTrips, pendingCost, costPerTrip }) => {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -37,13 +37,14 @@ const PremiumTrip = ({ onConfirm, onClose, pendingTrips, pendingCost }) => {
       }
     } catch (err) {
       console.error("Payment failed:", err.response?.data || err.message);
+      toast.error(err.response?.data?.error || "Payment failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Fallback to 50 if pendingCost is not provided
-  const displayCost = pendingCost !== null && pendingCost !== undefined ? pendingCost : 50;
+  // Fallback to costPerTrip if pendingCost is not provided
+  const displayCost = pendingCost !== null && pendingCost !== undefined ? pendingCost : costPerTrip || 50;
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">

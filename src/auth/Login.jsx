@@ -222,7 +222,9 @@ if (expectedRole === 'driver') {
   }
 
   return (
+    
     <div className="min-h-screen flex flex-col lg:flex-row">
+      
       {/* Left Section */}
       <div className="w-full lg:w-[45%] bg-white flex items-center justify-center px-6 lg:px-[35px] py-6 lg:py-0">
         <div onClick={handleLogoClick} className="cursor-pointer">

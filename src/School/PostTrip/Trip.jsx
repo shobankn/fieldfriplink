@@ -49,7 +49,7 @@ function Trip() {
             canCreateNewTrip,
             pendingTrips,
             totalPendingAmount,
-            costPerTrip: apiCostPerTrip, // Get costPerTrip from API
+            costPerTrip: apiCostPerTrip,
           } = res.data;
 
           console.log("Trip Credits API:", res.data);
@@ -59,25 +59,21 @@ function Trip() {
           setPendingCost(totalPendingAmount); // Set totalPendingAmount
           setCostPerTrip(apiCostPerTrip || 50); // Use API value or fallback to 50
 
+          // Unlock for yearly users or if canCreateNewTrip is true
           if (
-            subscriptionType === "yearly" &&
-            String(availableTrips).toLowerCase() === "unlimited"
+            subscriptionType === "yearly" ||
+            String(canCreateNewTrip).toLowerCase() === "true"
           ) {
-            setUnlocked(true); // Yearly with unlimited trips
-          } else if (subscriptionType === "monthly") {
-            if (String(canCreateNewTrip).toLowerCase() === "true") {
-              setUnlocked(true); // Monthly user with permission
-            } else {
-              setUnlocked(false); // No permission
-            }
+            setUnlocked(true); // Yearly users or those with permission
           } else {
-            setUnlocked(false); // Fallback
+            setUnlocked(false); // No permission
           }
         } else {
           toast.error("Failed to fetch trip credits.");
         }
       } catch (err) {
         console.error("Error fetching available trips:", err);
+        toast.error("Error checking available trips.");
       } finally {
         setLoading(false);
       }
@@ -114,7 +110,7 @@ function Trip() {
   }
 
   return (
-    <div class className="flex bg-gray-50 min-h-screen">
+    <div className="flex bg-gray-50 min-h-screen">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col min-h-screen lg:ml-58">

@@ -194,7 +194,7 @@ const handlePaymentSubmit = async (plan) => {
             </p>
           </div>
           <div className="flex items-baseline">
-            <span className="text-4xl md:text-4xl font-bold text-gray-900">$4200</span>
+            <span className="text-4xl md:text-4xl font-bold text-gray-900">$3750</span>
             <span className="text-gray-600 ml-2">/for first year</span>
           </div>
         </div>

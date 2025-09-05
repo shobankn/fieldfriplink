@@ -4,7 +4,7 @@ import customer from '../../../images/customer.png';
 import DeleteChatModal from './DeleteChatModel';
 import { MoreVertical } from "lucide-react";
 
-const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
+const ChatSidebar = ({ onSelectChat, className, isOnline ,socketName,socketProfile,userStatuses }) => {
   const socket = useSocketContext();
   const [chats, setChats] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -247,12 +247,17 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
             </div>
           ) : (
             // Chat list
-            sortedChats.map((chat) => {
-              const participant = chat.participants.find(p => p._id !== socket.userId);
-              if (!participant) return null;
+                        sortedChats.map((chat) => {
+                          const participant =
+                Array.isArray(chat.participants) &&
+                chat.participants.find((p) => p?._id !== socket.userId);
+
+              if (!participant) return null; // ✅ prevent crash
+
+              const socketIsOnline =
+                userStatuses?.[participant._id]?.is_online || false;
 
               const isActive = chat.chatId === activeChatId;
-
               return (
                 <div
                   key={`${chat.chatId}-${chat._updateKey || 0}`}
@@ -261,21 +266,20 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
                 >
                   <div className="relative">
                     <img
-                      src={participant.profileImage || customer}
+                      src={participant.profileImage || socketProfile|| customer}
                       className={`w-12 h-12 rounded-full object-cover ring-2 ${isActive ? 'ring-[#ea4444]' : 'ring-gray-100 group-hover:ring-[#ea4444]'} transition-all duration-200`}
                       alt={`${participant.name}'s avatar`}
                     />
                     
-                    <div
-                      className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white ${
-                        isOnline ? "bg-green-500" : "bg-gray-400"
-                      }`}
-                    ></div>
-
+                   <div
+                className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white ${
+                  isOnline || socketIsOnline ? "bg-green-500" : "bg-gray-400"
+                }`}
+              />
                   </div>
                   <div className="ml-4 flex-1 min-w-0">
                     <p className={`text-sm font-semibold truncate ${isActive ? 'text-[#ea4444]' : 'text-gray-900 group-hover:text-[#ea4444]'} transition-colors duration-200`}>
-                      {participant.name}
+                      {participant.name || socketName}
                     </p>
                     <p className="text-xs text-gray-500 truncate mt-1">
                       {chat.lastMessage ? (
@@ -316,7 +320,10 @@ const ChatSidebar = ({ onSelectChat, className, isOnline }) => {
         onClose={closeDeleteModal}
         onDeleted={(chatId) =>
           setChats((prev) => prev.filter((c) => c.chatId !== chatId))
+         
         }
+         socketName={socketName}
+        socketProfile={socketProfile}
       />
     </>
   );

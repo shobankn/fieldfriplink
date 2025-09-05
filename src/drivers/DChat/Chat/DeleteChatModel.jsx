@@ -6,10 +6,11 @@ import axios from "axios";
 import customer from '../../../images/customer.png';
 
 import { useSocketContext } from "./SocketContext";
+import { Socket } from "socket.io-client";
 
 const BASE_URL = "https://fieldtriplinkbackend-production.up.railway.app/api";
 
-const DeleteChatModal = ({ isOpen, chat, onClose, onDeleted }) => {
+const DeleteChatModal = ({ isOpen, chat, onClose, onDeleted,socketName,socketProfile }) => {
   const socket = useSocketContext();
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [isVisible, setIsVisible] = React.useState(false);
@@ -144,9 +145,9 @@ const DeleteChatModal = ({ isOpen, chat, onClose, onDeleted }) => {
                   <div className="flex items-center gap-4">
                     <div className="relative group">
                       <img
-                        src={participantUser.profilePicture || customer}
+                        src={participantUser.profilePicture ||  socketProfile || customer}
                         className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-lg transition-transform duration-200 group-hover:scale-105"
-                        alt={participantUser.fullName || "User"}
+                        alt={participantUser.fullName || socketName}
                         onError={(e) => {
                           e.target.src = customer;
                         }}
@@ -157,7 +158,7 @@ const DeleteChatModal = ({ isOpen, chat, onClose, onDeleted }) => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-slate-900 truncate text-base">
-                        {participantUser.fullName || "Unknown User"}
+                        {participantUser.fullName || socketName}
                       </h4>
                       <p className="text-sm text-slate-500 mt-0.5">
                         Chat conversation

@@ -354,14 +354,14 @@ const MyProposals = () => {
             <button
               onClick={() => {
                 const school = proposal.schoolObj; // ✅ full school object
-                console.log("schoolId =", school?._id);  // ✅ 68adb0eb954e6b4e13250b61
+                console.log("creatorId", school?._id);  // ✅ 68adb0eb954e6b4e13250b61
                 console.log("creatorName =", school?.schoolName);
                 console.log("creatorPhone =", school?.phoneNumber);
                 console.log("full school data =", school);
 
                 navigate("/chat", {
                   state: {
-                    schoolId: school?._id,                 // ✅ schoolId
+                    creatorId: school?._id,                 // ✅ schoolId
                     creatorPic: school?.logo || school?.profileImage || null, // ✅ optional
                     creatorName: school?.schoolName,        // ✅ (optional: show in chat header)
                   },

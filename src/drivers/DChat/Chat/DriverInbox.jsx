@@ -45,6 +45,9 @@ const InboxContent = () => {
     };
   }, []);
 
+
+
+
   useEffect(() => {
     if (locationState?.creatorId) {
       console.log("[Inbox] Setting receiverId from location.state:", locationState.creatorId);
@@ -55,6 +58,8 @@ const InboxContent = () => {
       localStorage.removeItem("receiverId");
     }
   }, [locationState]);
+
+
 
   useEffect(() => {
     if (!socket || !receiverId) {
@@ -67,45 +72,54 @@ const InboxContent = () => {
       user2Id: receiverId,
     });
 
-    const joinChatHandler = ({ chatId, messages, participants }) => {
-      console.log("[Inbox] JOIN_CHAT_SUCCESS received:", {
-        chatId,
-        messagesCount: messages?.length,
-        participants,
-      });
+const joinChatHandler = ({ chatId, messages, participants }) => {
+  console.log("[Inbox] JOIN_CHAT_SUCCESS received:", {
+    chatId,
+    messagesCount: messages?.length,
+    participants,
+  });
 
-      let chatReceiver = participants?.find((p) => p.userId !== socket.userId) || null;
+  // Find the receiver from participants (exclude self)
+  let chatReceiver = participants?.find((p) => p.userId !== socket.userId) || null;
 
-      // Enhanced fallback logic with better fullName handling
-      if (!chatReceiver && location.state?.creatorId === receiverId) {
-        chatReceiver = {
-          userId: location.state.creatorId,
-          profilePicture: location.state.creatorPic || location.state.profilePicture,
-          fullName: location.state.creatorName || 
-                   location.state.fullName || 
-                   location.state.name || 
-                   location.state.username || 
-                   "Unknown User",
-        };
-        console.log("[Inbox] Using fallback receiver from location.state:", chatReceiver);
-      }
-
-      // Additional check to ensure fullName exists
-      if (chatReceiver && !chatReceiver.fullName) {
-        chatReceiver.fullName = chatReceiver.name || 
-                               chatReceiver.username || 
-                               chatReceiver.displayName || 
-                               "Unknown User";
-      }
-
-      console.log("[Inbox] Resolved receiver:", chatReceiver);
-      setActiveChatId(chatId);
-      setChatMessages((prev) => ({
-        ...prev,
-        [chatId]: messages || []
-      }));
-      setReceiver(chatReceiver);
+  // If not found, try pulling from location.state
+  if (!chatReceiver && location.state?.creatorId === receiverId) {
+    chatReceiver = {
+      userId: location.state.creatorId,
+      profilePicture: location.state.creatorPic || location.state.profilePicture,
+      fullName:
+        location.state.creatorName ||
+        location.state.fullName ||
+        location.state.name ||
+        location.state.username ||
+        null, // don’t immediately fallback here
     };
+    console.log("[Inbox] Using fallback receiver from location.state:", chatReceiver);
+  }
+
+  // Normalize fields to ensure consistent receiver data
+  if (chatReceiver) {
+    chatReceiver = {
+      userId: chatReceiver.userId,
+      profilePicture: chatReceiver.profilePicture || chatReceiver.profileImage || null,
+      fullName:
+        chatReceiver.fullName ||
+        chatReceiver.name ||
+        chatReceiver.username ||
+        chatReceiver.displayName ||
+        "",
+    };
+  }
+
+  console.log("[Inbox] Resolved receiver:", chatReceiver);
+  setActiveChatId(chatId);
+  setChatMessages((prev) => ({
+    ...prev,
+    [chatId]: messages || [],
+  }));
+  setReceiver(chatReceiver);
+};
+
 
     socket.on("JOIN_CHAT_SUCCESS", joinChatHandler);
     socket.emit("JOIN_CHAT", {
@@ -216,6 +230,8 @@ useEffect(() => {
     });
   };
 
+  
+
   const handleSelectChat = ({ chatId, messages, receiverId, receiver }) => {
     console.log("[Inbox] Chat selected:", { chatId, receiverId, receiver });
     
@@ -226,7 +242,7 @@ useEffect(() => {
                receiver?.name || 
                receiver?.username || 
                receiver?.displayName || 
-               "Unknown User"
+               ""
     };
     
     setActiveChatId(chatId);
@@ -254,6 +270,9 @@ useEffect(() => {
            "Chat";
   };
 
+
+
+
   useEffect(() => {
   if (!socket?.userId) return;
 
@@ -263,7 +282,7 @@ useEffect(() => {
 }, [socket?.userId]);
 
 
-// user status change
+// user status change (side bar are now used this)
 useEffect(() => {
   if (!socket) return;
 
@@ -282,10 +301,6 @@ useEffect(() => {
   socket.on("USER_STATUS_CHANGE", handleUserStatusChange);
   return () => socket.off("USER_STATUS_CHANGE", handleUserStatusChange);
 }, [socket]);
-
-
-
-
 
 useEffect(() => {
   if (!socket?.userId || !activeChatId) return;
@@ -358,23 +373,57 @@ useEffect(() => {
 
 
 
+// get user name profileImage and status
+useEffect(() => {
+  if (receiverId && socket) {
+    socket.emit("GET_USER_STATUS", { userId: receiverId });
+  }
+}, [receiverId, socket]);
 
 
+        useEffect(() => {
+          if (!socket) return;
+
+          const handleUserStatus = (data) => {
+            console.log("User status  witn user data from backend:", data);
+            setUserStatuses((prev) => ({
+              ...prev,
+              [data.userId]: {
+                is_online: data.is_online,
+                last_seen: data.last_seen,
+                name: data.name,
+                profileImage: data.profileImage
+              }
+            }));
+          };
+
+            socket.on("GET_USER_STATUS_SUCCESS", handleUserStatus);
+            socket.on("USER_STATUS_CHANGE", handleUserStatus);
+
+            socket.on("GET_USER_STATUS_ERROR", (err) => {
+              console.error("Status error:", err.message);
+            });
+
+            return () => {
+              socket.off("GET_USER_STATUS_SUCCESS", handleUserStatus);
+              socket.off("USER_STATUS_CHANGE", handleUserStatus);
+              socket.off("GET_USER_STATUS_ERROR");
+            };
+          }, [socket]);
 
 
-
-  return (
-    <div className=" bg-gray-50 flex pb-20 ">
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm  z-40 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+    return (
+        <div className=" bg-gray-50 flex pb-20 ">
+          {sidebarOpen && (
+            <div
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm  z-40 md:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
 
       <div
         className={`
-          fixed left-0 lg:left-50 xl:left-60 2xl:left-90     w-80 h-screen bg-white border-r border-gray-200 z-50 shadow-lg transition-transform duration-300 ease-in-out
+          fixed left-0 lg:left-70  w-80 h-screen bg-white border-r border-gray-200 z-50 shadow-lg transition-transform duration-300 ease-in-out
           md:translate-x-0 md:z-30
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         `}
@@ -382,6 +431,9 @@ useEffect(() => {
         <ChatSidebar 
          onSelectChat={handleSelectChat}
         isOnline={userStatuses[receiverId]?.is_online || false}
+        userStatuses={userStatuses}
+         socketName={userStatuses[receiverId]?.name}
+        socketProfile={userStatuses[receiverId]?.profileImage}
 
           />
       </div>
@@ -400,21 +452,21 @@ useEffect(() => {
               <div className="flex items-center ml-4 space-x-3">
                 <div className="relative">
                   <img
-                    src={receiver?.profilePicture}
+                    src={receiver?.profilePicture || userStatuses[receiverId]?.profileImage}
                     alt="Avatar"
                     className="w-8 h-8 rounded-full object-cover ring-2 ring-gray-100"
                     onError={(e) => { e.target.src = "/default-avatar.png"; }}
                   />
                   <div
-                          className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-white ${
-                            userStatuses[receiverId]?.is_online ? "bg-green-500" : "bg-gray-400"
-                          }`}
-                        ></div>     
+                      className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-white ${
+                       userStatuses[receiverId]?.is_online ? "bg-green-500" : "bg-gray-400"
+                       }`}
+                      ></div>     
                         
                          </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 text-sm">
-                    {getDisplayName()}
+                    { userStatuses[receiverId]?.name}
                   </h3>
                    {userStatuses[receiverId]?.is_online ? (
                       <p className="text-xs text-green-500 font-medium">Online</p>
@@ -434,6 +486,8 @@ useEffect(() => {
               receiverId={receiverId}
               isOnline={userStatuses[receiverId]?.is_online || false}
               lastSeen={userStatuses[receiverId]?.last_seen}
+              socketName={userStatuses[receiverId]?.name}
+              socketProfile={userStatuses[receiverId]?.profileImage}
                  />
             </div>
 
@@ -443,6 +497,8 @@ useEffect(() => {
               receiver={receiver}
               receiverId={receiverId}
               onDeleteMessage={handleDeleteMessage}
+               socketName={userStatuses[receiverId]?.name}
+              socketProfile={userStatuses[receiverId]?.profileImage}
             />
 
             <MessageInput
@@ -454,7 +510,7 @@ useEffect(() => {
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center relative">
-            <div className="md:hidden fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-200 z-40 h-16 flex items-center px-4">
+            <div className="md:hidden fixed top-17 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-200 z-40 h-16 flex items-center px-4">
               <button
                 onClick={toggleSidebar}
                 className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all duration-200"
@@ -472,7 +528,7 @@ useEffect(() => {
                   height="48"
                   viewBox="0 0 24 24"
                   fill="none"
-                  className="text-blue-500"
+                  className="text-red-500"
                 >
                   <path
                     d="M21 11.5C21.0034 12.8199 20.6951 14.1219 20.1 15.3C19.3944 16.7118 18.3098 17.8992 16.9674 18.7293C15.6251 19.5594 14.0782 19.9994 12.5 20C11.1801 20.0035 9.87812 19.6951 8.7 19.1L3 21L4.9 15.3C4.30493 14.1219 3.99656 12.8199 4 11.5C4.00061 9.92179 4.44061 8.37488 5.27072 7.03258C6.10083 5.69028 7.28825 4.60571 8.7 3.90003C9.87812 3.30496 11.1801 2.99659 12.5 3.00003H13C15.0843 3.11502 17.053 3.99479 18.5291 5.47086C20.0052 6.94694 20.885 8.91568 21 11V11.5Z"
@@ -493,7 +549,7 @@ useEffect(() => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={() => setSidebarOpen(true)}
-                  className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium md:hidden"
+                  className="px-8 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full hover:from-red-600 hover:tored-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium md:hidden"
                 >
                   View Conversations
                 </button>
@@ -506,5 +562,7 @@ useEffect(() => {
     </div>
   );
 };
+
+
 
 export default DriverInbox;

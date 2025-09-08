@@ -101,10 +101,22 @@ const MyRides = () => {
         throw new Error(`Failed to ${action} invitation`);
       }
 
-      setRideDataState((prev) => ({
-        ...prev,
-        Invitations: prev.Invitations.filter((inv) => inv.id !== invitationId),
-      }));
+      // Get the invitation being responded to
+      const acceptedInvitation = rideDataState.Invitations.find((inv) => inv.id === invitationId);
+
+      setRideDataState((prev) => {
+        const updatedState = {
+          ...prev,
+          Invitations: prev.Invitations.filter((inv) => inv.id !== invitationId),
+        };
+
+        // If the invitation is accepted, add it to the Scheduled rides
+        if (action === 'accepted' && acceptedInvitation) {
+          updatedState.Scheduled = [...prev.Scheduled, { ...acceptedInvitation, id: acceptedInvitation.id }];
+        }
+
+        return updatedState;
+      });
 
       showToast(`Invitation ${action} successfully!`, 'success', `${invitationId}-${action}-success`);
       if (action === 'accepted') {
@@ -553,8 +565,8 @@ const MyRides = () => {
 
         <main className="flex-1 overflow-y-auto pt-16 px-[33px] bg-gray-50">
           <div className="max-w-full mx-auto py-6">
-            <h1 className="archivobold text-[24px] mt-[18px] mb-1">My Rides</h1>
-            <p className="text-gray-600 mb-6">Manage your scheduled, active, and completed rides</p>
+            <h1 className="archivobold text-[24px] mt-[18px] mb-1">My Trips</h1>
+            <p className="text-gray-600 mb-6">Manage your scheduled, active, and completed trips</p>
 
             <div className="overflow-x-auto whitespace-nowrap scrollbar-hide border-b mb-6">
               <div className="flex gap-6">
@@ -691,7 +703,7 @@ const MyRides = () => {
                         ) : (
                           <RxCrossCircled />
                         )}
-                        End Ride
+                        End Trip
                       </button>
 
 
@@ -771,13 +783,13 @@ const MyRides = () => {
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                       ) : null}
-                      Start Ride
+                      Start Trip
                     </button>
                   )}
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-center py-10">No {activeTab.toLowerCase()} rides found.</p>
+              <p className="text-gray-500 text-center py-10">No {activeTab.toLowerCase()} trip found.</p>
             )}
           </div>
           <ToastContainer

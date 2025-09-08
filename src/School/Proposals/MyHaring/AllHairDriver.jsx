@@ -57,6 +57,17 @@ const AllHairDriverList = () => {
     );
   };
 
+  // Function to get initials from driver's name
+  const getInitials = (name) => {
+    if (!name) return '??';
+    const nameParts = name.trim().split(' ');
+    const initials = nameParts
+      .slice(0, 2)
+      .map(part => part.charAt(0).toUpperCase())
+      .join('');
+    return initials || '??';
+  };
+
   return (
     <>
       <h1 className="text-2xl ml-5 sm:text-3xl archivo-bold text-gray-900 mb-6">
@@ -138,24 +149,21 @@ const AllHairDriverList = () => {
                 <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                  
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-center gap-4 flex-1 text-center sm:text-left">
-                    
-
-<div className="flex justify-center sm:justify-start">
-  {driver.profileImage ? (
-    <img
-      src={driver.profileImage}
-      alt={driver.name}
-      className="w-14 h-14 md:w-14 md:h-14 rounded-full object-cover border-2 border-gray-200 flex-shrink-0"
-    />
-  ) : (
-    <div className="w-14 h-14 md:w-14 md:h-14 rounded-full bg-red-500 border-2 border-gray-200 flex items-center justify-center flex-shrink-0">
-      <User className="text-white w-7 h-7" />
-    </div>
-  )}
-</div>
-
-
-
+                    <div className="flex justify-center sm:justify-start">
+                      {driver.profileImage ? (
+                        <img
+                          src={driver.profileImage}
+                          alt={driver.name}
+                          className="w-14 h-14 md:w-14 md:h-14 rounded-full object-cover border-2 border-gray-200 flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 md:w-14 md:h-14 rounded-full bg-gray-200 border-2 border-gray-200 flex items-center justify-center flex-shrink-0">
+                          <span className="text-lg font-semibold text-gray-600">
+                            {getInitials(driver.name)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
                         <div>
@@ -173,18 +181,17 @@ const AllHairDriverList = () => {
                           >
                             <Clock className="w-3 h-3 mr-1" /> {driver.driverStatus.charAt(0).toUpperCase() + driver.driverStatus.slice(1)}
                           </span>
-                         <div
-                                className="hidden sm:flex flex-shrink-0 cursor-pointer"
-                                onClick={(e) => {
-                                    e.stopPropagation(); // ✅ Prevent parent click
-                                    navigate(`/hired-driver/${driver._id}`);
-                                }}
-                                >
-                                <Eye
-                                    className="w-5 h-5 text-gray-600 hover:text-blue-600 transition-colors duration-300"
-                                />
-                                </div>
-
+                          <div
+                            className="hidden sm:flex flex-shrink-0 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/hired-driver/${driver._id}`);
+                            }}
+                          >
+                            <Eye
+                              className="w-5 h-5 text-gray-600 hover:text-blue-600 transition-colors duration-300"
+                            />
+                          </div>
                         </div>
                         <div className="flex sm:hidden justify-center">
                           {/* <StatusToggle driver={driver} updateDriverStatus={updateDriverStatus} /> */}
@@ -200,15 +207,6 @@ const AllHairDriverList = () => {
                           <span className="inter-regular">{driver.phone}</span>
                         </div>
                       </div>
-
-                      {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
-                        <div>
-                          <span className="text-gray-500 inter-regular block">CNIC:</span>
-                          <span className="inter-semibold text-gray-900">{driver.cnicNumber}</span>
-                        </div>
-                      </div> */}
-
-
                       <div className="flex flex-col sm:flex-row gap-4 text-sm justify-center items-center sm:justify-start">
                         <div className="flex items-center gap-2 text-gray-600">
                           <MapPin className="w-4 h-4 flex-shrink-0" />

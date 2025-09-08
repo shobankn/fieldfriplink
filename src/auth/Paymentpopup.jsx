@@ -115,7 +115,7 @@ const handlePaymentSubmit = async (plan) => {
           <div className="mb-4 sm:mb-0">
             <h3 className="text-2xl font-bold text-gray-900 mb-2">Monthly Plan</h3>
             <p className="text-gray-600 leading-relaxed">
-              Unlimited access and 50$ fee only on completed trip (Plus driver wage)
+              Unlimited access and 50$ fee only on completed trip + Driver wage (Minimum 15$ per hour)
             </p>
           </div>
           <div className="flex items-baseline">
@@ -141,7 +141,25 @@ const handlePaymentSubmit = async (plan) => {
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               </div>
-              <span className="ml-3 text-gray-700">$50 per completed trip (plus driver wage)</span>
+              <span className="ml-3 text-gray-700">You need to pay $50 per completed trip</span>
+            </div>
+          </div>
+          <div className="space-y-4 mb-6">
+            <div className="flex items-start">
+              <div className="flex-shrink-0 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mt-0.5">
+                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <span className="ml-3 text-gray-700">Unlimited platform access</span>
+            </div>
+            <div className="flex items-start">
+              <div className="flex-shrink-0 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mt-0.5">
+                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <span className="ml-3 text-gray-700">You need to pay driver wages (Minimun 15$ per hour)</span>
             </div>
           </div>
 
@@ -201,7 +219,7 @@ const handlePaymentSubmit = async (plan) => {
               </span> */}
             </div>
             <p className="text-gray-600 leading-relaxed">
-              It will be 4200$ from next year
+              It will be 4200$ from next year + Driver wages (Minimum 15$ per hour )
             </p>
           </div>
           <div className="flex items-baseline">
@@ -236,6 +254,14 @@ const handlePaymentSubmit = async (plan) => {
                 </svg>
               </div>
               <span className="ml-3 text-gray-700">Zero trip fees</span>
+            </div>
+            <div className="flex items-start">
+              <div className="flex-shrink-0 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mt-0.5">
+                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <span className="ml-3 text-gray-700">You need to pay driver wages (Minimun 15$ per hour)</span>
             </div>
           </div>
 

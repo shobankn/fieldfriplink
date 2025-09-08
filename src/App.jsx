@@ -45,6 +45,7 @@ import SchoolProfileView from './School/Setting/ProfileViwPage';
 import Profileview from './School/Setting/Profileview';
 import MyHairDriver from './School/Proposals/MYhairDriver';
 import MyRides from './drivers/myrides/MyRides';
+import Internalinvitations from './School/Proposals/Internalinvitations';
 
 function App() {
 
@@ -73,11 +74,13 @@ function App() {
       <Route path='/trip-management' element={<ProtectedRoute><TripManagment/></ProtectedRoute>}/>
       <Route path='/live-tracking' element={<ProtectedRoute><Location/></ProtectedRoute>}/>
       <Route path='/job-post' element={<ProtectedRoute><Proposals/></ProtectedRoute>}/>
+      <Route path='/job-post/internalinvitations' element={<ProtectedRoute><Internalinvitations/></ProtectedRoute>}/>
+
      
       <Route path='/job-post/invite-drivers' element={<ProtectedRoute><InviteDriver/></ProtectedRoute>}/>
       <Route path='/my-hires' element={<ProtectedRoute><MyHiring/></ProtectedRoute>}/>
       <Route path='/hire-driver' element={<ProtectedRoute><HireDriver/></ProtectedRoute>}/>
-      <Route path='/job-post/my-hair-driver' element={<ProtectedRoute><MyHairDriver/></ProtectedRoute>}/>
+      <Route path='/job-post/my-hire-driver' element={<ProtectedRoute><MyHairDriver/></ProtectedRoute>}/>
        <Route path='/job-post/:id' element={<ProtectedRoute><ProposalDetails/></ProtectedRoute>}/>
       <Route path='/hire-driver/:id'element={<ProtectedRoute><HireDriverDetails/></ProtectedRoute>}/>
       <Route path='/proposal' element={<ProtectedRoute><DriverProposal/></ProtectedRoute>}/>

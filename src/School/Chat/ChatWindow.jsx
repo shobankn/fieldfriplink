@@ -42,6 +42,7 @@ const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessa
   console.log('[ChatWindow] Messages:', messages);
 
   return (
+    
     <div className="flex-1 flex flex-col bg-gray-50">
       {/* Header or fixed elements can go here if needed */}
       <div className="flex-1 mx-auto mt-15 h-[calc(100vh-80px)] overflow-y-auto px-4 py-4 w-full">
@@ -74,88 +75,92 @@ const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessa
               });
 
               return (
-                <div
-                  key={msg._id || msg.tempId || msg.messageId || index}
-                  className={`mb-4 flex w-full ${isMyMessage ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`flex items-end gap-2 ps-[20px] max-w-[70%] group ${
-                      isMyMessage ? 'flex-row-reverse ml-auto' : 'flex-row mr-auto'
-                    }`}
-                  >
-                    {/* Always show avatar for receiver messages */}
-                    {!isMyMessage &&  (
-                      <div className="w-8 h-8 mb-1 flex-shrink-0">
-                        <img
-                          src={receiver?.profilePicture || receiver?.profileImage || socketProfile || customer}
-                          alt="Avatar"
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
-                      </div>
-                    )}
+<div
+  key={msg._id || msg.tempId || msg.messageId || index}
+  className={`mb-4 flex w-full ${isMyMessage ? 'justify-end' : 'justify-start'}`}
+>
+  <div
+    className={`flex items-center gap-2 ps-[20px] max-w-[70%] group ${
+      isMyMessage ? 'flex-row-reverse ml-auto' : 'flex-row mr-auto'
+    }`}
+  >
+    {/* ✅ Avatar perfectly centered with bubble */}
+    {!isMyMessage && (
+      <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+        <img
+          src={receiver?.profilePicture || receiver?.profileImage || socketProfile || customer}
+          alt="Avatar"
+          className="w-8 h-8 rounded-full object-cover"
+        />
+      </div>
+    )}
 
-                    <div
-                      className={`flex items-center whitespace-normal break-words gap-2 ${
-                        isMyMessage ? 'flex-row-reverse' : 'flex-row'
-                      }`}
-                    >
-                      <Trash
-                        onClick={() => handleDeleteMessage(msg._id || msg.messageId)}
-                        className="w-4 h-4 text-gray-400 hover:text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-all duration-200 flex-shrink-0"
-                      />
+    {/* ✅ Message + Trash aligned */}
+    <div
+      className={`flex items-center whitespace-normal break-words gap-2 ${
+        isMyMessage ? 'flex-row-reverse' : 'flex-row'
+      }`}
+    >
+      {/* Message bubble */}
+      <div
+        className={`px-4 py-3 rounded-2xl shadow-sm overflow-wrap break-word word-break break-all ${
+          isMyMessage
+            ? 'bg-red-400 text-white rounded-br-md'
+            : 'bg-[#F1F2F2] text-[#000000B2] rounded-bl-md border border-gray-100'
+        } ${msg.isOptimistic ? 'opacity-100' : ''}`}
+      >
+        {isImage && msg.media_url ? (
+          <div className="space-y-2">
+            <img
+              src={msg.media_url}
+              alt="Shared"
+              className="w-full max-w-sm rounded-lg shadow-md cursor-pointer hover:shadow-lg"
+              onClick={() => window.open(msg.media_url, '_blank')}
+              onLoad={() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' })}
+            />
+            {msg.content?.trim() && <p className="text-sm mt-2">{msg.content}</p>}
+          </div>
+        ) : (
+          <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
+            {msg.content || 'Message content not available'}
+          </p>
+        )}
 
-                      <div
-                        className={`px-4 py-3 rounded-2xl shadow-sm overflow-wrap break-word word-break break-all ${
-                          isMyMessage
-                            ? 'bg-red-400 text-white rounded-br-md'
-                            : 'bg-[#F1F2F2] text-[#000000B2] rounded-bl-md border border-gray-100'
-                        } ${msg.isOptimistic ? 'opacity-100' : ''}`}
-                      >
-                        {isImage && msg.media_url ? (
-                          <div className="space-y-2">
-                            <img
-                              src={msg.media_url}
-                              alt="Shared"
-                              className="w-full max-w-sm rounded-lg shadow-md cursor-pointer hover:shadow-lg"
-                              onClick={() => window.open(msg.media_url, '_blank')}
-                              onLoad={() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                            />
-                            {msg.content?.trim() && <p className="text-sm mt-2">{msg.content}</p>}
-                          </div>
-                        ) : (
-                          <p className="text-sm leading-relaxed break-words whitespace-pre-wrap overflow-wrap break-word word-break break-all">
-                            {msg.content || 'Message content not available'}
-                          </p>
-                        )}
+        {/* ✅ Timestamp + status */}
+        <div className={`flex items-center justify-${isMyMessage ? 'end' : 'start'} mt-2 gap-1`}>
+          <p className="text-xs text-gray-400">{formatTime(msg.timestamp || msg.createdAt)}</p>
+          {isMyMessage && (
+            <span className="inline-flex ml-1">
+              {msg.status === 'read' ? (
+                <svg className="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M1 12l4 4L15 6" strokeWidth="2" />
+                  <path d="M8 12l4 4L22 2" strokeWidth="2" />
+                </svg>
+              ) : msg.status === 'delivered' ? (
+                <svg className="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M1 12l4 4L15 6" strokeWidth="2" />
+                  <path d="M8 12l4 4L22 2" strokeWidth="2" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M1 12l4 4L15 6" strokeWidth="2" />
+                </svg>
+              )}
+            </span>
+          )}
+        </div>
+      </div>
 
-                        <div className={`flex items-center justify-${isMyMessage ? 'end' : 'start'} mt-2 gap-1`}>
-                          <p className="text-xs text-gray-400">{formatTime(msg.timestamp || msg.createdAt)}</p>
-                          {isMyMessage && (
-                            <span className="inline-flex ml-1">
-                              {msg.status === 'read' ? (
-                                <svg className="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                  <path d="M1 12l4 4L15 6" strokeWidth="2" />
-                                  <path d="M8 12l4 4L22 2" strokeWidth="2" />
-                                </svg>
-                              ) : msg.status === 'delivered' ? (
-                                <svg className="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                  <path d="M1 12l4 4L15 6" strokeWidth="2" />
-                                  <path d="M8 12l4 4L22 2" strokeWidth="2" />
-                                </svg>
-                              ) : (
-                                <svg className="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                  <path d="M1 12l4 4L15 6" strokeWidth="2" />
-                                </svg>
-                              )}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+      {/* ✅ Trash on right side of bubble */}
+      <Trash
+        onClick={() => handleDeleteMessage(msg._id || msg.messageId)}
+        className="w-4 h-4 text-gray-400 hover:text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-all duration-200 flex-shrink-0"
+      />
+    </div>
+  </div>
+</div>
 
-                    {!isMyMessage && !showAvatar && <div className="w-8 flex-shrink-0"></div>}
-                  </div>
-                </div>
+
               );
             })}
             <div ref={bottomRef} />

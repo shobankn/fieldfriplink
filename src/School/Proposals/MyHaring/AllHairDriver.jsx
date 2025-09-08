@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Mail, Phone, MapPin, Calendar, Search, Eye } from 'lucide-react';
+import { Clock, Mail, Phone, MapPin, Calendar, Search, Eye, User } from 'lucide-react';
 import Navbar from '../InviteDriver/Navbar';
 
 const AllHairDriverList = () => {
@@ -132,18 +132,30 @@ const AllHairDriverList = () => {
             getFilteredData().map(driver => (
               <div
                 key={driver._id}
-                onClick={() => navigate(`/hire-driver/${driver._id}`)}
+                onClick={() => navigate(`/hired-driver/${driver._id}`)}
                 className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 cursor-pointer"
               >
                 <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                 
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-center gap-4 flex-1 text-center sm:text-left">
-                    <div className="flex justify-center sm:justify-start">
-                      <img
-                        src={driver.profileImage || 'https://via.placeholder.com/56'}
-                        alt={driver.name}
-                        className="w-14 h-14 md:w-14 md:h-14 rounded-full object-cover border-2 border-gray-200 flex-shrink-0"
-                      />
-                    </div>
+                    
+
+<div className="flex justify-center sm:justify-start">
+  {driver.profileImage ? (
+    <img
+      src={driver.profileImage}
+      alt={driver.name}
+      className="w-14 h-14 md:w-14 md:h-14 rounded-full object-cover border-2 border-gray-200 flex-shrink-0"
+    />
+  ) : (
+    <div className="w-14 h-14 md:w-14 md:h-14 rounded-full bg-red-500 border-2 border-gray-200 flex items-center justify-center flex-shrink-0">
+      <User className="text-white w-7 h-7" />
+    </div>
+  )}
+</div>
+
+
+
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
                         <div>
@@ -165,7 +177,7 @@ const AllHairDriverList = () => {
                                 className="hidden sm:flex flex-shrink-0 cursor-pointer"
                                 onClick={(e) => {
                                     e.stopPropagation(); // ✅ Prevent parent click
-                                    navigate(`/hire-driver/${driver._id}`);
+                                    navigate(`/hired-driver/${driver._id}`);
                                 }}
                                 >
                                 <Eye

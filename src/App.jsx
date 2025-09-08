@@ -76,10 +76,10 @@ function App() {
      
       <Route path='/job-post/invite-drivers' element={<ProtectedRoute><InviteDriver/></ProtectedRoute>}/>
       <Route path='/my-hires' element={<ProtectedRoute><MyHiring/></ProtectedRoute>}/>
-      <Route path='/hire-driver' element={<ProtectedRoute><HireDriver/></ProtectedRoute>}/>
-      <Route path='/job-post/my-hair-driver' element={<ProtectedRoute><MyHairDriver/></ProtectedRoute>}/>
+      <Route path='/hired-driver' element={<ProtectedRoute><HireDriver/></ProtectedRoute>}/>
+      <Route path='/job-post/my-hired-driver' element={<ProtectedRoute><MyHairDriver/></ProtectedRoute>}/>
        <Route path='/job-post/:id' element={<ProtectedRoute><ProposalDetails/></ProtectedRoute>}/>
-      <Route path='/hire-driver/:id'element={<ProtectedRoute><HireDriverDetails/></ProtectedRoute>}/>
+      <Route path='/hired-driver/:id'element={<ProtectedRoute><HireDriverDetails/></ProtectedRoute>}/>
       <Route path='/proposal' element={<ProtectedRoute><DriverProposal/></ProtectedRoute>}/>
       <Route path='/messages' element={<ProtectedRoute><Messages/></ProtectedRoute>}/>
       {/* <Route path='/live' element={<DriverSimulator/>}/> */}

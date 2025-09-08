@@ -185,7 +185,7 @@ const DriverVerificationInterface = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation(); // prevent triggering parent's onClick
-                navigate(`/hire-driver/${driver.id}`);
+                navigate(`/hired-driver/${driver.id}`);
               }}
               className={`p-2 cursor-pointer rounded-lg transition-color`}
               title="View details"
@@ -224,7 +224,7 @@ const DriverVerificationInterface = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation(); // prevent triggering parent's onClick
-                navigate(`/hire-driver/${driver.id}`);
+                navigate(`/hired-driver/${driver.id}`);
               }}
               className={`p-2 cursor-pointer rounded-lg transition-colors `}
               title="View details"
@@ -249,7 +249,7 @@ const DriverVerificationInterface = () => {
           <button
             onClick={(e) => {
               e.stopPropagation(); // prevent triggering parent's onClick
-              navigate(`/hire-driver/${driver.id}`);
+              navigate(`/hired-driver/${driver.id}`);
             }}
             className={`p-2 cursor-pointer rounded-lg transition-colors bg-[#F0F2F5]`}
             title="View details"
@@ -346,7 +346,7 @@ const DriverVerificationInterface = () => {
             getFilteredData().map((driver) => (
               <div
                 key={driver.id}
-                onClick={() => navigate(`/hire-driver/${driver.id}`)}
+                onClick={() => navigate(`/hired-driver/${driver.id}`)}
                 className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6"
               >
                 <div className="flex flex-col lg:flex-row lg:items-center gap-4">

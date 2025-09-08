@@ -298,39 +298,50 @@ const LiveTrackingComponent = () => {
 
                 {/* Map */}
                 <div className="rounded-lg h-64 lg:h-72 overflow-hidden relative">
-                  <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY}>
-                    <GoogleMap
-                      mapContainerStyle={{ height: '100%', width: '100%' }}
-                      center={
-                        selectedLocation
-                          ? { lat: selectedLocation.lat, lng: selectedLocation.lng }
-                          : { lat: 34.16977089044261, lng: 73.22476850235304 } // Default: Abbottabad
-                      }
-                      zoom={13}
-                    >
-                      {selectedLocation && (
-                        <Marker position={{ lat: selectedLocation.lat, lng: selectedLocation.lng }} />
-                      )}
-                      {selectedLocation && (
-                        <Marker
-                          position={{ lat: selectedLocation.lat, lng: selectedLocation.lng }}
-                          onClick={() => setSelectedPosition({ lat: selectedLocation.lat, lng: selectedLocation.lng })}
-                        />
-                      )}
-                      {selectedPosition && selectedLocation && (
-                        <InfoWindow
-                          position={selectedPosition}
-                          onCloseClick={() => setSelectedPosition(null)}
-                        >
-                          <div>
-                            Current Location: {selectedTrip.currentLocation}<br />
-                            Speed: {selectedTrip.speed}<br />
-                            Updated: {new Date(selectedLocation.timestamp).toLocaleTimeString()}
-                          </div>
-                        </InfoWindow>
-                      )}
-                    </GoogleMap>
-                  </LoadScript>
+
+
+         <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY}>
+  {selectedLocation ? (
+    <GoogleMap
+      mapContainerStyle={{ height: '100%', width: '100%' }}
+      center={{ lat: selectedLocation.lat, lng: selectedLocation.lng }}
+      zoom={13}
+    >
+      {/* Marker for driver */}
+      <Marker
+        position={{ lat: selectedLocation.lat, lng: selectedLocation.lng }}
+        onClick={() =>
+          setSelectedPosition({
+            lat: selectedLocation.lat,
+            lng: selectedLocation.lng,
+          })
+        }
+      />
+
+      {/* Info Window */}
+      {selectedPosition && (
+        <InfoWindow
+          position={selectedPosition}
+          onCloseClick={() => setSelectedPosition(null)}
+        >
+          <div>
+            Current Location: {selectedTrip.currentLocation}
+            <br />
+            Speed: {selectedTrip.speed}
+            <br />
+            Updated:{" "}
+            {new Date(selectedLocation.timestamp).toLocaleTimeString()}
+          </div>
+        </InfoWindow>
+      )}
+    </GoogleMap>
+        ) : (
+          <p className="text-gray-500 text-center"> Waiting for live location...</p>
+        )}
+      </LoadScript>
+
+
+
                 </div>
               </div>
             </div>

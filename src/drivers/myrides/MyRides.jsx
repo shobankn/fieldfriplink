@@ -285,6 +285,9 @@ const MyRides = () => {
     fetchInvitations();
   }, []);
 
+
+  
+
   // Fetch Scheduled Rides
   useEffect(() => {
     const fetchScheduledRides = async () => {
@@ -690,6 +693,8 @@ const MyRides = () => {
                         )}
                         End Ride
                       </button>
+
+
                       <button
                         onClick={() => handleViewLive(ride.id, ride.schoolId)}
                         className="bg-red-500 text-white flex items-center gap-1 px-4 py-1.5 rounded-md text-sm hover:bg-red-600"
@@ -705,6 +710,8 @@ const MyRides = () => {
                         )}
                         View Live
                       </button>
+
+
                     </div>
                   )}
 

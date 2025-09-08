@@ -9,6 +9,8 @@ import ChatWindow from "./ChatWindow";
 import ChatSidebar from "./ChatSidebar";
 import ChatTopBar from "./ChatTopbar";
 import formatLastSeen from './FormatedLastSeen'
+import { jwtDecode } from "jwt-decode";
+
 
 const DriverInbox = () => {
   return (
@@ -61,79 +63,133 @@ const InboxContent = () => {
 
 
 
-  useEffect(() => {
-    if (!socket || !receiverId) {
-      console.warn("[Inbox] Missing socket or receiverId. JOIN_CHAT not emitted.");
-      return;
-    }
+//   useEffect(() => {
+//     if (!socket || !receiverId) {
+//       console.warn("[Inbox] Missing socket or receiverId. JOIN_CHAT not emitted.");
+//       return;
+//     }
 
-    console.log("[Inbox] Emitting JOIN_CHAT with:", {
-      user1Id: socket.userId,
-      user2Id: receiverId,
-    });
+//     console.log("[Inbox] Emitting JOIN_CHAT with:", {
+//       user1Id: socket.userId,
+//       user2Id: receiverId,
+//     });
 
-const joinChatHandler = ({ chatId, messages, participants }) => {
-  console.log("[Inbox] JOIN_CHAT_SUCCESS received:", {
-    chatId,
-    messagesCount: messages?.length,
-    participants,
-  });
+// const joinChatHandler = ({ chatId, messages, participants }) => {
+//   console.log("[Inbox] JOIN_CHAT_SUCCESS received:", {
+//     chatId,
+//     messagesCount: messages?.length,
+//     participants,
+//   });
 
-  // Find the receiver from participants (exclude self)
-  let chatReceiver = participants?.find((p) => p.userId !== socket.userId) || null;
+//   // Find the receiver from participants (exclude self)
+//   let chatReceiver = participants?.find((p) => p.userId !== socket.userId) || null;
 
-  // If not found, try pulling from location.state
-  if (!chatReceiver && location.state?.creatorId === receiverId) {
-    chatReceiver = {
-      userId: location.state.creatorId,
-      profilePicture: location.state.creatorPic || location.state.profilePicture,
-      fullName:
-        location.state.creatorName ||
-        location.state.fullName ||
-        location.state.name ||
-        location.state.username ||
-        null, // don’t immediately fallback here
-    };
-    console.log("[Inbox] Using fallback receiver from location.state:", chatReceiver);
-  }
+//   // If not found, try pulling from location.state
+//   if (!chatReceiver && location.state?.creatorId === receiverId) {
+//     chatReceiver = {
+//       userId: location.state.creatorId,
+//       profilePicture: location.state.creatorPic || location.state.profilePicture,
+//       fullName:
+//         location.state.creatorName ||
+//         location.state.fullName ||
+//         location.state.name ||
+//         location.state.username ||
+//         null, // don’t immediately fallback here
+//     };
+//     console.log("[Inbox] Using fallback receiver from location.state:", chatReceiver);
+//   }
 
-  // Normalize fields to ensure consistent receiver data
-  if (chatReceiver) {
-    chatReceiver = {
-      userId: chatReceiver.userId,
-      profilePicture: chatReceiver.profilePicture || chatReceiver.profileImage || null,
-      fullName:
-        chatReceiver.fullName ||
-        chatReceiver.name ||
-        chatReceiver.username ||
-        chatReceiver.displayName ||
-        "",
-    };
-  }
+//   // Normalize fields to ensure consistent receiver data
+//   if (chatReceiver) {
+//     chatReceiver = {
+//       userId: chatReceiver.userId,
+//       profilePicture: chatReceiver.profilePicture || chatReceiver.profileImage || null,
+//       fullName:
+//         chatReceiver.fullName ||
+//         chatReceiver.name ||
+//         chatReceiver.username ||
+//         chatReceiver.displayName ||
+//         "",
+//     };
+//   }
 
-  console.log("[Inbox] Resolved receiver:", chatReceiver);
-  setActiveChatId(chatId);
-  setChatMessages((prev) => ({
-    ...prev,
-    [chatId]: messages || [],
-  }));
-  setReceiver(chatReceiver);
-};
+//   console.log("[Inbox] Resolved receiver:", chatReceiver);
+//   setActiveChatId(chatId);
+//   setChatMessages((prev) => ({
+//     ...prev,
+//     [chatId]: messages || [],
+//   }));
+//   setReceiver(chatReceiver);
+// };
 
 
-    socket.on("JOIN_CHAT_SUCCESS", joinChatHandler);
-    socket.emit("JOIN_CHAT", {
-      user1Id: socket.userId,
-      user2Id: receiverId,
-    });
+//     socket.on("JOIN_CHAT_SUCCESS", joinChatHandler);
+//     socket.emit("JOIN_CHAT", {
+//       user1Id: socket.userId,
+//       user2Id: receiverId,
+//     });
 
-    return () => {
-      socket.off("JOIN_CHAT_SUCCESS", joinChatHandler);
-    };
-  }, [socket, receiverId, location.state]);
+//     return () => {
+//       socket.off("JOIN_CHAT_SUCCESS", joinChatHandler);
+//     };
+//   }, [socket, receiverId, location.state]);
 
   // CENTRALIZED Real-time message listener - only here, not in ChatWindow
+
 useEffect(() => {
+  if (!socket?.userId || !receiverId) {
+    console.warn("[Inbox] Waiting for socket and receiverId...");
+    return;
+  }
+
+  console.log("[Inbox] Emitting JOIN_CHAT with:", {
+    user1Id: socket.userId,
+    user2Id: receiverId,
+  });
+
+  const joinChatHandler = ({ chatId, messages, participants }) => {
+    console.log("[Inbox] JOIN_CHAT_SUCCESS received:", {
+      chatId,
+      messagesCount: messages?.length,
+      participants,
+    });
+
+    let chatReceiver =
+      participants?.find((p) => p.userId !== socket.userId) || null;
+
+    if (!chatReceiver && location.state?.creatorId === receiverId) {
+      chatReceiver = {
+        userId: location.state.creatorId,
+        profilePicture: location.state.creatorPic || null,
+        fullName: location.state.creatorName || "",
+      };
+      console.log("[Inbox] Using fallback receiver:", chatReceiver);
+    }
+
+    setActiveChatId(chatId);
+    setChatMessages((prev) => ({
+      ...prev,
+      [chatId]: messages || [],
+    }));
+    setReceiver(chatReceiver);
+  };
+
+  socket.on("JOIN_CHAT_SUCCESS", joinChatHandler);
+
+  socket.emit("JOIN_CHAT", {
+    user1Id: socket.userId,
+    user2Id: receiverId,
+  });
+
+  return () => {
+    socket.off("JOIN_CHAT_SUCCESS", joinChatHandler);
+  };
+}, [socket?.userId, receiverId]); // 👈 make sure userId exists before running
+
+
+
+
+  useEffect(() => {
   if (!socket) return;
 
   const receiveMessageHandler = (incoming) => {
@@ -381,56 +437,56 @@ useEffect(() => {
 }, [receiverId, socket]);
 
 
-        useEffect(() => {
-          if (!socket) return;
+useEffect(() => {
+  if (!socket) return;
 
-          const handleUserStatus = (data) => {
-            console.log("User status  witn user data from backend:", data);
-            setUserStatuses((prev) => ({
-              ...prev,
-              [data.userId]: {
-                is_online: data.is_online,
-                last_seen: data.last_seen,
-                name: data.name,
-                profileImage: data.profileImage
-              }
-            }));
-          };
+  const handleUserStatus = (data) => {
+    console.log("User status  witn user data from backend:", data);
+    setUserStatuses((prev) => ({
+      ...prev,
+      [data.userId]: {
+        is_online: data.is_online,
+        last_seen: data.last_seen,
+        name: data.name,
+        profileImage: data.profileImage
+      }
+    }))
+  };
 
-            socket.on("GET_USER_STATUS_SUCCESS", handleUserStatus);
-            socket.on("USER_STATUS_CHANGE", handleUserStatus);
+  socket.on("GET_USER_STATUS_SUCCESS", handleUserStatus);
+  socket.on("USER_STATUS_CHANGE", handleUserStatus);
 
-            socket.on("GET_USER_STATUS_ERROR", (err) => {
-              console.error("Status error:", err.message);
-            });
+  socket.on("GET_USER_STATUS_ERROR", (err) => {
+    console.error("Status error:", err.message);
+  });
 
-            return () => {
-              socket.off("GET_USER_STATUS_SUCCESS", handleUserStatus);
-              socket.off("USER_STATUS_CHANGE", handleUserStatus);
-              socket.off("GET_USER_STATUS_ERROR");
-            };
-          }, [socket]);
+  return () => {
+    socket.off("GET_USER_STATUS_SUCCESS", handleUserStatus);
+    socket.off("USER_STATUS_CHANGE", handleUserStatus);
+    socket.off("GET_USER_STATUS_ERROR");
+  };
+}, [socket]);
 
 
-    return (
-        <div className=" bg-gray-50 flex pb-20 ">
-          {sidebarOpen && (
-            <div
-              className="fixed inset-0 bg-black/20 backdrop-blur-sm  z-40 md:hidden"
-              onClick={() => setSidebarOpen(false)}
-            />
-          )}
+  return (
+    <div className=" bg-gray-50 flex pb-20 ">
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm  z-40 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
       <div
         className={`
-          fixed left-0 lg:left-70  w-80 h-screen bg-white border-r border-gray-200 z-50 shadow-lg transition-transform duration-300 ease-in-out
+          fixed left-0 lg:left-65 2xl:left:[100%] w-80 h-screen bg-white border-r border-gray-200 z-50 shadow-lg transition-transform duration-300 ease-in-out
           md:translate-x-0 md:z-30
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         `}
       >
         <ChatSidebar 
          onSelectChat={handleSelectChat}
-        isOnline={userStatuses[receiverId]?.is_online || false}
+        // isOnline={userStatuses[receiverId]?.is_online || false}
         userStatuses={userStatuses}
          socketName={userStatuses[receiverId]?.name}
         socketProfile={userStatuses[receiverId]?.profileImage}
@@ -458,10 +514,10 @@ useEffect(() => {
                     onError={(e) => { e.target.src = "/default-avatar.png"; }}
                   />
                   <div
-                      className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-white ${
-                       userStatuses[receiverId]?.is_online ? "bg-green-500" : "bg-gray-400"
-                       }`}
-                      ></div>     
+                          className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-white ${
+                            userStatuses[receiverId]?.is_online ? "bg-green-500" : "bg-gray-400"
+                          }`}
+                        ></div>     
                         
                          </div>
                 <div>
@@ -511,12 +567,12 @@ useEffect(() => {
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center relative">
             <div className="md:hidden fixed top-17 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-200 z-40 h-16 flex items-center px-4">
-              <button
+              <butto
                 onClick={toggleSidebar}
                 className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all duration-200"
               >
                 <Menu size={20} />
-              </button>
+              </butto>
               <h1 className="ml-4 text-lg font-semibold text-gray-800">
                 Chats
               </h1>
@@ -562,7 +618,5 @@ useEffect(() => {
     </div>
   );
 };
-
-
 
 export default DriverInbox;

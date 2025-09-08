@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
 import DriverInbox from './Chat/DriverInbox';
+import Inbox from '../../School/Chat/Inbox';
 
 function DriverChat() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -32,8 +33,9 @@ function DriverChat() {
       {/* Main Content */}
       <div className="flex flex-col flex-1 w-full lg:w-[83%] mb-[0]">
         <Topbar toggleSidebar={toggleSidebar} className="mb-0" />
-        <main className="mt-[100px] flex-1 overflow-hidden">
+        <main className="mt-[100px] flex-1 overflow-y-auto">
           <DriverInbox />
+          {/* <Inbox/> */}
         </main>
       </div>
     </div>

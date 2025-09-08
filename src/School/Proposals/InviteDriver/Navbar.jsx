@@ -20,7 +20,7 @@ const Navbar = () => {
     {
       label: 'My Hired Drivers',
       icon: <User className="w-5 h-5 mr-2" />,
-      path: '/job-post/my-hair-driver',
+      path: '/job-post/my-hired-driver',
     },
   ];
 

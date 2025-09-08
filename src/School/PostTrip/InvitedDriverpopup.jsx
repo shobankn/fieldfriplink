@@ -202,6 +202,8 @@ const InviteDriverPopup = ({ isOpen, onClose, tripId, onPublish }) => {
           )}
         </div>
 
+
+
         {/* Actions */}
         <div className="flex flex-col sm:flex-row justify-end p-4 border-t border-gray-200 space-y-3 sm:space-y-0 sm:space-x-3">
           <button
@@ -210,24 +212,25 @@ const InviteDriverPopup = ({ isOpen, onClose, tripId, onPublish }) => {
           >
             Cancel
           </button>
-          <button
-            onClick={handleSendJobPost}
-            disabled={inviting || selectedDrivers.length === 0}
-            className={` cursor-pointer px-4 py-2 flex items-center justify-center rounded-lg text-white ${
-              inviting || selectedDrivers.length === 0
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-red-500 hover:bg-red-600'
-            }`}
-          >
-            <Send className="w-4 h-4 mr-2" />
-            {inviting ? 'Sending...' : 'Send Invitations'}
-          </button>
 
-         <button
+<button
+  onClick={handleSendJobPost}
+  disabled={inviting || selectedDrivers.length === 0}
+  className={`cursor-pointer px-4 py-2 flex items-center justify-center rounded-lg text-white ${
+    inviting || selectedDrivers.length === 0
+      ? 'bg-gray-400 cursor-not-allowed'
+      : 'bg-red-500 hover:bg-red-600'
+  }`}
+>
+  <Send className="w-4 h-4 mr-2" />
+  {inviting ? 'Sending...' : 'Send Invitations'}
+</button>
+
+<button
   onClick={handlePublish}
-  disabled={publishing}
+  disabled={publishing || selectedDrivers.length > 0}   // ✅ disable publish if drivers selected
   className={`cursor-pointer px-4 py-2 rounded-lg text-white flex items-center justify-center ${
-    publishing
+    publishing || selectedDrivers.length > 0
       ? 'bg-gray-400 cursor-not-allowed'
       : 'bg-red-500 hover:bg-red-600'
   }`}
@@ -260,6 +263,7 @@ const InviteDriverPopup = ({ isOpen, onClose, tripId, onPublish }) => {
     'Publish Now'
   )}
 </button>
+
 
 
 

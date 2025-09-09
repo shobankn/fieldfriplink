@@ -144,6 +144,7 @@ const MyRides = () => {
     setButtonLoading((prev) => ({ ...prev, [tripId + 'start']: true }));
 
     try {
+      
       const token = localStorage.getItem('token');
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;

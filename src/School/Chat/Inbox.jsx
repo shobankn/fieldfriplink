@@ -412,6 +412,20 @@ useEffect(() => {
 }, [socket]);
 
 
+
+const handleDeleteChat = (chatId) => {
+  if (activeChatId === chatId) {
+    setActiveChatId(null);
+    setReceiverId(null);
+    setReceiver(null);
+     localStorage.removeItem("receiverId");
+  }
+};
+
+
+
+
+
   return (
     <div className=" bg-gray-50 flex pb-20 ">
       {sidebarOpen && (
@@ -434,6 +448,7 @@ useEffect(() => {
         userStatuses={userStatuses}
          socketName={userStatuses[receiverId]?.name}
         socketProfile={userStatuses[receiverId]?.profileImage}
+         onDeleteChat={handleDeleteChat} 
 
           />
       </div>

@@ -4,7 +4,7 @@ import customer from '../../images/customer.png';
 import DeleteChatModal from './DeleteChatModel';
 import { MoreVertical, Trash2 } from "lucide-react";
 
-const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketProfile }) => {
+const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketProfile,onDeleteChat,  }) => {
   const socket = useSocketContext();
   const [chats, setChats] = useState([]);
   const chatsRef = useRef(chats); // Keep a ref to current chats
@@ -245,7 +245,7 @@ const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketPr
               ))}
             </div>
           ) : sortedChats.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 px-6">
+            <div className="flex flex-col items-center justify-center py-12 bg-white px-6">
            
             </div>
           ) : (
@@ -309,15 +309,25 @@ const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketPr
         </div>
       </div>
       <DeleteChatModal
-        isOpen={showDeleteModal}
-        chat={chatToDelete}
-        onClose={closeDeleteModal}
-        socketName={socketName}
-        socketProfile={socketProfile}
-        onDeleted={(chatId) =>
-          setChats((prev) => prev.filter((c) => c.chatId !== chatId))
-        }
-      />
+  isOpen={showDeleteModal}
+  chat={chatToDelete}
+  onClose={closeDeleteModal}
+  socketName={socketName}
+  socketProfile={socketProfile}
+onDeleted={(chatId) => {
+  setChats((prev) => prev.filter((c) => c.chatId !== chatId));
+
+  // Clear active chat state if the deleted chat was open
+  if (localStorage.getItem("receiverId")) {
+    localStorage.removeItem("receiverId");
+  }
+  if (localStorage.getItem("activeChatId") === chatId) {
+    localStorage.removeItem("activeChatId");
+  }
+
+  if (onDeleteChat) onDeleteChat(chatId); // tell parent to close ChatWindow
+}}
+/>
     </>
   );
 };

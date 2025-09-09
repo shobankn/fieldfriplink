@@ -215,8 +215,8 @@ const Allinvitations = () => {
 
       const newTrips = res.data.trips || [];
 
-      // Filter for published and private trips
-      const filteredNewTrips = newTrips.filter(trip => trip.tripStatus === 'published' && trip.visibility === 'private');
+      // Filter for private trips only (all statuses)
+      const filteredNewTrips = newTrips.filter(trip => trip.visibility === 'private');
 
       const dayMap = {
         mon: 'Monday',

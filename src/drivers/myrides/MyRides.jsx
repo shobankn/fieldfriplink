@@ -73,6 +73,15 @@ const MyRides = () => {
     sun: 'Sunday'
   };
 
+  // Function to format date to MM/DD/YYYY
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
   // Function to handle invitation response
   const handleInvitationResponse = async (invitationId, action) => {
     setButtonLoading((prev) => ({ ...prev, [invitationId + action]: true }));
@@ -258,9 +267,13 @@ const MyRides = () => {
           const endDate = new Date(trip.returnTime);
           const dateStr = trip.tripType === 'recurring' && trip.recurringDays
             ? trip.recurringDays.map(day => dayMap[day.toLowerCase()] || day).join(', ')
-            : startDate.toISOString().split('T')[0];
+            : formatDate(startDate);
           const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
           const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
+
+          const postedDate = trip.createdAt
+            ? formatDate(trip.createdAt)
+            : 'N/A';
 
           return {
             id: inv._id,
@@ -275,13 +288,7 @@ const MyRides = () => {
             phone: trip.schoolId?.phoneNumber || 'N/A',
             schoolId: trip.schoolId?._id || 'N/A',
             isRecurring: trip.tripType === 'recurring',
-            postedDate: trip.createdAt
-              ? new Date(trip.createdAt).toLocaleDateString('en-GB', {
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric'
-                })
-              : 'N/A'
+            postedDate
           };
         });
 
@@ -329,9 +336,13 @@ const MyRides = () => {
           const endDate = new Date(trip.returnTime);
           const dateStr = trip.tripType === 'recurring' && trip.recurringDays
             ? trip.recurringDays.map(day => dayMap[day.toLowerCase()] || day).join(', ')
-            : startDate.toISOString().split('T')[0];
+            : formatDate(startDate);
           const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
           const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
+
+          const postedDate = trip.createdAt
+            ? formatDate(trip.createdAt)
+            : 'N/A';
 
           return {
             id: trip._id,
@@ -346,13 +357,7 @@ const MyRides = () => {
             phone: trip.schoolId?.phoneNumber || 'N/A',
             schoolId: trip.schoolId?._id || 'N/A',
             isRecurring: trip.tripType === 'recurring',
-            postedDate: trip.createdAt
-              ? new Date(trip.createdAt).toLocaleDateString('en-GB', {
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric'
-                })
-              : 'N/A'
+            postedDate
           };
         });
 
@@ -397,9 +402,13 @@ const MyRides = () => {
           const endDate = new Date(trip.returnTime);
           const dateStr = trip.tripType === 'recurring' && trip.recurringDays
             ? trip.recurringDays.map(day => dayMap[day.toLowerCase()] || day).join(', ')
-            : startDate.toISOString().split('T')[0];
+            : formatDate(startDate);
           const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
           const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
+
+          const postedDate = trip.createdAt
+            ? formatDate(trip.createdAt)
+            : 'N/A';
 
           return {
             id: trip._id,
@@ -414,13 +423,7 @@ const MyRides = () => {
             phone: trip.schoolId?.phoneNumber || 'N/A',
             schoolId: trip.schoolId?._id || 'N/A',
             isRecurring: trip.tripType === 'recurring',
-            postedDate: trip.createdAt
-              ? new Date(trip.createdAt).toLocaleDateString('en-GB', {
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric'
-                })
-              : 'N/A'
+            postedDate
           };
         });
 
@@ -465,9 +468,13 @@ const MyRides = () => {
           const endDate = new Date(trip.returnTime);
           const dateStr = trip.tripType === 'recurring' && trip.recurringDays
             ? trip.recurringDays.map(day => dayMap[day.toLowerCase()] || day).join(', ')
-            : startDate.toISOString().split('T')[0];
+            : formatDate(startDate);
           const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
           const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
+
+          const postedDate = trip.createdAt
+            ? formatDate(trip.createdAt)
+            : 'N/A';
 
           return {
             id: trip._id,
@@ -483,13 +490,7 @@ const MyRides = () => {
             schoolId: trip.schoolId?._id || 'N/A',
             rating: trip.driverRating,
             isRecurring: trip.tripType === 'recurring',
-            postedDate: trip.createdAt
-              ? new Date(trip.createdAt).toLocaleDateString('en-GB', {
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric'
-                })
-              : 'N/A'
+            postedDate
           };
         });
 

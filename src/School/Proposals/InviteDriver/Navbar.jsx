@@ -13,6 +13,11 @@ const Navbar = () => {
       path: '/job-post',
     },
     {
+      label: 'Internal Invitation',
+      icon: <Mail className="w-5 h-5 mr-2" />,
+      path: '/job-post/internalinvitations',
+    },
+    {
       label: 'Invite Drivers',
       icon: <UserPlus className="w-5 h-5 mr-2" />,
       path: '/job-post/invite-drivers',
@@ -23,11 +28,7 @@ const Navbar = () => {
       path: '/job-post/my-hired-driver',
      
     },
-    {
-      label: 'Internal Invitation',
-      icon: <Mail className="w-5 h-5 mr-2" />,
-      path: '/job-post/internalinvitations',
-    },
+    
   ];
 
   const initialActiveTab =

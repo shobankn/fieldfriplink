@@ -4,7 +4,6 @@ import Navbar from './Navbar';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { formatDistanceToNow } from 'date-fns';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { confirmAlert } from 'react-confirm-alert';
 import Skeleton from 'react-loading-skeleton';
@@ -82,7 +81,6 @@ const TripInvitationsPopup = ({ isOpen, onClose, tripId, tripName }) => {
   return (
     <div className="fixed inset-0 bg-[#00000059] bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-        {/* Header */}
         <div className="p-6 border-b border-gray-200 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">{tripName} - Invitations</h2>
           <button
@@ -95,7 +93,6 @@ const TripInvitationsPopup = ({ isOpen, onClose, tripId, tripName }) => {
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-6">
           {loading ? (
             <div className="space-y-4">
@@ -118,7 +115,6 @@ const TripInvitationsPopup = ({ isOpen, onClose, tripId, tripName }) => {
                 invitations.map((invitation) => (
                   <div key={invitation._id} className="flex items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-4 flex-1">
-                      {/* Driver Avatar and Name */}
                       <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200 flex-shrink-0">
                         {invitation.profileImage ? (
                           <img
@@ -143,7 +139,6 @@ const TripInvitationsPopup = ({ isOpen, onClose, tripId, tripName }) => {
                         )}
                       </div>
                     </div>
-                    {/* Status Badge */}
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(invitation.status)}`}>
                       {invitation.status || 'Pending'}
                     </span>
@@ -189,6 +184,15 @@ const Allinvitations = () => {
     cancelled: "bg-[#FFF2F2] text-[#E74C3C]"
   };
 
+  // Function to format date to MM/DD/YYYY
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
   const fetchTrips = async (pageNumber = 1) => {
     const toastId = "fetchTripsError";
 
@@ -214,13 +218,31 @@ const Allinvitations = () => {
       // Filter for published and private trips
       const filteredNewTrips = newTrips.filter(trip => trip.tripStatus === 'published' && trip.visibility === 'private');
 
+      const dayMap = {
+        mon: 'Monday',
+        tue: 'Tuesday',
+        wed: 'Wednesday',
+        thu: 'Thursday',
+        fri: 'Friday',
+        sat: 'Saturday',
+        sun: 'Sunday'
+      };
+
+      const formattedTrips = filteredNewTrips.map(trip => ({
+        ...trip,
+        postedDate: trip.createdAt ? formatDate(trip.createdAt) : 'N/A',
+        formattedDate: trip.tripType === 'recurring' && trip.recurringDays
+          ? trip.recurringDays.map(day => dayMap[day.toLowerCase()] || day).join(', ')
+          : trip.tripDate ? formatDate(trip.tripDate) : 'N/A'
+      }));
+
       setTrips((prev) => {
         if (pageNumber === 1) {
-          return filteredNewTrips;
+          return formattedTrips;
         }
 
         const existingIds = new Set(prev.map((t) => t._id));
-        const uniqueTrips = filteredNewTrips.filter((t) => !existingIds.has(t._id));
+        const uniqueTrips = formattedTrips.filter((t) => !existingIds.has(t._id));
         return [...prev, ...uniqueTrips];
       });
 
@@ -395,7 +417,7 @@ const Allinvitations = () => {
                             <span className={`px-3 py-1 capitalize rounded-full text-sm inter-medium ${tripTypeColors[trip.tripType]}`}>
                               {trip.tripType}
                             </span>
-                            <span className="text-sm inter-regular text-gray-500">Created {formatDistanceToNow(new Date(trip.createdAt), { addSuffix: true })}</span>
+                            <span className="text-sm inter-regular text-gray-500">Created {trip.postedDate}</span>
                           </div>
                         </div>
                         <div className="flex lg:hidden">
@@ -422,14 +444,14 @@ const Allinvitations = () => {
                           {trip.tripType === 'recurring' ? (
                             <>
                               <span className="text-gray-900 inter-semibold capitalize">
-                                Days: {trip.recurringDays?.join(', ') || 'N/A'}
+                                Days: {trip.formattedDate}
                               </span>
                               <br />
                             </>
                           ) : (
                             <>
                               <span className="text-gray-900 inter-semibold capitalize">
-                                Date: {trip.tripDate?.split('T')[0] || 'N/A'}
+                                Date: {trip.formattedDate}
                               </span>
                               <br />
                             </>
@@ -463,21 +485,6 @@ const Allinvitations = () => {
                           <span className="inter-medium text-gray-900">{trip.invitedDrivers?.length || 0}</span>
                         </div>
                         <div className="flex my-auto justify-end gap-2">
-                          {/* <Eye
-                            onClick={() => handleNavigate(trip._id)}
-                            className="cursor-pointer w-5 h-5 text-[#3498DB] transition duration-200 ease-in-out transform hover:scale-125 hover:text-blue-600 active:scale-95 hover:drop-shadow-md"
-                          />
-                          <Edit
-                            onClick={() => {
-                              if (trip.tripStatus === 'scheduled') return;
-                              navigate(`/post-trip-update/${trip._id}`)
-                            }}
-                            className={`w-5 h-5 transition duration-200 ease-in-out transform ${
-                              trip.tripStatus === 'scheduled'
-                                ? 'text-gray-400 cursor-not-allowed opacity-50'
-                                : 'text-[#27AE60] cursor-pointer hover:scale-125 hover:text-green-700 active:scale-95 hover:drop-shadow-md'
-                            }`}                  
-                          /> */}
                           <Trash2
                             onClick={() => {
                               if (trip.tripStatus === 'completed' || trip.tripStatus === 'active' || trip.tripStatus === 'scheduled') return;

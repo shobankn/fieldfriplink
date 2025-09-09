@@ -1,7 +1,8 @@
 // src/School/Firebase.jsx
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getMessaging, isSupported } from "firebase/messaging";
+import { getMessaging, isSupported ,onMessage } from "firebase/messaging";
+
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -22,4 +23,18 @@ export const analytics = getAnalytics(app);
 export const getMessagingIfSupported = async () => {
   const supported = await isSupported().catch(() => false);
   return supported ? getMessaging(app) : null;
+
+
+};
+
+
+// ✅ Listen for foreground messages
+export const listenToMessages = async (callback) => {
+  const messaging = await getMessagingIfSupported();
+  if (!messaging) return;
+
+  onMessage(messaging, (payload) => {
+    console.log("📩 Foreground FCM:", payload);
+    callback(payload);
+  });
 };

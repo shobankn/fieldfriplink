@@ -51,15 +51,16 @@ const InboxContent = () => {
 
 
   useEffect(() => {
-    if (locationState?.creatorId) {
-      console.log("[Inbox] Setting receiverId from location.state:", locationState.creatorId);
-      setReceiverId(locationState.creatorId);
-      localStorage.setItem("receiverId", locationState.creatorId);
-    } else {
-      console.log("[Inbox] No creatorId in location.state — clearing receiverId");
-      localStorage.removeItem("receiverId");
-    }
-  }, [locationState]);
+  if (locationState?.creatorId) {
+    console.log("[Inbox] Setting receiverId from location.state:", locationState.creatorId);
+    setReceiverId(locationState.creatorId);
+    localStorage.setItem("receiverId", locationState.creatorId);
+  } else {
+    console.log("[Inbox] No creatorId in location.state — clearing receiverId");
+    localStorage.removeItem("receiverId");
+  }
+}, [locationState]);
+
 
 
 
@@ -479,7 +480,7 @@ useEffect(() => {
 
       <div
         className={`
-          fixed left-0 lg:left-65 2xl:left:[100%] w-80 h-screen bg-white border-r border-gray-200 z-50 shadow-lg transition-transform duration-300 ease-in-out
+          fixed left-0 lg:left-70 2xl:left:[100%] w-80 h-screen bg-white border-r border-gray-200 z-50 shadow-lg transition-transform duration-300 ease-in-out
           md:translate-x-0 md:z-30
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         `}
@@ -565,7 +566,7 @@ useEffect(() => {
             />
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center relative">
+          <div className="flex-1 flex flex-col items-center justify-center relative mt-[11%]">
             <div className="md:hidden fixed top-17 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-200 z-40 h-16 flex items-center px-4">
               <butto
                 onClick={toggleSidebar}

@@ -174,12 +174,14 @@ const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketPr
 
   const handleChatClick = (chat) => {
     setActiveChatId(chat.chatId); // Mark active chat
-    const otherUser = chat.participants.find(p => p._id !== socket.userId);
+     const otherUser = chat.participants.find(
+    p => (p.userId || p._id) !== socket.userId
+  );
 
-    socket.emit("JOIN_CHAT", {
-      user1Id: socket.userId,
-      user2Id: otherUser._id,
-    });
+     socket.emit("JOIN_CHAT", {
+    user1Id: socket.userId,
+    user2Id: otherUser.userId || otherUser._id,   // ✅ always pass a real ID
+  });
 
     socket.once("JOIN_CHAT_SUCCESS", (data) => {
       const { chatId, messages, participants } = data;
@@ -245,25 +247,21 @@ const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketPr
               ))}
             </div>
           ) : sortedChats.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 bg-white px-6">
-              <div className="w-16 h-16 bg-red-200 rounded-full flex items-center justify-center mb-3">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-red-400">
-                  <path d="M21 11.5C21.0034 12.8199 20.6951 14.1219 20.1 15.3C19.3944 16.7118 18.3098 17.8992 16.9674 18.7293C15.6251 19.5594 14.0782 19.9994 12.5 20C11.1801 20.0035 9.87812 19.6951 8.7 19.1L3 21L4.9 15.3C4.30493 14.1219 3.99656 12.8199 4 11.5C4.00061 9.92179 4.44061 8.37488 5.27072 7.03258C6.10083 5.69028 7.28825 4.60571 8.7 3.90003C9.87812 3.30496 11.1801 2.99659 12.5 3.00003H13C15.0843 3.11502 17.053 3.99479 18.5291 5.47086C20.0052 6.94694 20.885 8.91568 21 11V11.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <p className="text-gray-500 text-center">No chats found</p>
-              <p className="text-gray-400 text-sm text-center mt-1">Start a new conversation</p>
+            <div className="flex  items-center justify-center py-12  px-6">
+             
             </div>
           ) : (
             sortedChats.map((chat) => {
-              const participant = chat.participants?.find?.(p => p._id !== socket.userId);
+            const participant = chat.participants?.find?.(
+                p => (p.userId || p._id) !== socket.userId
+              );
 
               if (!participant) {
                 console.warn("[ChatSidebar] Chat has no valid participant:", chat);
                 return null;
               }
 
-              const isOnline = userStatuses?.[participant._id]?.is_online || false;
+              const isOnline = userStatuses?.[participant.userId || participant._id]?.is_online || false;
 
               return (
                 <div

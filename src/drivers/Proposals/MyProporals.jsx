@@ -354,7 +354,6 @@ const MyProposals = () => {
             <button
               onClick={() => {
                 const school = proposal.schoolObj; // ✅ full school object
-                console.log("creatorId", school?._id);  // ✅ 68adb0eb954e6b4e13250b61
                     console.log("creatorId (createdBy) =", school?.createdBy);  // ✅ userId instead of schoolId
 
                 console.log("creatorName =", school?.schoolName);
@@ -364,7 +363,7 @@ const MyProposals = () => {
                 navigate("/chat", {
                   state: {
                     // creatorId: school?._id, 
-                      creatorId: school?.createdBy,  
+                      creatorId: school?.createdBy, 
                     creatorPic: school?.logo || school?.profileImage || null, // ✅ optional
                     creatorName: school?.schoolName,        // ✅ (optional: show in chat header)
                   },

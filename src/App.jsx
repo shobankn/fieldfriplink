@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css'
 import Home from '../src/landgingpage/Home/Home'
 import Dashboard from './School/Dashboard';
@@ -46,6 +46,60 @@ import Profileview from './School/Setting/Profileview';
 import MyHairDriver from './School/Proposals/MYhairDriver';
 import MyRides from './drivers/myrides/MyRides';
 import Internalinvitations from './School/Proposals/Internalinvitations';
+import { listenToMessages } from './School/Firebase';
+
+
+
+
+function NotificationListener() {
+  const location = useLocation();
+
+  useEffect(() => {
+    listenToMessages((payload) => {
+      const { title, body } = payload.notification || {};
+
+      // ✅ Only show popup if current route starts with /dashboard or other school routes
+      const schoolRoutes = [
+        "/dashboard",
+        "/total-trip",
+        "/post-trip",
+        "/trip-management",
+        "/job-post",
+        "/my-hires",
+        "/hired-driver",
+        "/proposal",
+        "/messages",
+        "/setting",
+      ];
+
+      const isSchoolRoute = schoolRoutes.some((route) =>
+        location.pathname.startsWith(route)
+      );
+
+      if (isSchoolRoute) {
+        toast.info(
+          <div>
+            <strong>{title}</strong>
+            <p>{body}</p>
+          </div>,
+          {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            pauseOnHover: true,
+            draggable: true,
+            closeOnClick: true,
+          }
+        );
+      }
+    });
+  }, [location.pathname]);
+
+  return null;
+}
+
+
+
 
 function App() {
 
@@ -66,6 +120,9 @@ function App() {
         pauseOnHover 
         theme="light" 
       />
+
+       {/* ✅ Global listener that only fires on school routes */}
+      <NotificationListener />
     <Routes>
       <Route path='/dashboard' element={ <ProtectedRoute><Dashboard/></ProtectedRoute>}/>
       <Route path='/total-trip' element={<ProtectedRoute><Totaltrip/></ProtectedRoute>}/>

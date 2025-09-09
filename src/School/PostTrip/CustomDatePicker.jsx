@@ -90,13 +90,12 @@ const DatePickerComponent = ({ activeTab, formData, setFormData, errors, handleD
             selected={selectedDate}
             onChange={handleInputChange}
             minDate={new Date()}
-            className="w-full px-3 py-2  rounded-lg cursor-pointer bg-white text-gray-900 caret-transparent focus:border-red-500 focus:ring-2 focus:ring-red-500" // 👈 hide cursor
+            className="w-full px-3 py-2  rounded-lg cursor-pointer bg-white text-gray-900 caret-transparent focus:border-red-500 focus:ring-2 focus:ring-red-500"
             ref={dateInputRef}
-            dateFormat="dd/MM/yyyy"
-            placeholderText="DD/MM/YYYY"
-            preventOpenOnFocus={true} // Prevents calendar from opening on input focus
-            onKeyDown={preventTextInput} // Blocks manual text input
-            
+            dateFormat="MM/dd/yyyy"
+            placeholderText="MM/DD/YYYY"
+            preventOpenOnFocus={true}
+            onKeyDown={preventTextInput}
           />
         </div>
       ) : (

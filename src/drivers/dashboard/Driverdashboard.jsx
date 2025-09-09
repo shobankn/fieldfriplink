@@ -23,9 +23,10 @@ const Driverdashboard = () => {
     invitations: true,
     activities: true,
     activeRide: true,
+    userData: true,
   });
   const [isApproved, setIsApproved] = useState(false);
-  const [userName, setUserName] = useState('Driver'); // State for user's name
+  const [userName, setUserName] = useState('Driver');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,12 +40,14 @@ const Driverdashboard = () => {
         });
 
         const { user, schoolAssignments } = response.data;
-        setUserName(user.name || 'Driver'); // Set user's name or fallback to 'Driver'
+        setUserName(user.name || 'Driver');
         setIsApproved(schoolAssignments && schoolAssignments.length > 0 && schoolAssignments[0].status === 'approved');
       } catch (error) {
         console.error('Error fetching user data:', error);
-        setUserName('Driver'); // Fallback in case of error
+        setUserName('Driver');
         setIsApproved(false);
+      } finally {
+        setLoading((prev) => ({ ...prev, userData: false }));
       }
     };
 
@@ -101,11 +104,13 @@ const Driverdashboard = () => {
 
         const mappedScheduledRides = response.data.trips.map((trip) => {
           const startDate = new Date(trip.startTime || trip.tripDate);
-          const dateStr = startDate.toISOString().split('T')[0];
+          const month = String(startDate.getMonth() + 1).padStart(2, '0');
+          const day = String(startDate.getDate()).padStart(2, '0');
+          const year = startDate.getFullYear();
           return {
             id: trip._id,
             school: trip.tripName,
-            date: dateStr,
+            date: `${month}/${day}/${year}`,
             students: trip.numberOfStudents,
           };
         });
@@ -130,11 +135,13 @@ const Driverdashboard = () => {
         const mappedInvitations = response.data.invitations.map((inv) => {
           const trip = inv.tripId;
           const startDate = new Date(trip.startTime || trip.tripDate);
-          const dateStr = startDate.toISOString().split('T')[0];
+          const month = String(startDate.getMonth() + 1).padStart(2, '0');
+          const day = String(startDate.getDate()).padStart(2, '0');
+          const year = startDate.getFullYear();
           return {
             id: inv._id,
             school: trip.tripName,
-            date: dateStr,
+            date: `${month}/${day}/${year}`,
             students: trip.numberOfStudents,
           };
         });
@@ -206,6 +213,17 @@ const Driverdashboard = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  // Shimmer effect for Approval Status section
+  const ApprovalStatusShimmerCard = () => (
+    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 flex items-center animate-pulse">
+      <div className="w-6 h-6 bg-gray-200 rounded-full mr-3"></div>
+      <div>
+        <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+        <div className="h-3 bg-gray-200 rounded w-48"></div>
+      </div>
+    </div>
+  );
 
   // Shimmer effect for Schedule section
   const ScheduleShimmerCard = () => (
@@ -293,7 +311,9 @@ const Driverdashboard = () => {
             </div>
 
             {/* Approval Status Alert */}
-            {isApproved ? (
+            {loading.userData ? (
+              <ApprovalStatusShimmerCard />
+            ) : isApproved ? (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 flex items-center">
                 <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-3">
                   <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">

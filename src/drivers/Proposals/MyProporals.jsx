@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Added for navigation
+import { useNavigate } from 'react-router-dom';
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
 import { LuPlane, LuClock4, LuMapPin, LuUsers, LuCalendar, LuClock, LuBus } from 'react-icons/lu';
@@ -19,21 +19,28 @@ const MyProposals = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(10); // Fixed limit as per API
-  const navigate = useNavigate(); // Added for navigation
+  const navigate = useNavigate();
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   // Function to handle phone call
   const handleCall = (phoneNumber) => {
     if (phoneNumber && phoneNumber !== 'N/A') {
-      console.log(`Initiating call to: ${phoneNumber}`); // Debugging log
+      console.log(`Initiating call to: ${phoneNumber}`);
       window.location.href = `tel:${phoneNumber}`;
     } else {
       console.warn('No valid phone number provided for call');
     }
   };
 
-
+  // Function to format date to MM/DD/YYYY
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
 
   useEffect(() => {
     const fetchProposals = async () => {
@@ -88,10 +95,9 @@ const MyProposals = () => {
         const acceptedData = await acceptedResponse.json();
         const rejectedData = await rejectedResponse.json();
 
-             // ✅ Console the backend raw responses
-      console.log("📩 Applied Proposals Response:", appliedData);
-      console.log("📩 Accepted Proposals Response:", acceptedData);
-      console.log("📩 Rejected Proposals Response:", rejectedData);
+        console.log("📩 Applied Proposals Response:", appliedData);
+        console.log("📩 Accepted Proposals Response:", acceptedData);
+        console.log("📩 Rejected Proposals Response:", rejectedData);
 
         // Combine all proposals
         const allProposals = [
@@ -115,7 +121,7 @@ const MyProposals = () => {
             return {
               id: proposal._id,
               school: 'Unknown School',
-              schoolId: 'N/A', // Added schoolId for chat navigation
+              schoolId: 'N/A',
               job: 'Unknown Trip',
               pickup: 'N/A',
               drop: 'N/A',
@@ -138,23 +144,19 @@ const MyProposals = () => {
           const endDate = new Date(trip.returnTime || Date.now());
           const dateStr = trip.tripType === 'recurring' && trip.recurringDays
             ? trip.recurringDays.map(day => dayMap[day.toLowerCase()] || day).join(', ')
-            : trip.tripDate ? new Date(trip.tripDate).toLocaleDateString() : 'Not specified';
+            : formatDate(trip.tripDate || startDate);
           const startTimeStr = startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           const endTimeStr = endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           const submittedStr = calculateSubmittedTime(proposal.submittedAt);
           const postedDate = trip.createdAt
-            ? new Date(trip.createdAt).toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric'
-              })
+            ? formatDate(trip.createdAt)
             : 'N/A';
 
           return {
             id: proposal._id,
             school: trip.schoolId?.schoolName || 'Unknown School',
-            schoolId: trip.schoolId?._id || 'N/A', // Added schoolId for chat navigation
-            schoolObj: trip.schoolId || {}, 
+            schoolId: trip.schoolId?._id || 'N/A',
+            schoolObj: trip.schoolId || {},
             job: trip.tripName || 'Unknown Trip',
             pickup: trip.pickupPoints?.[0]?.address || 'N/A',
             drop: trip.destination?.address || 'N/A',
@@ -339,7 +341,6 @@ const MyProposals = () => {
                             </span>
                             {proposal.status.toLowerCase() === 'accepted' && (
                               <div className="flex gap-2 sm:gap-3">
-
                                 <button 
                                   onClick={() => handleCall(proposal.phoneNumber)}
                                   className="bg-yellow-400 hover:bg-yellow-500 hover:cursor-pointer text-black font-semibold flex items-center justify-center interregular px-3 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm"
@@ -348,39 +349,28 @@ const MyProposals = () => {
                                   <IoCallOutline className='me-1 text-base sm:text-lg' />
                                   Call
                                 </button>
+                                <button
+                                  onClick={() => {
+                                    const school = proposal.schoolObj;
+                                    console.log("creatorId", school?._id);
+                                    console.log("creatorName =", school?.schoolName);
+                                    console.log("creatorPhone =", school?.phoneNumber);
+                                    console.log("full school data =", school);
 
-
-
-            <button
-              onClick={() => {
-                const school = proposal.schoolObj; // ✅ full school object
-                console.log("creatorId", school?._id);  // ✅ 68adb0eb954e6b4e13250b61
-                console.log("creatorName =", school?.schoolName);
-                console.log("creatorPhone =", school?.phoneNumber);
-                console.log("full school data =", school);
-
-                navigate("/chat", {
-                  state: {
-                    creatorId: school?._id,                 // ✅ schoolId
-                    creatorPic: school?.logo || school?.profileImage || null, // ✅ optional
-                    creatorName: school?.schoolName,        // ✅ (optional: show in chat header)
-                  },
-                });
-              }}
-              className="bg-red-500 hover:bg-red-600 hover:cursor-pointer text-white font-semibold px-3 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm flex items-center justify-center"
-              disabled={!proposal.schoolObj?._id}
-            >
-              <IoChatbubbleOutline className="me-1" />
-              Chat
-            </button>
-
-
-
-
-
-
-
-
+                                    navigate("/chat", {
+                                      state: {
+                                        creatorId: school?._id,
+                                        creatorPic: school?.logo || school?.profileImage || null,
+                                        creatorName: school?.schoolName,
+                                      },
+                                    });
+                                  }}
+                                  className="bg-red-500 hover:bg-red-600 hover:cursor-pointer text-white font-semibold px-3 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm flex items-center justify-center"
+                                  disabled={!proposal.schoolObj?._id}
+                                >
+                                  <IoChatbubbleOutline className="me-1" />
+                                  Chat
+                                </button>
                               </div>
                             )}
                           </div>

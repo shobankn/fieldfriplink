@@ -18,7 +18,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import axios from 'axios';
-import { formatDistanceToNow } from 'date-fns';
 import ProposalActions from './ProposalAction';
 import ProposalIconActions from './ProposalIconAction';
 import { useNavigate } from 'react-router-dom';
@@ -35,31 +34,28 @@ const DriverRequestsComponent = () => {
 
   let navigate = useNavigate();
 
-
   const containerRef = useRef(null);
-const [activeLeft, setActiveLeft] = useState(0);
-const [activeWidth, setActiveWidth] = useState(0);
+  const [activeLeft, setActiveLeft] = useState(0);
+  const [activeWidth, setActiveWidth] = useState(0);
 
-useEffect(() => {
-  const activeButton = containerRef.current.querySelector(
-    `button[data-status="${statusFilter}"]`
-  );
-  if (activeButton) {
-    setActiveLeft(activeButton.offsetLeft + "px");
-    setActiveWidth(activeButton.offsetWidth + "px");
-  }
-}, [statusFilter]);
+  useEffect(() => {
+    const activeButton = containerRef.current.querySelector(
+      `button[data-status="${statusFilter}"]`
+    );
+    if (activeButton) {
+      setActiveLeft(activeButton.offsetLeft + "px");
+      setActiveWidth(activeButton.offsetWidth + "px");
+    }
+  }, [statusFilter]);
 
-  function formatExactDate(dateString) {
-    const date = new Date(dateString);
-    const day = date.getUTCDate();
-    const month = date.getUTCMonth() + 1;
-    const year = date.getUTCFullYear();
-
-    const pad = (n) => (n < 10 ? '0' + n : n);
-
-    return `${pad(day)}/${pad(month)}/${year}`;
-  }
+  // Function to format date to MM/DD/YYYY
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
 
   function formatExactUTCTime(isoString) {
     const date = new Date(isoString);
@@ -100,13 +96,23 @@ useEffect(() => {
           }
         );
 
+        const dayMap = {
+          mon: 'Monday',
+          tue: 'Tuesday',
+          wed: 'Wednesday',
+          thu: 'Thursday',
+          fri: 'Friday',
+          sat: 'Saturday',
+          sun: 'Sunday'
+        };
+
         const proposals = response.data.proposals.map(proposal => {
           const trip = proposal.tripId;
 
           const displayDateOrDays =
             trip.tripType === 'recurring'
-              ? trip.recurringDays.join(', ')
-              : formatExactDate(trip.tripDate);
+              ? trip.recurringDays.map(day => dayMap[day.toLowerCase()] || day).join(', ')
+              : formatDate(trip.tripDate);
 
           return {
             id: proposal._id,
@@ -119,11 +125,10 @@ useEffect(() => {
             jobDetails: `${trip.pickupPoints[0].address} to ${trip.destination.address} • ${trip.numberOfStudents} students • ${displayDateOrDays}`,
             route: `${trip.pickupPoints[0].address} to ${trip.destination.address}`,
             completedJobs: proposal.driverId.completedTrips || 0,
-            submittedTime: formatDistanceToNow(new Date(proposal.submittedAt), { addSuffix: true }),
+            postedDate: proposal.submittedAt ? formatDate(proposal.submittedAt) : 'N/A',
             status: proposal.status,
             proposalMessage: proposal.driverNote,
-            avatar:
-              proposal.driverId.profileImage || null,
+            avatar: proposal.driverId.profileImage || null,
             phone: proposal.driverId.phone,
             tripDate: displayDateOrDays,
             startTime: formatExactUTCTime(trip.startTime),
@@ -219,33 +224,29 @@ useEffect(() => {
         </div>
 
         {/* Tabs */}
- <div className="relative mb-4" ref={containerRef}>
-  {/* Sliding background */}
-  <span
-    className="absolute top-0 left-0 h-full bg-red-500 rounded-lg transition-all duration-300 z-0"
-    style={{
-      width: activeWidth,
-      left: activeLeft,
-    }}
-  />
-
-  <div className="flex space-x-1 relative z-10">
-    {['applied', 'accepted', 'rejected'].map((status) => (
-      <button
-        key={status}
-        data-status={status}
-        onClick={() => setStatusFilter(status)}
-        className={`px-4 py-2 text-sm cursor-pointer inter-medium rounded-lg capitalize transition-colors duration-300 ${
-          statusFilter === status ? 'text-white' : 'text-gray-600'
-        }`}
-      >
-        {status}
-      </button>
-    ))}
-  </div>
-</div>
-
-
+        <div className="relative mb-4" ref={containerRef}>
+          <span
+            className="absolute top-0 left-0 h-full bg-red-500 rounded-lg transition-all duration-300 z-0"
+            style={{
+              width: activeWidth,
+              left: activeLeft,
+            }}
+          />
+          <div className="flex space-x-1 relative z-10">
+            {['applied', 'accepted', 'rejected'].map((status) => (
+              <button
+                key={status}
+                data-status={status}
+                onClick={() => setStatusFilter(status)}
+                className={`px-4 py-2 text-sm cursor-pointer inter-medium rounded-lg capitalize transition-colors duration-300 ${
+                  statusFilter === status ? 'text-white' : 'text-gray-600'
+                }`}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Driver Cards */}
         <div className="space-y-4 w-full max-w-full">
@@ -259,37 +260,34 @@ useEffect(() => {
           ) : error ? (
             <div className="text-red-500 inter-regular text-center">{error}</div>
           ) : filteredRequests.length === 0 ? (
-
-             <div className="flex items-center justify-center h-[50vh]">
+            <div className="flex items-center justify-center h-[50vh]">
               <div className="text-gray-500 inter-regular text-center">
                 No proposals found
               </div>
             </div>
-
           ) : (
             filteredRequests.map((driver) => (
               <div key={driver.id} className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 w-full max-w-full">
                 <div className="flex flex-col sm:flex-row items-start justify-between mb-4">
                   <div className="flex items-start space-x-4 w-full">
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 flex items-center justify-center">
-                    {driver.avatar ? (
-                      <img
-                        src={driver.avatar}
-                        alt={driver.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none"; // hide broken image
-                          e.currentTarget.parentNode.innerHTML =
-                            '<div class="w-full h-full flex items-center justify-center bg-red-500"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A8.966 8.966 0 0112 15c2.21 0 4.21.802 5.879 2.121M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg></div>';
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-red-500">
-                        <User className="w-6 h-6 text-white" />
-                      </div>
-                    )}
-                  </div>
-
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 flex items-center justify-center">
+                      {driver.avatar ? (
+                        <img
+                          src={driver.avatar}
+                          alt={driver.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                            e.currentTarget.parentNode.innerHTML =
+                              '<div class="w-full h-full flex items-center justify-center bg-red-500"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A8.966 8.966 0 0112 15c2.21 0 4.21.802 5.879 2.121M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg></div>';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-red-500">
+                          <User className="w-6 h-6 text-white" />
+                        </div>
+                      )}
+                    </div>
                     <div className="flex-1">
                       <h3 className="text-lg inter-semibold text-gray-900 mb-1 break-words">{driver.name}</h3>
                       <div className="flex flex-wrap items-center space-x-3 text-sm text-gray-600">
@@ -345,7 +343,7 @@ useEffect(() => {
                   </div>
                   <div className="text-right">
                     <span className="text-gray-500 inter-regular">Submitted</span>
-                    <div className="inter-semibold text-gray-900">{driver.submittedTime}</div>
+                    <div className="inter-semibold text-gray-900">{driver.postedDate}</div>
                   </div>
                 </div>
                 <div className="bg-[#EEF2FF] rounded-[10px] p-3">
@@ -369,7 +367,7 @@ useEffect(() => {
                   <div className="flex space-x-1 flex-wrap">
                     <button
                       onClick={() => setActiveTab('proposal')}
-                      className={`px-4 cursor-pointer  py-2 text-sm inter-medium rounded-lg ${
+                      className={`px-4 cursor-pointer py-2 text-sm inter-medium rounded-lg ${
                         activeTab === 'proposal' ? 'bg-red-500 text-white' : 'text-gray-600 hover:text-gray-900'
                       }`}
                     >
@@ -377,7 +375,7 @@ useEffect(() => {
                     </button>
                     <button
                       onClick={() => setActiveTab('driver-profile')}
-                      className={`px-4  cursor-pointer py-2 text-sm inter-medium rounded-lg ${
+                      className={`px-4 cursor-pointer py-2 text-sm inter-medium rounded-lg ${
                         activeTab === 'driver-profile' ? 'bg-red-500 text-white' : 'text-gray-600 hover:text-gray-900'
                       }`}
                     >
@@ -447,22 +445,19 @@ useEffect(() => {
                     <div className="md:col-span-2 border-l-2 border-[#E5E7EB] p-4 sm:p-6 flex flex-col h-full md:border-l-2 w-full">
                       <h4 className="inter-semibold text-gray-900 mb-4">Driver Summary</h4>
                       <div className="flex items-start space-x-4 mb-4">
-
-
-                      <div className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center bg-gray-200 flex-shrink-0">
-                        {selectedDriver.avatar ? (
-                          <img
-                            src={selectedDriver.avatar}
-                            alt={selectedDriver.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-red-500">
-                            <User2 className="text-white w-7 h-7" />
-                          </div>
-                        )}
-                      </div>
-
+                        <div className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center bg-gray-200 flex-shrink-0">
+                          {selectedDriver.avatar ? (
+                            <img
+                              src={selectedDriver.avatar}
+                              alt={selectedDriver.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-red-500">
+                              <User2 className="text-white w-7 h-7" />
+                            </div>
+                          )}
+                        </div>
                         <div className="flex-1">
                           <h5 className="font-semibold text-gray-900 text-lg break-words">{selectedDriver.name}</h5>
                           <div className="flex items-center space-x-1 mb-1">
@@ -471,11 +466,11 @@ useEffect(() => {
                             <span className="text-gray-600 inter-regular">({selectedDriver.reviews} reviews)</span>
                           </div>
                           <div className="text-sm inter-regular text-gray-500 break-words">
-                            Submitted: {selectedDriver.submittedTime}
+                            Submitted: {selectedDriver.postedDate}
                           </div>
                         </div>
                       </div>
-                      <ProposalActions proposalId={selectedDriver.id} onProposalUpdate={handleProposalUpdate}  disabled={selectedDriver.status === "accepted" || selectedDriver.status === "rejected"}  />
+                      <ProposalActions proposalId={selectedDriver.id} onProposalUpdate={handleProposalUpdate} disabled={selectedDriver.status === "accepted" || selectedDriver.status === "rejected"} />
                     </div>
                   </div>
                 )}
@@ -489,7 +484,7 @@ useEffect(() => {
                           <div className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center bg-gray-200 flex-shrink-0">
                             {driverDetails.user.profileImage || selectedDriver.avatar ? (
                               <img
-                                src={driverDetails.user.profileImage }
+                                src={driverDetails.user.profileImage}
                                 alt={driverDetails.user.name}
                                 className="w-full h-full object-cover"
                               />
@@ -535,18 +530,8 @@ useEffect(() => {
                                 <span className="text-sm inter-regular text-gray-500 block mb-1">Phone:</span>
                                 <div className="inter-medium text-gray-900 break-words">{driverDetails.user.phone}</div>
                               </div>
-                              {/* <div>
-                                <span className="text-sm inter-regular text-gray-500 block mb-1">School Partner:</span>
-                                <div className="inter-medium text-gray-900 break-words">{driverDetails.schoolDriver ? driverDetails.schoolDriver.name : 'N/A'}</div>
-                              </div> */}
                             </div>
                             <div className="space-y-4">
-
-                              {/* <div>
-                                <span className="text-sm inter-regular text-gray-500 block mb-1">CNIC:</span>
-                                <div className="inter-medium text-gray-900 break-words">{driverDetails.profile.cnicNumber}</div>
-                              </div> */}
-
                               <div>
                                 <span className="text-sm inter-regular text-gray-500 block mb-1">Service Area:</span>
                                 <div className="inter-medium text-gray-900 break-words">{driverDetails.profile.address}</div>
@@ -564,7 +549,7 @@ useEffect(() => {
                                 },
                               });
                             }}
-                            className="w-full cursor-pointer  sm:w-auto bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2 inter-medium"
+                            className="w-full cursor-pointer sm:w-auto bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2 inter-medium"
                           >
                             <MessageCircle className="w-5 h-5" />
                             <span>Message Driver</span>

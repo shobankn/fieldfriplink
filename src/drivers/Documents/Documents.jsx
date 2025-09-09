@@ -84,13 +84,16 @@ const Documents = () => {
         const data = response.data.data || response.data;
         const user = data.user || data;
         const profile = data.profile || user;
+        const schoolAssignments = data.schoolAssignments || [];
 
         if (!user || !profile) {
           throw new Error('Invalid API response structure: Missing user or profile data');
         }
 
+        const isApproved = schoolAssignments && schoolAssignments.length > 0 && schoolAssignments[0].status === 'approved';
+
         setProfileData({
-          accountStatus: user.accountStatus || 'pending_approval',
+          accountStatus: isApproved ? 'approved' : 'pending_approval',
           cnicFrontImage: profile.cnicFrontImage || '',
           cnicBackImage: profile.cnicBackImage || '',
           drivingLicenseImage: profile.drivingLicenseImage || '',
@@ -163,7 +166,7 @@ const Documents = () => {
   };
 
   const handleDelete = async (fieldId, apiKey) => {
-    if (profileData.accountStatus === 'verified') {
+    if (profileData.accountStatus === 'approved') {
       setFieldToDelete({ fieldId, apiKey });
       setIsDeleteModalOpen(true);
       return;
@@ -193,7 +196,7 @@ const Documents = () => {
       setProfileData((prev) => ({
         ...prev,
         [apiKey]: '',
-        accountStatus: prev.accountStatus === 'verified' ? 'pending_approval' : prev.accountStatus,
+        accountStatus: prev.accountStatus === 'approved' ? 'pending_approval' : prev.accountStatus,
       }));
       setFiles((prev) => ({
         ...prev,
@@ -452,8 +455,8 @@ const Documents = () => {
                   Upload your documents to complete the verification process
                 </p>
                 <p className="mb-2 text-[14px] sm:text-[15px] md:text-[16px] interbold">
-                  Current Status: <span className={profileData.accountStatus === 'verified' ? 'text-green-500' : 'text-[#DE3B40]'}>
-                    {profileData.accountStatus === 'verified' ? 'Verified' : 'Unverified'}
+                  Current Status: <span className={profileData.accountStatus === 'approved' ? 'text-green-500' : 'text-[#DE3B40]'}>
+                    {profileData.accountStatus === 'approved' ? 'Approved' : 'Pending Approval'}
                   </span>
                 </p>
 
@@ -504,8 +507,8 @@ const Documents = () => {
                       : '#FFFFFF';
 
                     const documentStatus = profileData[field.apiKey] || previews[field.id]
-                      ? profileData.accountStatus === 'verified'
-                        ? 'Verified'
+                      ? profileData.accountStatus === 'approved'
+                        ? 'Approved'
                         : 'Pending'
                       : null;
 
@@ -553,7 +556,7 @@ const Documents = () => {
                             <div className="absolute top-2 left-2">
                               <span
                                 className={`text-[12px] interregular ${
-                                  documentStatus === 'Verified' ? 'text-green-500' : 'text-red-500'
+                                  documentStatus === 'Approved' ? 'text-green-500' : 'text-red-500'
                                 }`}
                               >
                                 {documentStatus}
@@ -650,7 +653,7 @@ const Documents = () => {
                 <div className="p-6 border-b border-gray-200">
                   <h3 className="text-lg font-semibold text-gray-900">Confirm Deletion</h3>
                   <p className="text-sm text-gray-600 mt-2">
-                    Deleting this document will change your account status to <span className="text-red-500">Unverified</span>. 
+                    Deleting this document will change your account status to <span className="text-red-500">Pending Approval</span>. 
                     Please type <span className="font-bold">"delete"</span> to confirm.
                   </p>
                 </div>

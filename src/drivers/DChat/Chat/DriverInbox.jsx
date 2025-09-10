@@ -550,6 +550,7 @@ useEffect(() => {
             </div>
 
             <ChatWindow
+            className=""
               chatId={activeChatId}
               messages={chatMessages[activeChatId] || []}
               receiver={receiver}

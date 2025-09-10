@@ -4,7 +4,7 @@ import { useSocketContext } from './SocketContext';
 import customer from '../../../images/customer.png';
 import { Trash } from 'lucide-react';
 
-const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessage, socketName, socketProfile }) => {
+const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessage, socketName, socketProfile, receiverProfile }) => {
   const socket = useSocketContext();
   const bottomRef = useRef(null);
 
@@ -71,7 +71,7 @@ const ChatWindow = ({ chatId, messages = [], receiver, receiverId, onDeleteMessa
     {!isMyMessage && (
       <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center">
         <img
-          src={receiver?.profilePicture || receiver?.profileImage || socketProfile || customer}
+          src={receiver?.profilePicture || receiver?.profileImage || socketProfile || receiverProfile?.image }
           alt="Avatar"
           className="w-8 h-8 rounded-full object-cover"
         />

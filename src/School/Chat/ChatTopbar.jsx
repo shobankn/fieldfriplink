@@ -2,47 +2,13 @@ import { useEffect, useState } from 'react';
 import customer from '../../images/customer.png';
 import formatLastSeen from './FormatedLastSeen'
 
-const ChatTopBar = ({ receiver,isOnline,receiverId, lastSeen,socketName,socketProfile }) => {
-   const [userProfile, setUserProfile] = useState(null);
-const displayName = receiver?.fullName || receiver?.name || receiver?.username ||socketName || userProfile?.name ;
-const avatar = receiver?.profilePicture || receiver?.profileImage || customer || socketProfile || userProfile?.image;
+const ChatTopBar = ({ receiver,isOnline,receiverId, lastSeen,socketName,socketProfile,receiverProfile }) => {
+const displayName = receiver?.fullName || receiver?.name || receiver?.username ||socketName || receiverProfile?.name ;
+const avatar = receiver?.profilePicture || receiver?.profileImage || customer || socketProfile || receiverProfile?.image;
 console.log("Receiver info:", receiver);
 
 
 
-useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!receiverId) return;
-
-      try {
-        const token = localStorage.getItem("token"); // 🔑 Bearer token
-        if (!token) {
-          console.error("No token found in localStorage");
-          return;
-        }
-
-        const res = await fetch(
-          `https://fieldtriplinkbackend-production.up.railway.app/api/common/user-details/${receiverId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!res.ok) throw new Error("Failed to fetch user details");
-
-        const data = await res.json();
-        setUserProfile(data.data);
-      } catch (err) {
-        console.error("Error fetching user profile:", err);
-      }
-    };
-
-    fetchUserProfile();
-  }, [receiverId]);
 
 
 

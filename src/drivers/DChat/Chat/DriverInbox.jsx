@@ -28,12 +28,51 @@ const InboxContent = () => {
   const [chatMessages, setChatMessages] = useState({}); // Store messages per chatId
   const [activeChatId, setActiveChatId] = useState(null);
   const [userStatuses, setUserStatuses] = useState({});
+  const [receiverProfile, setReceiverProfile] = useState(null);
 
 
   const locationState = location.state;
   console.log("[Inbox] Location State:", locationState);
 
   const socket = useSocket({});
+
+  
+
+useEffect(() => {
+  const fetchUserProfile = async () => {
+    if (!receiverId) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found in localStorage");
+        return;
+      }
+
+      const res = await fetch(
+        `https://fieldtriplinkbackend-production.up.railway.app/api/common/user-details/${receiverId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to fetch user details");
+
+      const data = await res.json();
+      console.log("[Inbox] API User Profile:", data.data);
+      setReceiverProfile(data.data);
+    } catch (err) {
+      console.error("Error fetching user profile:", err);
+    }
+  };
+
+  fetchUserProfile();
+}, [receiverId]);
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -53,6 +92,7 @@ const InboxContent = () => {
   useEffect(() => {
   if (locationState?.creatorId) {
     console.log("[Inbox] Setting receiverId from location.state:", locationState.creatorId);
+    
     setReceiverId(locationState.creatorId);
     localStorage.setItem("receiverId", locationState.creatorId);
   } else {
@@ -60,6 +100,10 @@ const InboxContent = () => {
     localStorage.removeItem("receiverId");
   }
 }, [locationState]);
+
+
+
+
 
 
 
@@ -137,6 +181,8 @@ const InboxContent = () => {
 
   // CENTRALIZED Real-time message listener - only here, not in ChatWindow
 
+
+
 useEffect(() => {
   if (!socket?.userId || !receiverId) {
     console.warn("[Inbox] Waiting for socket and receiverId...");
@@ -161,11 +207,31 @@ useEffect(() => {
     if (!chatReceiver && location.state?.creatorId === receiverId) {
       chatReceiver = {
         userId: location.state.creatorId,
-        profilePicture: location.state.creatorPic || null,
-        fullName: location.state.creatorName || "",
+    profilePicture: chatReceiver.profilePicture || chatReceiver.creatorPic || chatReceiver.profileImage || null,
+        fullName:
+        location.state.creatorName ||
+        location.state.fullName ||
+        location.state.name ||
+        location.state.username ||
+        null, // don’t immediately fallback here
       };
       console.log("[Inbox] Using fallback receiver:", chatReceiver);
     }
+
+    // Normalize fields to ensure consistent receiver data
+  if (chatReceiver) {
+    chatReceiver = {
+      userId: chatReceiver.userId,
+    profilePicture: location.state?.creatorPic || null,
+      fullName:
+        chatReceiver.fullName ||
+        chatReceiver.name ||
+        chatReceiver.username ||
+        chatReceiver.displayName ||
+        "",
+    };
+  }
+ console.log("[Inbox] Resolved receiver:", chatReceiver);
 
     setActiveChatId(chatId);
     setChatMessages((prev) => ({
@@ -185,7 +251,7 @@ useEffect(() => {
   return () => {
     socket.off("JOIN_CHAT_SUCCESS", joinChatHandler);
   };
-}, [socket?.userId, receiverId]); // 👈 make sure userId exists before running
+},[socket, receiverId, location.state]); // 👈 make sure userId exists before running
 
 
 
@@ -468,6 +534,18 @@ useEffect(() => {
   };
 }, [socket]);
 
+const handleDeleteChat = (chatId) => {
+  if (activeChatId === chatId) {
+    setActiveChatId(null);
+    setReceiverId(null);
+    setReceiver(null);
+     localStorage.removeItem("receiverId");
+
+  }
+};
+
+console.log(receiver);
+
 
   return (
     <div className=" bg-gray-50 flex pb-20 ">
@@ -491,6 +569,9 @@ useEffect(() => {
         userStatuses={userStatuses}
          socketName={userStatuses[receiverId]?.name}
         socketProfile={userStatuses[receiverId]?.profileImage}
+          onDeleteChat={handleDeleteChat} 
+          receiverProfile={receiverProfile}
+
 
           />
       </div>
@@ -509,7 +590,7 @@ useEffect(() => {
               <div className="flex items-center ml-4 space-x-3">
                 <div className="relative">
                   <img
-                    src={receiver?.profilePicture || userStatuses[receiverId]?.profileImage}
+                    src={receiver?.profilePicture || userStatuses[receiverId]?.profileImage || receiverProfile?.image}
                     alt="Avatar"
                     className="w-8 h-8 rounded-full object-cover ring-2 ring-gray-100"
                     onError={(e) => { e.target.src = "/default-avatar.png"; }}
@@ -545,6 +626,7 @@ useEffect(() => {
               lastSeen={userStatuses[receiverId]?.last_seen}
               socketName={userStatuses[receiverId]?.name}
               socketProfile={userStatuses[receiverId]?.profileImage}
+               receiverProfile={receiverProfile}
                  />
             </div>
 
@@ -556,6 +638,7 @@ useEffect(() => {
               onDeleteMessage={handleDeleteMessage}
                socketName={userStatuses[receiverId]?.name}
               socketProfile={userStatuses[receiverId]?.profileImage}
+              receiverProfile={receiverProfile}
             />
 
             <MessageInput

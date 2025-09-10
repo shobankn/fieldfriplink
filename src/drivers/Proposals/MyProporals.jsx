@@ -359,6 +359,7 @@ const MyProposals = () => {
                 console.log("creatorName =", school?.schoolName);
                 console.log("creatorPhone =", school?.phoneNumber);
                 console.log("full school data =", school);
+                console.log("createdPic",school?.logo);
 
                 navigate("/chat", {
                   state: {

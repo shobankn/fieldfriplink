@@ -2,49 +2,27 @@ import { useEffect, useState } from 'react';
 import customer from '../../../images/customer.png';
 import formatLastSeen from './FormatedLastSeen'
 
-const ChatTopBar = ({ receiver,isOnline, lastSeen,socketName,socketProfile,receiverId }) => {
+const ChatTopBar = ({ receiver,isOnline, lastSeen,socketName,socketProfile,receiverId,receiverProfile }) => {
 
    const [userProfile, setUserProfile] = useState(null);
   
-const displayName = receiver?.fullName || receiver?.name || receiver?.username ||socketName|| userProfile?.name ;;
-const avatar = receiver?.profilePicture || receiver?.profileImage || customer || socketProfile || userProfile?.image;
-console.log("Receiver info:", receiver);
+const displayName = receiver?.fullName || receiver?.name || receiver?.username ||socketName|| receiverProfile?.name ;;
+  const avatar =
+    receiver?.profilePicture ||    // from JOIN_CHAT
+    receiver?.profileImage ||      // from JOIN_CHAT (alternate key)
+    socketProfile ||               // from socket status
+    receiverProfile?.image || 
+    receiver?.creatorPic ||
+    customer; 
+    
+     console.log("Receiver info:", receiver);
+  console.log("Socket Profile:", socketProfile);
+  console.log("Fetched Profile:", userProfile);
+  console.log("creator pic",receiver?.creatorPic)
 
 
 
-useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!receiverId) return;
 
-      try {
-        const token = localStorage.getItem("token"); // 🔑 Bearer token
-        if (!token) {
-          console.error("No token found in localStorage");
-          return;
-        }
-
-        const res = await fetch(
-          `https://fieldtriplinkbackend-production.up.railway.app/api/common/user-details/${receiverId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!res.ok) throw new Error("Failed to fetch user details");
-
-        const data = await res.json();
-        setUserProfile(data.data);
-      } catch (err) {
-        console.error("Error fetching user profile:", err);
-      }
-    };
-
-    fetchUserProfile();
-  }, [receiverId]);
 
 
 

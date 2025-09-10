@@ -16,6 +16,7 @@ import {
   User,
   LogOut,
   Calendar,
+  Bell,
 } from 'lucide-react';
 import { GoHome } from "react-icons/go";
 import { TbCurrentLocation } from "react-icons/tb";
@@ -35,6 +36,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { icon: IoDocumentTextOutline, label: 'Job Posts', path: '/job-post' },
     { icon: User, label: 'Driver Verification', path: '/hired-driver' },
     { icon: FileText, label: 'Proposal', path: '/proposal' },
+     { icon: Bell, label: 'Notification', path: '/notification'},
     { icon: CiSettings, label: 'Settings', path: '/setting' },
   ];
 

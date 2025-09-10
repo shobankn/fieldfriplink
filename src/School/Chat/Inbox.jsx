@@ -26,12 +26,51 @@ const InboxContent = () => {
   const [chatMessages, setChatMessages] = useState({}); // Store messages per chatId
   const [activeChatId, setActiveChatId] = useState(null);
   const [userStatuses, setUserStatuses] = useState({});
+    const [receiverProfile, setReceiverProfile] = useState(null);
+  
 
 
   const locationState = location.state;
   console.log("[Inbox] Location State:", locationState);
 
   const socket = useSocket({});
+
+
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!receiverId) return;
+  
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found in localStorage");
+          return;
+        }
+  
+        const res = await fetch(
+          `https://fieldtriplinkbackend-production.up.railway.app/api/common/user-details/${receiverId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+  
+        if (!res.ok) throw new Error("Failed to fetch user details");
+  
+        const data = await res.json();
+        console.log("[Inbox] API User Profile:", data.data);
+        setReceiverProfile(data.data);
+      } catch (err) {
+        console.error("Error fetching user profile:", err);
+      }
+    };
+  
+    fetchUserProfile();
+  }, [receiverId]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -449,6 +488,8 @@ const handleDeleteChat = (chatId) => {
          socketName={userStatuses[receiverId]?.name}
         socketProfile={userStatuses[receiverId]?.profileImage}
          onDeleteChat={handleDeleteChat} 
+        receiverProfile={receiverProfile}
+
 
           />
       </div>
@@ -503,6 +544,8 @@ const handleDeleteChat = (chatId) => {
               lastSeen={userStatuses[receiverId]?.last_seen}
               socketName={userStatuses[receiverId]?.name}
               socketProfile={userStatuses[receiverId]?.profileImage}
+              receiverProfile={receiverProfile}
+
                  />
             </div>
 
@@ -514,6 +557,8 @@ const handleDeleteChat = (chatId) => {
               onDeleteMessage={handleDeleteMessage}
                socketName={userStatuses[receiverId]?.name}
               socketProfile={userStatuses[receiverId]?.profileImage}
+              receiverProfile={receiverProfile}
+
             />
 
             <MessageInput

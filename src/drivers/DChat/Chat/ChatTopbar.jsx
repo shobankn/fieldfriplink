@@ -1,10 +1,28 @@
+import { useEffect, useState } from 'react';
 import customer from '../../../images/customer.png';
 import formatLastSeen from './FormatedLastSeen'
 
-const ChatTopBar = ({ receiver,isOnline, lastSeen,socketName,socketProfile }) => {
-const displayName = receiver?.fullName || receiver?.name || receiver?.username ||socketName;
-const avatar = receiver?.profilePicture || receiver?.profileImage || customer || socketProfile;
-console.log("Receiver info:", receiver);
+const ChatTopBar = ({ receiver,isOnline, lastSeen,socketName,socketProfile,receiverId,receiverProfile }) => {
+
+   const [userProfile, setUserProfile] = useState(null);
+  
+const displayName = receiver?.fullName || receiver?.name || receiver?.username ||socketName|| receiverProfile?.name ;;
+  const avatar =
+    receiver?.profilePicture ||    // from JOIN_CHAT
+    receiver?.profileImage ||      // from JOIN_CHAT (alternate key)
+    socketProfile ||               // from socket status
+    receiverProfile?.image || 
+    receiver?.creatorPic ||
+    customer; 
+    
+     console.log("Receiver info:", receiver);
+  console.log("Socket Profile:", socketProfile);
+  console.log("Fetched Profile:", userProfile);
+  console.log("creator pic",receiver?.creatorPic)
+
+
+
+
 
 
 
@@ -47,3 +65,7 @@ console.log("Receiver info:", receiver);
 };
 
 export default ChatTopBar;
+
+
+
+// this is updated code haris

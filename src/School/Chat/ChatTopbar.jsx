@@ -1,10 +1,14 @@
+import { useEffect, useState } from 'react';
 import customer from '../../images/customer.png';
 import formatLastSeen from './FormatedLastSeen'
 
-const ChatTopBar = ({ receiver,isOnline, lastSeen,socketName,socketProfile }) => {
-const displayName = receiver?.fullName || receiver?.name || receiver?.username ||socketName;
-const avatar = receiver?.profilePicture || receiver?.profileImage || customer || socketProfile;
+const ChatTopBar = ({ receiver,isOnline,receiverId, lastSeen,socketName,socketProfile,receiverProfile }) => {
+const displayName = receiver?.fullName || receiver?.name || receiver?.username ||socketName || receiverProfile?.name ;
+const avatar = receiver?.profilePicture || receiver?.profileImage || customer || socketProfile || receiverProfile?.image;
 console.log("Receiver info:", receiver);
+
+
+
 
 
 

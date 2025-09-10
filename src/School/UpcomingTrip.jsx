@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { Clock, MapPin, Phone } from 'lucide-react';
+import { Clock, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const statusColors = {
@@ -38,10 +38,37 @@ const TripCard = ({ trip }) => {
 </div>
 
 <div className="flex items-center space-x-2 mt-3">
-  {/* <button onClick={()=> navigate('/live-tracking')} className=" flex cursor-pointer items-center border-2 p-2 rounded-[6px] border-[#D1D5DB] space-x-1 text-xs text-gray-600 hover:text-gray-900">
-    <MapPin className="w-4 h-4" />
-    <span className="text-[14px] inter-medium">Track</span>
-  </button> */}
+  {trip.status === "active" && (
+    <button
+      onClick={() => navigate('/live-tracking')}
+      className="flex cursor-pointer items-center border-2 p-2 rounded-[6px] border-[#D1D5DB] space-x-1 text-xs text-gray-600 hover:text-gray-900"
+    >
+      <MapPin className="w-4 h-4" />
+      <span className="text-[14px] inter-medium">Track</span>
+    </button>
+  )}
+
+  {trip.status === "scheduled" && (
+<button
+    onClick={() => {
+      const firstDriver = trip.assignedDrivers[0]; // now this exists
+      if (!firstDriver?._id) return;
+
+      navigate("/messages", {
+        state: {
+          creatorId: firstDriver._id,
+          creatorPic: firstDriver.profileImage,
+          creatorName: firstDriver.name
+        }
+      });
+    }}
+    className="flex cursor-pointer items-center border-2 p-2 rounded-[6px] border-[#D1D5DB] space-x-1 text-xs text-gray-600 hover:text-gray-900"
+  >
+    <MessageCircle className="w-4 h-4" />
+    <span className="text-[14px] inter-medium">Chat</span>
+  </button>
+
+  )}
 
   {/* Show a Call button for each driver with a phone */}
   {/* {trip.drivers?.map((driver, idx) =>
@@ -57,6 +84,7 @@ const TripCard = ({ trip }) => {
     ) : null
   )} */}
 </div>
+
 
     </div>
   );
@@ -143,11 +171,20 @@ useEffect(() => {
           drivers: trip.assignedDrivers?.length
       ? trip.assignedDrivers.map(driver => ({
           name: driver.name || "Unknown",
-          phone: driver.phone || null
+          phone: driver.phone || null,
+        driverid: driver._id || null,
+           
+  
         }))
-      : []
+      : [],
+
+        assignedDrivers: trip.assignedDrivers || []  // ✅ add this line
+
+
   }))
         .slice(0, 4); // just limit to 4
+
+        console.log(res.data.trips);
 
       setTrips(formattedTrips);
     } catch (err) {

@@ -4,7 +4,7 @@ import customer from '../../images/customer.png';
 import DeleteChatModal from './DeleteChatModel';
 import { MoreVertical, Trash2 } from "lucide-react";
 
-const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketProfile }) => {
+const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketProfile,onDeleteChat,receiverProfile  }) => {
   const socket = useSocketContext();
   const [chats, setChats] = useState([]);
   const chatsRef = useRef(chats); // Keep a ref to current chats
@@ -245,7 +245,7 @@ const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketPr
               ))}
             </div>
           ) : sortedChats.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 px-6">
+            <div className="flex flex-col items-center justify-center py-12 bg-white px-6">
            
             </div>
           ) : (
@@ -266,7 +266,7 @@ const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketPr
                 >
                   <div className="relative">
                     <img
-                      src={participant.profileImage || customer || socketProfile}
+                      src={participant.profileImage || customer || socketProfile || receiverProfile?.image}
                       className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-red-200 transition-all duration-200"
                       alt={`${participant.name || socketName}'s avatar`}
                     />
@@ -274,7 +274,7 @@ const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketPr
                   </div>
                   <div className="ml-4 flex-1 min-w-0">
                     <p className={`text-sm font-semibold truncate group-hover:text-red-600 transition-colors duration-200 ${activeChatId === chat.chatId ? 'text-red-600' : 'text-gray-900'}`}>
-                      {participant.name || socketName}
+                      {participant.name || receiverProfile?.name || socketName}
                     </p>
                     <p className={`text-xs truncate mt-1 ${activeChatId === chat.chatId ? 'text-red-600' : 'text-gray-500'}`}>
                       {chat.lastMessage ? (
@@ -309,15 +309,25 @@ const ChatSidebar = ({ onSelectChat, className, userStatuses,socketName,socketPr
         </div>
       </div>
       <DeleteChatModal
-        isOpen={showDeleteModal}
-        chat={chatToDelete}
-        onClose={closeDeleteModal}
-        socketName={socketName}
-        socketProfile={socketProfile}
-        onDeleted={(chatId) =>
-          setChats((prev) => prev.filter((c) => c.chatId !== chatId))
-        }
-      />
+  isOpen={showDeleteModal}
+  chat={chatToDelete}
+  onClose={closeDeleteModal}
+  socketName={socketName}
+  socketProfile={socketProfile}
+onDeleted={(chatId) => {
+  setChats((prev) => prev.filter((c) => c.chatId !== chatId));
+
+  // Clear active chat state if the deleted chat was open
+  if (localStorage.getItem("receiverId")) {
+    localStorage.removeItem("receiverId");
+  }
+  if (localStorage.getItem("activeChatId") === chatId) {
+    localStorage.removeItem("activeChatId");
+  }
+
+  if (onDeleteChat) onDeleteChat(chatId); // tell parent to close ChatWindow
+}}
+/>
     </>
   );
 };

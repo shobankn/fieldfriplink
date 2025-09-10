@@ -47,6 +47,7 @@ import MyHairDriver from './School/Proposals/MYhairDriver';
 import MyRides from './drivers/myrides/MyRides';
 import Internalinvitations from './School/Proposals/Internalinvitations';
 import { listenToMessages } from './School/Firebase';
+import NotificationTab from './School/NotificationTab/NotificationTab';
 
 
 
@@ -144,6 +145,8 @@ function App() {
       <Route path='/hired-driver/:id'element={<ProtectedRoute><HireDriverDetails/></ProtectedRoute>}/>
       <Route path='/proposal' element={<ProtectedRoute><DriverProposal/></ProtectedRoute>}/>
       <Route path='/messages' element={<ProtectedRoute><Messages/></ProtectedRoute>}/>
+     <Route path='/notification' element={<ProtectedRoute><NotificationTab/></ProtectedRoute>} />
+
       {/* <Route path='/live' element={<DriverSimulator/>}/> */}
      
 

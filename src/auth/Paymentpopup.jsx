@@ -113,9 +113,9 @@ const handlePaymentSubmit = async (plan) => {
         {/* --- Top --- */}
         <div className="flex flex-col sm:flex-row justify-between items-start mb-8">
           <div className="mb-4 sm:mb-0">
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Monthly Plan</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Pilot Monthly Plan</h3>
             <p className="text-gray-600 leading-relaxed">
-              Unlimited access and 50$ fee only on completed trip + Driver wage (Minimum 15$ per hour)
+              Unlimited access and $50 fee only on completed trip + Driver wage (Minimum $25 per hour)
             </p>
           </div>
           <div className="flex items-baseline">
@@ -159,7 +159,7 @@ const handlePaymentSubmit = async (plan) => {
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               </div>
-              <span className="ml-3 text-gray-700">You need to pay driver wages (Minimun 15$ per hour)</span>
+              <span className="ml-3 text-gray-700">You need to pay driver wages (Minimun $25 per hour)</span>
             </div>
           </div>
 
@@ -219,7 +219,7 @@ const handlePaymentSubmit = async (plan) => {
               </span> */}
             </div>
             <p className="text-gray-600 leading-relaxed">
-              It will be 4200$ from next year + Driver wages (Minimum 15$ per hour )
+              It will be $4200 from next year + Driver wages (Minimum $25 per hour )
             </p>
           </div>
           <div className="flex items-baseline">
@@ -261,7 +261,7 @@ const handlePaymentSubmit = async (plan) => {
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               </div>
-              <span className="ml-3 text-gray-700">You need to pay driver wages (Minimun 15$ per hour)</span>
+              <span className="ml-3 text-gray-700">You need to pay driver wages (Minimun $25 per hour)</span>
             </div>
           </div>
 

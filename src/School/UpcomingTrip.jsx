@@ -38,13 +38,13 @@ const TripCard = ({ trip }) => {
 </div>
 
 <div className="flex items-center space-x-2 mt-3">
-  <button onClick={()=> navigate('/live-tracking')} className=" flex cursor-pointer items-center border-2 p-2 rounded-[6px] border-[#D1D5DB] space-x-1 text-xs text-gray-600 hover:text-gray-900">
+  {/* <button onClick={()=> navigate('/live-tracking')} className=" flex cursor-pointer items-center border-2 p-2 rounded-[6px] border-[#D1D5DB] space-x-1 text-xs text-gray-600 hover:text-gray-900">
     <MapPin className="w-4 h-4" />
     <span className="text-[14px] inter-medium">Track</span>
-  </button>
+  </button> */}
 
   {/* Show a Call button for each driver with a phone */}
-  {trip.drivers?.map((driver, idx) =>
+  {/* {trip.drivers?.map((driver, idx) =>
     driver.phone ? (
       <a
         key={idx}
@@ -55,7 +55,7 @@ const TripCard = ({ trip }) => {
         <span className="text-[14px] inter-medium">Call</span>
       </a>
     ) : null
-  )}
+  )} */}
 </div>
 
     </div>

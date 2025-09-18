@@ -6,7 +6,9 @@ const ChatTopBar = ({ receiver,isOnline, lastSeen,socketName,socketProfile,recei
 
    const [userProfile, setUserProfile] = useState(null);
   
-const displayName = receiver?.fullName || receiver?.name || receiver?.username ||socketName|| receiverProfile?.name ;;
+// const displayName = receiver?.fullName || receiver?.name || receiver?.username || receiverProfile?.name ;
+const displayName = receiverProfile?.name ;
+
   const avatar =
     receiver?.profilePicture ||    // from JOIN_CHAT
     receiver?.profileImage ||      // from JOIN_CHAT (alternate key)
@@ -68,4 +70,4 @@ export default ChatTopBar;
 
 
 
-// this is updated code haris
+// remve user name

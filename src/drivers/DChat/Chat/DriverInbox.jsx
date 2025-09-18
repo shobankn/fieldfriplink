@@ -207,8 +207,8 @@ useEffect(() => {
     if (!chatReceiver && location.state?.creatorId === receiverId) {
       chatReceiver = {
         userId: location.state.creatorId,
- profilePicture: chatReceiver?.profilePicture || chatReceiver?.creatorPic || chatReceiver?.profileImage || null,
-
+    // profilePicture: chatReceiver.profilePicture || chatReceiver.creatorPic || chatReceiver.profileImage || null,
+    profilePicture: chatReceiver?.profilePicture || chatReceiver?.creatorPic || chatReceiver?.profileImage || null,
         fullName:
         location.state.creatorName ||
         location.state.fullName ||

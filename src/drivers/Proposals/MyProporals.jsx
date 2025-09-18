@@ -366,7 +366,7 @@ const MyProposals = () => {
                     // creatorId: school?._id, 
                       creatorId: school?.createdBy, 
                     creatorPic: school?.logo || school?.profileImage || null, // ✅ optional
-                    creatorName: school?.schoolName,        // ✅ (optional: show in chat header)
+                    creatorName: school?.schoolName,      // ✅ (optional: show in chat header)
                   },
                 });
               }}

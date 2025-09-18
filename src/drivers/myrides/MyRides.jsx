@@ -121,7 +121,7 @@ const MyRides = () => {
 
         // If the invitation is accepted, add it to the Scheduled rides
         if (action === 'accepted' && acceptedInvitation) {
-          updatedState.Scheduled = [...prev.Scheduled, { ...acceptedInvitation, id: acceptedInvitation.id }];
+          updatedState.Scheduled = [...prev.Scheduled, { ...acceptedInvitation, id: acceptedInvitation.tripId }];
         }
 
         return updatedState;
@@ -278,6 +278,7 @@ const MyRides = () => {
 
           return {
             id: inv._id,
+            tripId: trip._id,
             school: trip.tripName,
             schoolName: trip.schoolId?.schoolName || 'Unknown School',
             pickup: trip.pickupPoints[0]?.address || 'N/A',

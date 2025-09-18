@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
-import { Edit, X, Save, Upload, User } from 'lucide-react';
+import { Edit, X, Save, Upload, User, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -27,13 +27,16 @@ const DriverProfile = () => {
     fullName: '',
     email: '',
     city: '',
-    // cnic: '',
     phone: '',
     partnerSchool: '',
+    schoolId: '',
     profileImage: '',
+    isVerified: false,
   });
   const [editData, setEditData] = useState({ ...profileData });
   const [selectedImage, setSelectedImage] = useState(null);
+  const [showStatusPopup, setShowStatusPopup] = useState(false);
+  const [pendingSchoolChange, setPendingSchoolChange] = useState(null); // Store pending school change
   const dropdownRef = useRef(null);
 
   // Toast function with unique ID and debouncing
@@ -79,28 +82,29 @@ const DriverProfile = () => {
         const { user, profile, schoolAssignments } = response.data;
         console.log(response.data);
         
-        // Get the assigned school name from schoolAssignments array
+        // Get the assigned school name and ID from schoolAssignments array
         let assignedSchool = '';
+        let assignedSchoolId = '';
         if (schoolAssignments && schoolAssignments.length > 0) {
-          // Just take the first school assignment regardless of status
           assignedSchool = schoolAssignments[0].schoolName || '';
+          assignedSchoolId = schoolAssignments[0].schoolId || '';
         }
 
         const updatedProfileData = {
           fullName: user.name || '',
           email: user.email || '',
           city: profile.address || '',
-          // cnic: profile.cnicNumber || '',
           phone: user.phone || user.phoneNumber || '',
           partnerSchool: assignedSchool,
+          schoolId: assignedSchoolId,
           profileImage: user.profileImage || '',
+          isVerified: schoolAssignments.length > 0 && schoolAssignments[0]?.status === 'approved',
         };
         
         setProfileData(updatedProfileData);
         setEditData(updatedProfileData);
         
-        
-        // Also update localStorage with the correct school name
+        // Update localStorage with the correct school name
         if (assignedSchool) {
           localStorage.setItem('partnerSchool', assignedSchool);
         }
@@ -134,6 +138,7 @@ const DriverProfile = () => {
   const handleEditClick = () => {
     setEditData({ ...profileData });
     setSelectedImage(null);
+    setPendingSchoolChange(null);
     setIsEditModalOpen(true);
   };
 
@@ -183,6 +188,33 @@ const DriverProfile = () => {
     }
   };
 
+  const handleSchoolSelect = (schoolName, schoolId) => {
+    if (profileData.isVerified && schoolId !== profileData.schoolId) {
+      setPendingSchoolChange({ schoolName, schoolId });
+      setShowStatusPopup(true);
+      return;
+    }
+    handleInputChange('partnerSchool', schoolName);
+    handleInputChange('schoolId', schoolId);
+    setIsDropdownOpen(false);
+  };
+
+  const confirmSchoolChange = () => {
+    if (pendingSchoolChange) {
+      handleInputChange('partnerSchool', pendingSchoolChange.schoolName);
+      handleInputChange('schoolId', pendingSchoolChange.schoolId);
+    }
+    setShowStatusPopup(false);
+    setIsDropdownOpen(false);
+    showToast('School change confirmed. Status will be set to pending.', 'warning', 'school-change-confirm');
+  };
+
+  const cancelSchoolChange = () => {
+    setShowStatusPopup(false);
+    setPendingSchoolChange(null);
+    setIsDropdownOpen(false);
+  };
+
   const handleSave = async () => {
     // Validate fullName
     if (!editData.fullName.trim()) {
@@ -207,7 +239,6 @@ const DriverProfile = () => {
       formData.append('email', editData.email);
       formData.append('phone', editData.phone);
       formData.append('address', editData.city);
-      // formData.append('cnicNumber', editData.cnic);
 
       if (selectedImage) {
         formData.append('profileImage', selectedImage);
@@ -216,6 +247,11 @@ const DriverProfile = () => {
       // Append actual FCM token string
       if (fcmToken) {
         formData.append('fcmToken', fcmToken);
+      }
+
+      // Append schoolId for school update
+      if (editData.schoolId) {
+        formData.append('schoolId', editData.schoolId);
       }
 
       const response = await axios.post(
@@ -229,20 +265,45 @@ const DriverProfile = () => {
         }
       );
 
-      // Update profile data but keep the partner school from API response
-      const updatedProfile = {
+      // Fetch updated profile data to get correct verification status
+      const updatedResponse = await axios.get('https://fieldtriplinkbackend-production.up.railway.app/api/driver/my-profile', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const { user: updatedUser, profile: updatedProfile, schoolAssignments: updatedSchoolAssignments } = updatedResponse.data;
+
+      // Get updated assigned school name and ID
+      let updatedAssignedSchool = '';
+      let updatedAssignedSchoolId = '';
+      if (updatedSchoolAssignments && updatedSchoolAssignments.length > 0) {
+        updatedAssignedSchool = updatedSchoolAssignments[0].schoolName || '';
+        updatedAssignedSchoolId = updatedSchoolAssignments[0].schoolId || '';
+      }
+
+      // Update profile data
+      const updatedProfileData = {
         ...editData,
-        profileImage: response.data.user.profileImage || editData.profileImage,
+        fullName: updatedUser.name || editData.fullName,
+        email: updatedUser.email || editData.email,
+        phone: updatedUser.phone || updatedUser.phoneNumber || editData.phone,
+        city: updatedProfile.address || editData.city,
+        partnerSchool: updatedAssignedSchool,
+        schoolId: updatedAssignedSchoolId,
+        profileImage: updatedUser.profileImage || editData.profileImage,
+        isVerified: updatedSchoolAssignments.length > 0 && updatedSchoolAssignments[0]?.status === 'approved',
       };
 
-      setProfileData(updatedProfile);
-      setEditData(updatedProfile);
+      setProfileData(updatedProfileData);
+      setEditData(updatedProfileData);
       
       // Update localStorage
-      localStorage.setItem('partnerSchool', updatedProfile.partnerSchool);
+      localStorage.setItem('partnerSchool', updatedProfileData.partnerSchool);
       
       setIsEditModalOpen(false);
       setSelectedImage(null);
+      setPendingSchoolChange(null);
       showToast('Profile updated successfully!', 'success', 'profile-update-success');
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -257,6 +318,8 @@ const DriverProfile = () => {
     setSelectedImage(null);
     setIsEditModalOpen(false);
     setIsDropdownOpen(false);
+    setPendingSchoolChange(null);
+    setShowStatusPopup(false);
   };
 
   const handleInputChange = (field, value) => {
@@ -264,11 +327,6 @@ const DriverProfile = () => {
       ...prev,
       [field]: value,
     }));
-  };
-
-  const handleSchoolSelect = (schoolName) => {
-    handleInputChange('partnerSchool', schoolName);
-    setIsDropdownOpen(false);
   };
 
   const toggleSidebar = () => {
@@ -389,18 +447,6 @@ const DriverProfile = () => {
                         </p>
                       )}
                     </div>
-{/* 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">CNIC</label>
-                      {isLoading ? (
-                        <div className="h-5 bg-gray-200 rounded animate-pulse w-3/4"></div>
-                      ) : (
-                        <p className={`font-medium ${profileData.cnic ? 'text-gray-900' : 'text-gray-500 text-[12px]'}`}>
-                          {profileData.cnic || 'Not Available'}
-                        </p>
-                      )}
-                    </div> */}
-
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
                       {isLoading ? (
@@ -441,6 +487,16 @@ const DriverProfile = () => {
                         </p>
                       )}
                     </div>
+                    {/* <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Verification Status</label>
+                      {isLoading ? (
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                      ) : (
+                        <p className={`font-medium ${profileData.isVerified ? 'text-green-600' : 'text-red-600 text-[12px]'}`}>
+                          {profileData.isVerified ? 'Approved' : 'Not Approved'}
+                        </p>
+                      )}
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -553,19 +609,6 @@ const DriverProfile = () => {
                           required
                         />
                       </div>
-
-                      {/* <div>
-
-                        <label className="block text-sm font-medium text-gray-700 mb-2">CNIC</label>
-                        <input
-                          type="text"
-                          value={editData.cnic}
-                          onChange={(e) => handleInputChange('cnic', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="Enter CNIC"
-                        />
-                      </div> */}
-
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                         <input
@@ -613,7 +656,7 @@ const DriverProfile = () => {
                               {schools.map((school) => (
                                 <div
                                   key={school._id}
-                                  onClick={() => handleSchoolSelect(school.schoolName)}
+                                  onClick={() => handleSchoolSelect(school.schoolName, school._id)}
                                   className="px-3 py-2 text-black hover:bg-gray-100 cursor-pointer"
                                 >
                                   {school.schoolName}
@@ -628,6 +671,36 @@ const DriverProfile = () => {
 
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-end p-6 border-t border-gray-200">
                     <div className="flex gap-3 order-2 sm:order-1"></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showStatusPopup && (
+              <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+                  <div className="p-6">
+                    <div className="flex items-center justify-center mb-4">
+                      <AlertTriangle className="w-12 h-12 text-yellow-500" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 text-center">Warning</h3>
+                    <p className="text-gray-600 mb-6 text-center">
+                      Your profile is currently approved. Changing the school will set your status to pending. Do you want to continue?
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                      <button
+                        onClick={confirmSchoolChange}
+                        className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-md transition-colors duration-200"
+                      >
+                        Yes, Continue
+                      </button>
+                      <button
+                        onClick={cancelSchoolChange}
+                        className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium rounded-md transition-colors duration-200"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

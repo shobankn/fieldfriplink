@@ -241,6 +241,17 @@ const handleSendJobPost = async (trip, note = "Please accept the invitation") =>
                             <div className="text-sm inter-regular text-gray-600 mb-1">Completed: <span className='inter-semibold text-gray-900'>{driver.completedTripCount || 0} trips</span> </div>
                          
                           </div>
+                          
+                          {driver?.hourlyRate && (
+                            <div className="">
+                              <div className="text-sm inter-regular text-gray-600 mb-1">
+                                Hourly Rate: <span className="inter-semibold text-gray-900">
+                                  ${driver.hourlyRate}/hr
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
                           <div className="flex flex-wrap justify-center sm:justify-start gap-1">
                             {driver.notes && (
                               <span className="px-3 py-1 bg-[#F3F4F6] text-[#3B4555] text-sm rounded-full inter-medium">

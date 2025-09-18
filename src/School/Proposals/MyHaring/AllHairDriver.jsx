@@ -38,6 +38,8 @@ const AllHairDriverList = () => {
         }
 
         const data = await response.json();
+
+        console.log("Driver data fetched:", data);
         setDrivers(data.drivers || []);
       } catch (error) {
         console.error("Error fetching drivers:", error);
@@ -212,6 +214,17 @@ const AllHairDriverList = () => {
                           <MapPin className="w-4 h-4 flex-shrink-0" />
                           <span className="inter-regular">{driver.address}</span>
                         </div>
+
+                        {driver?.hourlyRate && (
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <MapPin className="w-4 h-4 flex-shrink-0" />
+                            <span className="inter-regular">
+                              ${driver.hourlyRate}/hr
+                            </span>
+                          </div>
+                        )}
+
+
                         <div className="flex items-center gap-2 text-gray-500">
                           <Calendar className="w-4 h-4 flex-shrink-0" />
                           <span className="inter-regular">

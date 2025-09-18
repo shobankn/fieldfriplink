@@ -559,10 +559,10 @@ console.log(receiver);
 
       <div
         className={`
-          fixed left-0 lg:left-70 2xl:left:[100%] w-80 h-screen bg-white border-r border-gray-200 z-50 shadow-lg transition-transform duration-300 ease-in-out
+          fixed left-0 lg:left-70 2xl:left-85 w-80 h-screen bg-white border-r border-gray-200 z-50 shadow-lg transition-transform duration-300 ease-in-out
           md:translate-x-0 md:z-30
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        `}
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+        ` } style={{}}
       >
         <ChatSidebar 
          onSelectChat={handleSelectChat}
@@ -619,7 +619,8 @@ console.log(receiver);
             </div>
             
             {/* Desktop Top Bar */}
-            <div className="hidden md:block">
+            <div className="hidden md:block 
+">
               <ChatTopBar
                receiver={receiver}
               receiverId={receiverId}
@@ -632,6 +633,7 @@ console.log(receiver);
             </div>
 
             <ChatWindow
+            className=""
               chatId={activeChatId}
               messages={chatMessages[activeChatId] || []}
               receiver={receiver}

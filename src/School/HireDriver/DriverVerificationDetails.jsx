@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, User, FileText, Image as ImageIcon, Calendar, MapPin, Mail, Phone, Download, Check, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { ArrowLeft, User, FileText, Image as ImageIcon, Calendar, MapPin, Mail, Phone, Download, Check, X, ZoomIn, ZoomOut, Clock } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
@@ -91,6 +91,7 @@ if (profile.vehicleRegistrationImage) {
             name: user.name,
             email: user.email,
             phone: user.phone,
+            hourlyRate:user.hourlyRate || null,
             profilePhoto: user.profileImage || null, // Fallback to default profile image
             cnicNumber: profile.cnicNumber || 'N/A',
             joinedDate: profile.joinedDate
@@ -401,6 +402,18 @@ const DocumentItem = ({ document, label, onImageClick }) => (
                         <span className="inter-semibold text-gray-900">{driverData.personalInfo.address}</span>
                       </div>
                     </div>
+                    {driverData?.personalInfo?.hourlyRate && (
+                        <div className="sm:col-span-2">
+                          <span className="text-sm text-gray-500 inter-regular block mb-1">Hourly Rate</span>
+                          <div className="flex items-start gap-2">
+                            <Clock className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                            <span className="inter-semibold text-gray-900">
+                              ${driverData.personalInfo.hourlyRate}/hr
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
                   </div>
                 </div>
 

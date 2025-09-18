@@ -67,8 +67,8 @@ const JobProposalsInterface = () => {
       );
       const newTrips = res.data.trips || [];
 
-      // Filter for public and published trips
-      const filteredNewTrips = newTrips.filter(trip => trip.visibility === 'public' && trip.tripStatus === 'published');
+      // Filter for public trips only (all statuses)
+      const filteredNewTrips = newTrips.filter(trip => trip.visibility === 'public');
 
       const dayMap = {
         mon: 'Monday',

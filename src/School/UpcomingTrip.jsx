@@ -71,7 +71,7 @@ const TripCard = ({ trip }) => {
   )}
 
   {/* Show a Call button for each driver with a phone */}
-  {trip.drivers?.map((driver, idx) =>
+  {/* {trip.drivers?.map((driver, idx) =>
     driver.phone ? (
       <a
         key={idx}
@@ -82,7 +82,7 @@ const TripCard = ({ trip }) => {
         <span className="text-[14px] inter-medium">Call</span>
       </a>
     ) : null
-  )}
+  )} */}
 </div>
 
 

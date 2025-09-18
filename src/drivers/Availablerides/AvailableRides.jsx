@@ -24,6 +24,8 @@ const AvailableRides = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(10);
+  const [proposalHourlyRate, setProposalHourlyRate] = useState('');
+
 
   const MAX_WORDS = 500;
 
@@ -71,6 +73,7 @@ const AvailableRides = () => {
           },
         });
 
+        console.log("driver profile",response.data);
         setDriverProfile(response.data);
       } catch (err) {
         console.error('Error fetching driver profile:', err);
@@ -149,6 +152,8 @@ const AvailableRides = () => {
         let total = 1;
         let responseLimit = limit;
 
+
+
         if (response.data?.trips && Array.isArray(response.data.trips)) {
           trips = response.data.trips;
           total = response.data.total || 1;
@@ -223,11 +228,21 @@ const AvailableRides = () => {
     fetchTrips();
   }, [currentPage]);
 
+  useEffect(() => {
+  if (driverProfile?.user?.hourlyRate) {
+    setProposalHourlyRate(driverProfile.user.hourlyRate);
+  }
+}, [driverProfile]);
+
+
   const handleSendProposal = (ride) => {
     setSelectedRide(ride);
-    setProposalMessage('');
+    setProposalMessage(''); 
     setIsProposalModalOpen(true);
   };
+
+
+
 
   const handleCloseModal = () => {
     if (isClosingModal) return;
@@ -255,6 +270,7 @@ const AvailableRides = () => {
         {
           tripId: selectedRide.id,
           driverNote: proposalMessage,
+           hourlyRate: proposalHourlyRate, // ✅ include here
         },
         {
           headers: {
@@ -579,6 +595,21 @@ const AvailableRides = () => {
                   Word count: {countWords(proposalMessage)}/{MAX_WORDS}
                 </p>
               </div>
+
+              <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <LuClock className="text-gray-600" />
+                <label className="text-sm font-medium text-gray-700">Hourly Rate</label>
+              </div>
+              <input
+                type="number"
+                value={proposalHourlyRate}
+                onChange={(e) => setProposalHourlyRate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                placeholder="Enter your hourly rate"
+              />
+            </div>
+
             </div>
 
             <div className="flex justify-end gap-3 p-6 border-t border-gray-200">

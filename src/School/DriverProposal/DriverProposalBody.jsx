@@ -11,7 +11,8 @@ import {
   X,
   Briefcase,
   Check,
-  User2
+  User2,
+  Clock
 } from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -135,8 +136,15 @@ const DriverRequestsComponent = () => {
             returnTime: formatExactUTCTime(trip.returnTime),
             numberOfBuses: trip.numberOfBuses,
             numberOfStudents: trip.numberOfStudents,
+            hourlyRate: proposal.hourlyRate ?? null,
+
           };
         });
+
+
+
+        console.log("Fetched proposals:", response);
+        console.log("Formatted proposals:", proposals);
 
         setDriverRequests(proposals);
       } catch (err) {
@@ -168,6 +176,8 @@ const DriverRequestsComponent = () => {
               Authorization: `Bearer ${token}`,
             },
           });
+
+          console.log("Fetched driver details:", response.data);
           setDriverDetails(response.data);
         } catch (err) {
           const errorMessage = err.response?.status === 401 ? 'Unauthorized: Invalid or expired token' : 'Failed to fetch driver details';
@@ -301,6 +311,16 @@ const DriverRequestsComponent = () => {
                           <MapPin className="w-4 h-4" />
                           <span className="whitespace-nowrap inter-regular break-words">{driver.location}</span>
                         </div>
+
+                         {driver?.hourlyRate && (
+                        <div className="flex items-center space-x-1">
+                          <Clock className="w-4 h-4" />
+                          <span className="whitespace-nowrap inter-regular break-words">
+                            ${driver.hourlyRate}/hr
+                          </span>
+                        </div>
+                      )}
+
                       </div>
                     </div>
                   </div>
@@ -427,6 +447,20 @@ const DriverRequestsComponent = () => {
                               <span className="text-sm inter-medium text-gray-500 block mb-1">Number of Buses:</span>
                               <div className="inter-medium text-gray-900 break-words">{selectedDriver.numberOfBuses}</div>
                             </div>
+
+                            {selectedDriver?.hourlyRate && (
+                              <div>
+                                <span className="text-sm inter-medium text-gray-500 block mb-1">
+                                  Proposal Hourly Rate:
+                                </span>
+                                <div className="inter-medium text-gray-900 break-words">
+                                  ${selectedDriver.hourlyRate}/hr
+                                </div>
+                              </div>
+                            )}
+
+
+                            
                           </div>
                         </div>
                       </div>
@@ -530,6 +564,18 @@ const DriverRequestsComponent = () => {
                                 <span className="text-sm inter-regular text-gray-500 block mb-1">Phone:</span>
                                 <div className="inter-medium text-gray-900 break-words">{driverDetails.user.phone}</div>
                               </div>
+
+                              {driverDetails?.user?.hourlyRate && (
+                              <div>
+                                <span className="text-sm inter-regular text-gray-500 block mb-1">
+                                  Hourly Rate:
+                                </span>
+                                <div className="inter-medium text-gray-900 break-words">
+                                  ${driverDetails.user.hourlyRate}/hr
+                                </div>
+                              </div>
+                            )}
+
                             </div>
                             <div className="space-y-4">
                               <div>

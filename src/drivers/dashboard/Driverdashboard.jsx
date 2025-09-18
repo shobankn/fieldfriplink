@@ -1,9 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Topbar from '../component/topbar/topbar';
 import Sidebar from '../component/sidebar/Sidebar';
 import { Calendar, CalendarHeartIcon, CircleCheckIcon, MessageSquare, Star, Users } from 'lucide-react';
 import axios from 'axios';
+
+// Debounce function for toast notifications to prevent rapid triggers
+const debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
 
 const Driverdashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -29,14 +40,30 @@ const Driverdashboard = () => {
   const [userName, setUserName] = useState('Driver');
   const navigate = useNavigate();
 
+  // Toast function with debouncing
+  const showToast = debounce((message, type = 'error', toastId) => {
+    toast.dismiss();
+    toast(message, {
+      toastId,
+      type,
+      autoClose: 2000,
+      closeOnClick: true,
+      pauseOnHover: false,
+    });
+  }, 300);
+
   useEffect(() => {
+    // Fetch user profile data
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          showToast('Authentication required. Please log in.', 'error', 'auth-user-error');
+          setLoading((prev) => ({ ...prev, userData: false }));
+          return;
+        }
         const response = await axios.get('https://fieldtriplinkbackend-production.up.railway.app/api/driver/my-profile', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const { user, schoolAssignments } = response.data;
@@ -44,6 +71,7 @@ const Driverdashboard = () => {
         setIsApproved(schoolAssignments && schoolAssignments.length > 0 && schoolAssignments[0].status === 'approved');
       } catch (error) {
         console.error('Error fetching user data:', error);
+        showToast('Failed to fetch user data', 'error', 'user-fetch-error');
         setUserName('Driver');
         setIsApproved(false);
       } finally {
@@ -51,27 +79,40 @@ const Driverdashboard = () => {
       }
     };
 
+    // Fetch driver stats
     const fetchStats = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          showToast('Authentication required. Please log in.', 'error', 'auth-stats-error');
+          setLoading((prev) => ({ ...prev, stats: false }));
+          return;
+        }
         const response = await axios.get('https://fieldtriplinkbackend-production.up.railway.app/api/driver/stats', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setStats((prev) => ({
           ...prev,
-          totalReviews: response.data.totalReviews,
-          availableTrips: response.data.availableTrips,
+          totalReviews: response.data.totalReviews || 0,
+          availableTrips: response.data.availableTrips || 0,
         }));
-        setLoading((prev) => ({ ...prev, stats: false }));
       } catch (error) {
         console.error('Error fetching stats:', error);
+        showToast('Failed to fetch stats', 'error', 'stats-fetch-error');
+      } finally {
         setLoading((prev) => ({ ...prev, stats: false }));
       }
     };
 
+    // Fetch active ride
     const fetchActiveRide = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          showToast('Authentication required. Please log in.', 'error', 'auth-active-ride-error');
+          setLoading((prev) => ({ ...prev, activeRide: false }));
+          return;
+        }
         const response = await axios.get(
           'https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips?status=active',
           { headers: { Authorization: `Bearer ${token}` } }
@@ -86,17 +127,24 @@ const Driverdashboard = () => {
               }
             : null
         );
-        setLoading((prev) => ({ ...prev, activeRide: false }));
       } catch (error) {
         console.error('Error fetching active ride:', error);
+        showToast('Failed to fetch active ride', 'error', 'active-ride-fetch-error');
         setActiveRide(null);
+      } finally {
         setLoading((prev) => ({ ...prev, activeRide: false }));
       }
     };
 
+    // Fetch scheduled rides
     const fetchScheduledRides = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          showToast('Authentication required. Please log in.', 'error', 'auth-scheduled-error');
+          setLoading((prev) => ({ ...prev, scheduled: false }));
+          return;
+        }
         const response = await axios.get(
           'https://fieldtriplinkbackend-production.up.railway.app/api/driver/trips?status=scheduled',
           { headers: { Authorization: `Bearer ${token}` } }
@@ -117,16 +165,23 @@ const Driverdashboard = () => {
 
         setScheduledRides(mappedScheduledRides);
         setStats((prev) => ({ ...prev, scheduledTrips: mappedScheduledRides.length }));
-        setLoading((prev) => ({ ...prev, scheduled: false }));
       } catch (error) {
         console.error('Error fetching scheduled rides:', error);
+        showToast('Failed to fetch scheduled rides', 'error', 'scheduled-fetch-error');
+      } finally {
         setLoading((prev) => ({ ...prev, scheduled: false }));
       }
     };
 
+    // Fetch invitations
     const fetchInvitations = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          showToast('Authentication required. Please log in.', 'error', 'auth-invitations-error');
+          setLoading((prev) => ({ ...prev, invitations: false }));
+          return;
+        }
         const response = await axios.get(
           'https://fieldtriplinkbackend-production.up.railway.app/api/driver/invitations?status=pending&page=1',
           { headers: { Authorization: `Bearer ${token}` } }
@@ -148,56 +203,72 @@ const Driverdashboard = () => {
 
         setInvitations(mappedInvitations);
         setStats((prev) => ({ ...prev, totalProposals: mappedInvitations.length }));
-        setLoading((prev) => ({ ...prev, invitations: false }));
       } catch (error) {
         console.error('Error fetching invitations:', error);
+        showToast('Failed to fetch invitations', 'error', 'invitations-fetch-error');
         setInvitations([]);
+      } finally {
         setLoading((prev) => ({ ...prev, invitations: false }));
       }
     };
 
+    // Fetch recent activities (limited to 5 notifications)
     const fetchActivities = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          showToast('Authentication required. Please log in.', 'error', 'auth-activities-error');
+          setLoading((prev) => ({ ...prev, activities: false }));
+          return;
+        }
         const response = await axios.get(
           'https://fieldtriplinkbackend-production.up.railway.app/api/common/notifications',
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        const mappedActivities = response.data.map((notification) => {
-          const notificationDate = new Date(notification.createdAt);
-          const timeDiff = Math.floor((Date.now() - notificationDate) / (1000 * 60 * 60 * 24));
-          const timeStr =
-            timeDiff === 0 ? 'Today' : timeDiff === 1 ? 'Yesterday' : `${timeDiff} days ago`;
+        const mappedActivities = response.data.data
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort by createdAt descending
+          .map((notification) => {
+            const notificationDate = new Date(notification.createdAt);
+            const timeDiff = Math.floor((Date.now() - notificationDate) / (1000 * 60));
+            const timeStr =
+              timeDiff < 60
+                ? `${timeDiff}m ago`
+                : timeDiff < 1440
+                ? `${Math.floor(timeDiff / 60)}h ago`
+                : `${Math.floor(timeDiff / 1440)}d ago`;
 
-          let icon = CircleCheckIcon;
-          let iconColor = '#10B981';
-          let bgColor = '#ECFDF5';
+            let icon = CircleCheckIcon;
+            let iconColor = '#10B981';
+            let bgColor = '#ECFDF5';
 
-          if (notification.type === 'info') {
-            icon = MessageSquare;
-            iconColor = '#FBBF24';
-            bgColor = '#FFFBEB';
-          } else if (notification.type === 'review') {
-            icon = Star;
-            iconColor = '#EF4444';
-            bgColor = '#FEF2F2';
-          }
+            if (notification.type === 'info') {
+              icon = MessageSquare;
+              iconColor = '#FBBF24';
+              bgColor = '#FFFBEB';
+            } else if (notification.type === 'review') {
+              icon = Star;
+              iconColor = '#EF4444';
+              bgColor = '#FEF2F2';
+            }
 
-          return {
-            id: notification._id,
-            message: notification.message || 'No message provided.',
-            time: timeStr,
-            icon,
-            iconColor,
-            bgColor,
-          };
-        });
+            return {
+              id: notification._id,
+              message: notification.body || notification.message || 'No message provided.',
+              time: timeStr,
+              icon,
+              iconColor,
+              bgColor,
+            };
+          })
+          .slice(0, 5); // Limit to the last 5 notifications
 
         setActivities(mappedActivities);
-        setLoading((prev) => ({ ...prev, activities: false }));
       } catch (error) {
         console.error('Error fetching activities:', error);
+        showToast('Failed to fetch recent activities', 'error', 'activities-fetch-error');
+        setActivities([]);
+      } finally {
         setLoading((prev) => ({ ...prev, activities: false }));
       }
     };
@@ -281,6 +352,14 @@ const Driverdashboard = () => {
 
   return (
     <div className="flex h-screen overflow-hidden relative">
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnHover={false}
+        limit={1}
+      />
       {/* Sidebar for large screen */}
       <div className="hidden lg:block lg:w-[17%]">
         <Sidebar isOpen={true} toggleSidebar={toggleSidebar} />
@@ -526,10 +605,10 @@ const Driverdashboard = () => {
                   activities.map((activity) => (
                     <div key={activity.id} className="flex items-start">
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 mt-1`}
+                        className="w-8 h-8 rounded-full flex items-center justify-center mr-4 mt-1"
                         style={{ backgroundColor: activity.bgColor }}
                       >
-                        <activity.icon className={`h-4 w-4`} style={{ color: activity.iconColor }} />
+                        <activity.icon className="h-4 w-4" style={{ color: activity.iconColor }} />
                       </div>
                       <div className="flex-1">
                         <p className="text-gray-800 font-medium">{activity.message}</p>

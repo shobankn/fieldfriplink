@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Download, MapPin, Calendar, Mail, Phone, Eye, Clock, CheckCircle, AlertTriangle, XCircle, CircleCheck, User } from 'lucide-react';
+import { Search, Filter, Download, MapPin, Calendar, Mail, Phone, Eye, Clock, CheckCircle, AlertTriangle, XCircle, CircleCheck, User, Clock1, Clock10Icon } from 'lucide-react';
 import profile from '../../images/profile/profile4.jpeg';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
@@ -45,6 +45,9 @@ const DriverVerificationInterface = () => {
           }
         });
 
+
+        console.log("Fetched drivers:", response.data.drivers);
+
         // Transform backend data to match frontend structure
         const transformedData = response.data.drivers.map(driver => ({
           id: driver._id,
@@ -52,6 +55,7 @@ const DriverVerificationInterface = () => {
           profileImage: driver.profileImage || null, // Fallback to default profile image
           email: driver.email,
           phone: driver.phone,
+          hourlyRate: driver.hourlyRate || null,
           // cnic: driver.cnicNumber || 'N/A', 
           experience: driver.experience || 'N/A', // Fallback if experience not provided
           address: driver.address,
@@ -412,6 +416,14 @@ const DriverVerificationInterface = () => {
                           <MapPin className="w-4 h-4 flex-shrink-0" />
                           <span className='inter-regular'>{driver.address}</span>
                         </div>
+                         {driver?.hourlyRate && (
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <Clock10Icon className="w-4 h-4 flex-shrink-0" />
+                            <span className="inter-regular">
+                              ${driver.hourlyRate}/hr
+                            </span>
+                          </div>
+                        )}
                         <div className="flex items-center gap-2 text-gray-500">
                           <Calendar className="w-4 h-4 flex-shrink-0" />
                           <span className='inter-regular'>{driver.submittedDate}</span>

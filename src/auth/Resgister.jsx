@@ -23,7 +23,8 @@ const Register = () => {
     driversLicense: null,
     vehicleRegistrationDocument: null,
     lat: 31.5204,
-    lng: 74.3587
+    lng: 74.3587,
+   hourlyRate: '', 
   };
 
   const [activeTab, setActiveTab] = useState('School');
@@ -205,6 +206,7 @@ const Register = () => {
       formDataToSend.append('phone', formData.phone);
       formDataToSend.append('password', formData.password);
       formDataToSend.append('city', formData.city);
+      formDataToSend.append('hourlyRate', formData.hourlyRate);
       if (formData.schoolId) formDataToSend.append('schoolId', formData.schoolId);
       if (formData.driversLicense) formDataToSend.append('drivingLicenseImage', formData.driversLicense);
       if (formData.cnicFront) formDataToSend.append('cnicFrontImage', formData.cnicFront);
@@ -254,6 +256,7 @@ const Register = () => {
         }
       }
 
+
       if (!validateEmail(formData.email)) {
         setError('Please enter a valid email address (e.g., example@domain.com)');
         toast.error('Please enter a valid email address (e.g., example@domain.com)', { toastId: 'email-error' });
@@ -274,6 +277,9 @@ const Register = () => {
         setLoading(false);
         return;
       }
+
+     
+
 
       const dataToSend = {
         name: formData.UserName,
@@ -514,6 +520,8 @@ const Register = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] outline-none text-sm lg:text-base bg-transparent placeholder-gray-400 text-black"
                     />
                   </div>
+
+                  
                 </div>
                 <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                   <div className="flex-1">
@@ -577,6 +585,26 @@ const Register = () => {
                     ref={driversLicenseRef}
                   />
                 </div>
+
+                <div>
+  <label className="block text-sm lg:text-[14px] inter-semibold mb-1">
+    Hourly Rate (USD)
+  </label>
+  <input
+    type="number"
+    name="hourlyRate"
+    value={formData.hourlyRate}
+    onChange={handleInputChange}
+    placeholder="Enter your hourly rate"
+    min="0"
+    step="1"
+    className="w-full px-3 py-2 border border-gray-300 rounded-md 
+               focus:ring-2 focus:ring-[#de3b40] focus:border-[#de3b40] 
+               outline-none text-sm lg:text-base bg-transparent 
+               placeholder-gray-400 text-black"
+  />
+</div>
+
               </>
             )}
 
